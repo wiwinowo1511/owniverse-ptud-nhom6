@@ -1,6 +1,6 @@
 # Requirements
 
-Dự án: OWNIVERSE - Website thương mại điện tử merchandise của nghệ sĩ và nhà sáng tạo nội dung Việt Nam  
+Dự án:  Owniverse - Website TMĐT bán merchandise chính hãng của người nổi tiếng Việt Nam 
 Mô hình: Một cửa hàng do đơn vị vận hành quản lý tập trung, có cổng cộng tác viên nghệ sĩ được phân quyền; không phải sàn nhiều người bán.  
 
 ## 1. Mục tiêu dự án
