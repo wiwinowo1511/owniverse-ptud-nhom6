@@ -4,7 +4,7 @@
 Dự án gồm 7 thành viên chịu trách nhiệm các vai trò chính:
 - **Ánh Hằng** – Trưởng nhóm / BA (Quản lý tiến độ, yêu cầu, GitHub Issues và điều phối nhóm).
 - **Minh Nguyệt** – Thiết kế Giao diện & Trải nghiệm (UI/UX Designer).
-- **Phương Vy** – Frontend Developer (FE Lead - Logic & API).
+- **Vy Huỳnh** – Frontend Developer (FE Lead - Logic & API).
 - **Mỹ Dung** – Frontend Developer (FE UI/CSS & Responsive).
 - **Muội Nhiên** – Backend Developer (BE - API & Database).
 - **Bảo Ngọc** – Backend Developer (BE - Auth & Order Logic).
@@ -13,15 +13,15 @@ Dự án gồm 7 thành viên chịu trách nhiệm các vai trò chính:
 ## 2. Ma trận phân công trách nhiệm (RASCI)
 *(R: Thực hiện, A: Chịu trách nhiệm chính, S: Hỗ trợ, C: Tham vấn, I: Nhận thông tin)*
 
-| Đầu việc | Ánh Hằng | Minh Nguyệt | Vy Huỳnh | Mỹ Dung | Muội Nhiên | Bảo Ngọc | Phạm Huy |
+| Đầu việc | Ánh Hằng (Trưởng nhóm) | Minh Nguyệt UI/UX Designer | Vy Huỳnh FE Lead (Logic) | Mỹ Dung FE Dev (UI/CSS) | Muội Nhiên BE Dev (Data/API) | Bảo Ngọc BE Dev (Auth/Order) | Phạm Huy QA / Tech Writer |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| 1. Lên ý tưởng, quản lý tiến độ, phân công | **R/A** | C | C | C | C | C | C |
-| 2. Thiết kế CSDL và API quản lý sản phẩm | C | I | I | I | **R/A** | S | I |
-| 3. API Đăng ký/Đăng nhập, phân quyền, xử lý đơn | C | I | I | I | S | **R/A** | I |
-| 4. Dựng khung HTML/JS, logic giỏ hàng, bộ lọc | S/C | C | **R/A** | S | I | I | I |
-| 5. Code CSS giao diện, tối ưu Responsive | S/C | C | S | **R/A** | I | I | I |
-| 6. Dùng Figma kiểm tra, vẽ lại giao diện, góp ý UI/UX | C | **R/A** | C | C | I | I | S |
-| 7. Chạy thử nghiệm, lập test case, tổng hợp tài liệu | C | S | S | S | C | C | **R/A** |
+| 1. Lên ý tưởng chính, quản lý tiến độ làm việc, phân công việc, xác định yêu cầu nghiệp vụ và điều phối nhóm | **R/A** | C | C | C | C | C | C |
+| 2. Thiết kế Cơ sở dữ liệu và viết API quản lý sản phẩm, danh mục | C | I | I | I | **R/A** | S | I |
+| 3. Xây dựng API Đăng ký/Đăng nhập, phân quyền và xử lý luồng đặt hàng backend. | C | I | I | I | S | **R/A** | I |
+| 4. Dựng khung HTML/JS, xử lý logic giỏ hàng, bộ lọc sản phẩm và tinh chỉnh lại code theo góp ý UI. | S/C | C | **R/A** | S | I | I | I |
+| 5. Code CSS giao diện nhanh, tối ưu Responsive (Mobile/Tablet) và điều chỉnh styling sau khi chạy demo. | S/C | C | S | **R/A** | I | I | I |
+| 6. Dùng Figma để kiểm tra/vẽ lại giao diện dựa trên bản code chạy thử, đề xuất chỉnh sửa UI/UX. | C | **R/A** | C | C | I | I | S |
+| 7. Chạy thử nghiệm hệ thống, lập test case và tổng hợp các file tài liệu GitHub. | C | S | S | S | C | C | **R/A** |
 
 ## 3. Các giai đoạn thực hiện 
 - **Giai đoạn 1 (Tuần 1-2):** Khảo sát, xác định yêu cầu, phân tích đối thủ và chạy Prompt AI.
