@@ -1,13 +1,17 @@
 /* ==========================================================================
-   1. BIẾN CSS DÙNG CHUNG
+   1. BIẾN CSS DÙNG CHUNG (theo 4.1.5)
    ========================================================================== */
 :root {
-  /* --- Theo quy chuẩn 4.1.5 (giữ nguyên) --- */
   --bg-black: #0B0B0F;
   --brand-purple: #A78BFA;
   --brand-purple-soft: #E9DBFF;
   --border-gray: #E5E7EB;
   --pure-white: #FFFFFF;
+
+  /* Bổ sung từ chuan-giao-dien.md */
+  --bg-soft: #F3F4F6;
+  --img-frame: #E5E7EB;
+  --text-muted: #626273;
 
   --font-heading: 'Montserrat', sans-serif;
   --font-body: 'Inter', sans-serif;
@@ -17,66 +21,26 @@
   --radius-pill: 9999px;
 
   --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-
-  /* --- Bổ sung theo chuan-giao-dien.md --- */
-  --bg-soft: #F3F4F6;          /* Nền phụ: hero, khối CTA, mục xám */
-  --bg-image: #E5E7EB;         /* Khung ảnh placeholder */
-  --text-muted: #626273;       /* Chữ phụ: mô tả, tên nghệ sĩ */
-
-  /* Khoảng cách: bội số của 8px */
-  --space-1: 8px;
-  --space-2: 16px;
-  --space-3: 24px;
-  --space-4: 32px;
-  --space-5: 48px;
-  --space-6: 64px;
-
-  /* Cỡ chữ (desktop) */
-  --fs-h1: clamp(2.25rem, 4vw, 2.75rem);   /* 36–44px */
-  --fs-h2: clamp(1.5rem, 3vw, 1.75rem);    /* 24–28px */
-  --fs-h3: 1.125rem;                        /* 18px */
-  --fs-body: 1rem;                          /* 16px */
-  --fs-small: 0.875rem;                     /* 14px */
-  --fs-button: 0.8125rem;                   /* 13px */
 }
 
 /* ==========================================================================
    2. RESET & CÀI ĐẶT CƠ BẢN
    ========================================================================== */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
   font-family: var(--font-body);
-  font-size: var(--fs-body);
   color: var(--bg-black);
   background-color: var(--pure-white);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
-a {
-  text-decoration: none;
-  color: inherit;
-  transition: var(--transition);
-}
-
+a { text-decoration: none; color: inherit; transition: var(--transition); }
 ul { list-style: none; }
+img { display: block; max-width: 100%; height: auto; }
 
-img {
-  display: block;
-  max-width: 100%;
-  height: auto;
-}
-
-.container {
-  max-width: 1140px;
-  margin: 0 auto;
-  padding: 0 24px;
-}
+.container { max-width: 1140px; margin: 0 auto; padding: 0 24px; }
 
 a:focus-visible,
 button:focus-visible,
@@ -86,18 +50,16 @@ input:focus-visible {
 }
 
 /* ==========================================================================
-   3. THÀNH PHẦN DÙNG CHUNG
+   3. NÚT DÙNG CHUNG
    ========================================================================== */
-
-/* --- Nút: btn, btn--primary, btn--secondary, btn--block --- */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: 44px;
-  padding: 0 var(--space-3);
+  padding: 0 24px;
   font-family: var(--font-body);
-  font-size: var(--fs-button);
+  font-size: 0.8125rem;
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -106,77 +68,60 @@ input:focus-visible {
   transition: var(--transition);
 }
 
-.btn--primary {
-  background-color: var(--bg-black);
-  color: var(--pure-white);
-}
+.btn--primary { background: var(--bg-black); color: var(--pure-white); }
 .btn--primary:hover {
-  background-color: var(--brand-purple);
+  background: var(--brand-purple);
   border-color: var(--brand-purple);
   color: var(--bg-black);
 }
 
-.btn--secondary {
-  background-color: var(--pure-white);
-  color: var(--bg-black);
-}
-.btn--secondary:hover {
-  background-color: var(--brand-purple-soft);
-}
+.btn--secondary { background: var(--pure-white); color: var(--bg-black); }
+.btn--secondary:hover { background: var(--brand-purple-soft); }
 
-.btn--block { width: 100%; }
+/* ==========================================================================
+   4. TIÊU ĐỀ MỤC DÙNG CHUNG
+   (Wireframe căn giữa. Muốn căn trái toàn site: đổi text-align thành left)
+   ========================================================================== */
+.section-title { text-align: center; margin-bottom: 32px; }
 
-/* --- Mục (section): tiêu đề + câu dẫn --- */
-.section { padding: var(--space-6) 0; }
-.section--soft { background-color: var(--bg-soft); }
-
-.section_header {
-  margin-bottom: var(--space-4);
-  text-align: center;   /* muốn căn trái toàn site: đổi thành left */
-}
-.section_title {
+.section-title_heading {
   font-family: var(--font-heading);
-  font-size: var(--fs-h2);
+  font-size: clamp(1.5rem, 3vw, 1.75rem);
   font-weight: 700;
   text-transform: uppercase;
 }
-.section_desc {
-  margin-top: var(--space-1);
-  font-size: var(--fs-small);
+
+.section-title_desc {
+  margin-top: 8px;
+  font-size: 0.875rem;
   color: var(--text-muted);
 }
 
-/* --- Lưới card --- */
-.card-grid {
-  display: grid;
-  gap: var(--space-3);
-}
-.card-grid--3 { grid-template-columns: repeat(3, 1fr); }
-.card-grid--4 { grid-template-columns: repeat(4, 1fr); }
-
-/* --- Card nghệ sĩ và card sản phẩm --- */
+/* ==========================================================================
+   5. CARD NGHỆ SĨ & CARD SẢN PHẨM DÙNG CHUNG
+   ========================================================================== */
 .artist-card,
 .product-card {
   display: flex;
   flex-direction: column;
-  padding: var(--space-2);
-  background-color: var(--pure-white);
+  gap: 12px;
+  padding: 12px;
+  background: var(--pure-white);
   border: 1px solid var(--border-gray);
   border-radius: var(--radius-card);
   transition: var(--transition);
 }
+
 .artist-card:hover,
-.product-card:hover,
 .artist-card:focus-within,
-.product-card:focus-within {
-  border-color: var(--bg-black);
-}
+.product-card:hover,
+.product-card:focus-within { border-color: var(--brand-purple); }
 
 .artist-card_image,
 .product-card_image {
   width: 100%;
   object-fit: cover;
-  background-color: var(--bg-image);
+  background: var(--img-frame);
   border-radius: var(--radius-image);
 }
 .artist-card_image { aspect-ratio: 3 / 2; }
@@ -187,52 +132,34 @@ input:focus-visible {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
-  padding-top: var(--space-2);
+  gap: 8px;
+  padding: 4px;
 }
 
 .artist-card_name,
 .product-card_title {
   font-family: var(--font-heading);
-  font-size: var(--fs-h3);
+  font-size: 1.125rem;
   font-weight: 700;
+  line-height: 1.3;
 }
 
 .artist-card_genre,
-.product-card_artist {
-  font-size: var(--fs-small);
-  color: var(--text-muted);
-}
+.product-card_artist { font-size: 0.875rem; color: var(--text-muted); }
 
 .artist-card_link {
-  margin-top: auto;
-  padding-top: var(--space-1);
   align-self: flex-start;
-  font-size: var(--fs-small);
+  margin-top: auto;
+  padding-top: 8px;
+  font-size: 0.875rem;
   font-weight: 600;
 }
 .artist-card_link:hover {
-  color: var(--brand-purple);
   text-decoration: underline;
+  text-decoration-color: var(--brand-purple);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
 }
 
-.product-card_price {
-  font-size: var(--fs-h3);
-  font-weight: 600;
-}
-.product-card_button { margin-top: auto; }   /* nút luôn nằm cùng hàng */
-
-/* --- Responsive chung --- */
-@media (max-width: 900px) {
-  .card-grid--3,
-  .card-grid--4 { grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 600px) {
-  .section { padding: var(--space-5) 0; }
-  .card-grid--3 { grid-template-columns: 1fr; }
-  .card-grid--4 { gap: var(--space-2); }
-  .artist-card,
-  .product-card { padding: var(--space-1); }
-  .artist-card_name,
-  .product-card_title { font-size: 1rem; }
-}
+.product-card_price { font-size: 1.125rem; font-weight: 600; }
+.product-card_button { margin-top: auto; }  /* nút luôn nằm cùng hàng */
