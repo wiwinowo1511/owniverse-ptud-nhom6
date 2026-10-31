@@ -106,3 +106,78 @@
 | Giới thiệu | “Xem chi tiết” ở release và sản phẩm | Chi tiết sản phẩm |
 | Nghệ sĩ | “Xem ngay” ở khối CTA | Danh sách |
 | Nghệ sĩ | Thanh điều hướng “Nghệ sĩ”, “Trang chủ” | Trang nghệ sĩ, Trang chủ |
+**4.1.5. Quy chuẩn mã nguồn giao diện dùng chung** 
+Để bảo đảm tính nhất quán trong quá trình xây dựng giao diện website OWNIVERSE, nhóm thống nhất sử dụng HTML để xây dựng cấu trúc nội dung và CSS để định dạng giao diện. Các quy chuẩn về màu sắc, kiểu chữ, khoảng cách, đường viền và hiệu ứng tương tác được khai báo tập trung thông qua các biến CSS dùng chung. Cụ thể, nhóm sử dụng hai font chữ chính là Montserrat cho tiêu đề và Inter cho nội dung.
+<link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/pages/artist.css">
+Bảng màu thương hiệu được xác định thông qua các mã HEX, trong đó màu đen được sử dụng cho chữ và các thành phần chính, màu tím lavender (#A78BFA) làm màu nhấn thương hiệu, màu trắng làm nền chính và các sắc độ xám được sử dụng cho đường viền, nền phụ.
+** 1. BẢNG MÀU CHỦ ĐẠO & KIỂU CHỮ (CHUẨN BRAND IDENTITY OWNIVERSE)**
+       ========================================================================== */
+    :root {
+      --bg-black: #0B0B0F;          /* Đen chủ đạo (nền, chữ chính) */
+      --brand-purple: #A78BFA;      /* Tím thương hiệu (điểm nhấn, nút bấm) */
+      --brand-purple-soft: #E9DBFF; /* Tím nhạt (background phụ) */
+      --border-gray: #E5E7EB;       /* Xám sáng (bố cục, viền) */
+      --pure-white: #FFFFFF;        /* Trắng (nền, chữ phụ) */
+
+
+      --font-heading: 'Montserrat', sans-serif; /* Tiêu đề, nhấn mạnh */
+      --font-body: 'Inter', sans-serif;         /* Nội dung, văn bản */
+
+
+      --radius-card: 20px;
+      --radius-image: 14px;
+      --radius-pill: 9999px;        /* Bo tròn chuẩn Nút chính & Nút phụ */
+      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+
+    /* ==========================================================================
+       2. RESET & CÀI ĐẶT CƠ BẢN
+       ========================================================================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+
+    body {
+      font-family: var(--font-body);
+      color: var(--bg-black);
+      background-color: var(--pure-white);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+
+    a {
+      text-decoration: none;
+      color: inherit;
+      transition: var(--transition);
+    }
+
+
+    ul {
+      list-style: none;
+    }
+
+
+    .container {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+
+    /* Hiệu ứng Focus rõ ràng bằng màu Tím thương hiệu (#A78BFA) */
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible {
+      outline: 2.5px solid var(--brand-purple);
+      outline-offset: 3px;
+    }
+Các biến CSS chung được đặt trong tệp `css/style.css` để các thành viên có thể tái sử dụng khi phát triển năm trang giao diện. Những thành phần có tính đặc thù của từng trang được định nghĩa trong các tệp CSS riêng nhằm hạn chế xung đột giữa các thành phần.
+
