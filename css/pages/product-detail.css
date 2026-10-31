@@ -64,6 +64,13 @@
       outline-offset: 3px;
     }
 
+/* =========================================================
+   PRODUCT DETAIL - AFTERDARK Vol.01
+   Dùng lại biến của trang chủ: --bg-black, --pure-white,
+   --brand-purple, --brand-purple-soft, --border-gray,
+   --font-heading, --font-body, --radius-pill, --transition
+   ========================================================= */
+
 .product-page {
   /* Biến cục bộ: chỉ có hiệu lực bên trong trang sản phẩm */
   --pd-border: var(--border-gray, #e5e5ea);
@@ -78,13 +85,14 @@
   color: var(--bg-black);
 }
 
-.product-page img {
+/* Dùng :where() để các rule reset này có độ ưu tiên = 0,
+   không đè lên .gallery-slide { display: none }, .trust-strip { padding... } */
+:where(.product-page img) {
   display: block;
   max-width: 100%;
 }
 
-.product-page ul,
-.product-page ol {
+:where(.product-page ul, .product-page ol) {
   list-style: none;
   padding: 0;
   margin: 0;
@@ -145,11 +153,6 @@
     grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
     gap: 48px;
     align-items: start;                /* để cột ảnh không bị kéo dãn */
-  }
-
-  .gallery {
-    position: sticky;                  /* ảnh đứng yên khi cuộn phần thông tin */
-    top: 104px;                        /* 80px header + 24px khoảng thở */
   }
 }
 
@@ -512,6 +515,7 @@
 }
 
 .related-card .btn {
+  flex: none;                          /* bỏ flex-basis của .btn-secondary (trong thẻ xếp cột sẽ thành chiều cao) */
   width: 100%;
   min-height: 44px;
   margin-top: auto;                    /* đẩy nút xuống đáy để các thẻ thẳng hàng */
@@ -581,4 +585,3 @@
     transform: none;
   }
 }
-
