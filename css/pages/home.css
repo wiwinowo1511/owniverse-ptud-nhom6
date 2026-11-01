@@ -1,3 +1,93 @@
+/* ---------- Banner slideshow (trên header) ---------- */
+.index-carousel {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-black);
+}
+
+.index-carousel_track {
+  position: relative;
+  aspect-ratio: 4 / 1;
+  min-height: 120px;
+}
+
+.index-carousel_slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  animation: index-carousel-fade 15s infinite;
+}
+
+.index-carousel_slide--1 { animation-delay: 0s; }
+.index-carousel_slide--2 { animation-delay: 5s; }
+.index-carousel_slide--3 { animation-delay: 10s; }
+
+.index-carousel_link { display: block; width: 100%; height: 100%; }
+
+.index-carousel_image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--img-frame);
+}
+
+/* Chấm chỉ báo (trang trí) */
+.index-carousel_dots {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 12px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.index-carousel_dot {
+  width: 24px;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--pure-white);
+  opacity: 0.4;
+  animation: index-carousel-dot 15s infinite;
+}
+
+.index-carousel_dot--1 { animation-delay: 0s; }
+.index-carousel_dot--2 { animation-delay: 5s; }
+.index-carousel_dot--3 { animation-delay: 10s; }
+
+/* Tạm dừng khi rê chuột hoặc focus bàn phím */
+.index-carousel:hover .index-carousel_slide,
+.index-carousel:hover .index-carousel_dot,
+.index-carousel:focus-within .index-carousel_slide,
+.index-carousel:focus-within .index-carousel_dot {
+  animation-play-state: paused;
+}
+
+@keyframes index-carousel-fade {
+  0%      { opacity: 1; }
+  28%     { opacity: 1; }
+  33.33%  { opacity: 0; }
+  94%     { opacity: 0; }
+  100%    { opacity: 1; }
+}
+
+@keyframes index-carousel-dot {
+  0%      { opacity: 1; background: var(--brand-purple); }
+  28%     { opacity: 1; background: var(--brand-purple); }
+  33.33%  { opacity: 0.4; background: var(--pure-white); }
+  94%     { opacity: 0.4; background: var(--pure-white); }
+  100%    { opacity: 1; background: var(--brand-purple); }
+}
+
+/* Người dùng tắt chuyển động: chỉ hiện banner đầu */
+@media (prefers-reduced-motion: reduce) {
+  .index-carousel_slide,
+  .index-carousel_dot { animation: none; }
+  .index-carousel_slide--1 { opacity: 1; }
+  .index-carousel_dot--1 { opacity: 1; background: var(--brand-purple); }
+}
+
 /* ---------- Khối chung của trang chủ ---------- */
 .index-section { padding: 56px 0; }
 .index-section--soft { background: var(--bg-soft); }
