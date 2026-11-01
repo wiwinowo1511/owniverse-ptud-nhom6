@@ -127,21 +127,23 @@
       font-weight: 600;
     }
 
-    .main-nav a.active {
-      font-family: var(--font-heading);
-      font-weight: 700;
-    }
+   .main-nav a.active {
+  position: relative;
+  opacity: 1;
+  font-weight: 700;
+}
 
-    .main-nav a.active::after {
-      content: "";
-      position: absolute;
-      bottom: -2px;
-      left: 0;
-      width: 100%;
-      height: 2.5px;
-      background-color: var(--brand-purple);
-      border-radius: var(--radius-pill);
-    }
+.main-nav a.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -8px;
+  width: 100%;
+  height: 3px;
+  background-color: #A78BFA;
+  border-radius: 999px;
+  display: block;
+}
 
     /* Cụm tiện ích bên phải (Tìm kiếm, Giỏ hàng, Tài khoản) */
     .header-actions {
