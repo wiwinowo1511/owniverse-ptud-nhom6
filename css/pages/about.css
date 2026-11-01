@@ -138,11 +138,12 @@ img {
    HEADER (dùng chung)
    ========================================================================== */
 .site-header {
-      background-color: var(--pure-white);
-      border-bottom: 1px solid var(--border-gray);
-      position: sticky;
-      top: 0;
-      z-index: 100;
+        background-color: #FFFFFF;
+  border-bottom: 1px solid #D1D5DB;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
     }
 
     .header-inner {
