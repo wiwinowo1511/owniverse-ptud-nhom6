@@ -1,36 +1,42 @@
 /* ==========================================================================
-   about.css - Trang Về Owniverse
-   Quy ước BEM: block_element--modifier
+   ABOUT.CSS - TRANG VỀ OWNIVERSE 
+   Chỉ quản lý nội dung riêng của trang About.
+   Header và Footer sử dụng CSS dùng chung.
    ========================================================================== */
 
-/* ---------- Google Fonts ---------- */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@500;600;700&display=swap");
+/* Khuyến nghị: chuyển @import này thành <link> trong <head> để tải nhanh hơn */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700;800&display=swap");
 
 /* ---------- Biến thiết kế ---------- */
 :root {
-  --color-bg: #FFFFFF;
-  --color-bg-soft: #F3F4F6;
-  --color-placeholder: #E5E7EB;
-  --color-border: #D1D5DB;
-  --color-text: #0B0B0F;
-  --color-text-muted: #626273;
-  --color-primary: #252A33;
-  --color-accent: #A78BFA;
-  --color-accent-soft: #E9DBFF;
-  --bg-black: #0B0B0F;
---pure-white: #FFFFFF;
+  --about-bg: #FFFFFF;
+  --about-bg-soft: #F3F4F6;
+  --about-placeholder: #E5E7EB;
+  --about-border: #D1D5DB;
+  --about-text: #0B0B0F;
+  --about-muted: #626273;
+  --about-primary: #252A33;
+  --about-accent: #A78BFA;
+  --about-accent-soft: #E9DBFF;
 
-  --font-heading: "Montserrat", sans-serif;
-  --font-body: "Inter", sans-serif;
+  --about-heading: "Montserrat", sans-serif;
+  --about-body: "Inter", sans-serif;
 
-  --space-1: 8px;
-  --space-2: 16px;
-  --space-3: 24px;
-  --space-4: 32px;
-  --space-6: 48px;
-  --space-8: 64px;
-}
+  --about-space-1: 8px;
+  --about-space-2: 16px;
+  --about-space-3: 24px;
+  --about-space-4: 32px;
+  --about-space-5: 40px;
+  --about-space-6: 48px;
+  --about-space-8: 64px;
 
+<<<<<<< HEAD
+  /* Biến co giãn theo màn hình (thay cho nhiều media query rời rạc) */
+  --about-gutter: clamp(16px, 4vw, 32px);          /* lề trái/phải */
+  --about-section-y: clamp(40px, 7vw, 64px);       /* padding trên/dưới mỗi section */
+  --about-grid-gap: clamp(16px, 2.4vw, 24px);      /* khoảng cách giữa các card */
+  --about-split-gap: clamp(24px, 4vw, 48px);       /* khoảng cách giữa 2 cột hero/story */
+=======
 /* ---------- Reset & nền tảng tối thiểu (có thể chuyển sang base.css) ---------- */
 *,
 *::before,
@@ -73,286 +79,210 @@ img {
   max-width: 1140px;
   margin: 0 auto;
   padding: 0 var(--space-3);
+>>>>>>> 7ddeab99dec50fa6bbda30d03b21ed4e241dee37
 }
 
 /* ==========================================================================
-   NÚT BẤM (Buttons)
+   THIẾT LẬP CHUNG
    ========================================================================== */
-.btn {
-  display: inline-block;
+
+.about {
+  width: 100%;
+  /* clip thay cho hidden: vẫn chặn tràn ngang nhưng không tạo scroll container,
+     không làm hỏng position: sticky của header */
+  overflow-x: clip;
+  background-color: var(--about-bg);
+  color: var(--about-text);
+  font-family: var(--about-body);
+  line-height: 1.6;
+  -webkit-text-size-adjust: 100%;
+          text-size-adjust: 100%;
+}
+
+.about *,
+.about *::before,
+.about *::after {
+  box-sizing: border-box;
+}
+
+.about img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.about figure { margin: 0; }
+.about a { text-decoration: none; }
+
+/* Tránh chữ dài làm vỡ layout */
+.about h1,
+.about h2,
+.about h3,
+.about p {
+  overflow-wrap: break-word;
+}
+
+.about .container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: var(--about-gutter);
+  padding-right: var(--about-gutter);
+}
+
+/* Focus rõ ràng cho bàn phím */
+.about a:focus-visible,
+.about .btn:focus-visible {
+  outline: 2px solid var(--about-accent);
+  outline-offset: 3px;
+}
+
+/* ==========================================================================
+   BUTTON
+   ========================================================================== */
+
+.about .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
   padding: 12px 24px;
-  font-family: var(--font-body);
+
+  font-family: var(--about-body);
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.04em;
   text-align: center;
-  border: 1px solid var(--color-primary);
+
+  border: 1px solid var(--about-primary);
   border-radius: 4px;
+
   cursor: pointer;
-  transition: background-color 0.2s ease, opacity 0.2s ease;
+  transition: background-color 0.25s ease,
+              color 0.25s ease,
+              transform 0.25s ease;
 }
 
-.btn--primary {
+.about .btn--primary {
   color: #FFFFFF;
-  background-color: var(--color-primary);
-}
-
-.btn--primary:hover {
-  background-color: #3A4150;
-  opacity: 0.92;
-}
-
-.btn--secondary {
-  color: var(--color-primary);
-  background-color: transparent;
-}
-
-.btn--secondary:hover {
-  background-color: var(--color-bg-soft);
+  background-color: var(--about-primary);
 }
 
 /* ==========================================================================
-   TIÊU ĐỀ MỤC (Section Title)
+   SECTION TITLE
    ========================================================================== */
-.section-title {
+
+.about .section-title {
   position: relative;
-  margin-bottom: var(--space-4);
-  padding-bottom: var(--space-2);
-  font-family: var(--font-heading);
-  font-size: 28px;
+  margin: 0 0 var(--about-space-4);
+  padding-bottom: var(--about-space-2);
+
+  font-family: var(--about-heading);
+  font-size: clamp(20px, 2.4vw + 10px, 28px);
   font-weight: 700;
   line-height: 1.3;
 }
 
+.about .section-title--center { text-align: center; }
 
-
-.section-title--center {
-  text-align: center;
-}
-
-.section-title--center::after {
+.about .section-title--center::after {
   left: 50%;
   transform: translateX(-50%);
 }
 
 /* ==========================================================================
-   HEADER (dùng chung)
+   SECTION 1: HERO
    ========================================================================== */
-.site-header {
-        background-color: #FFFFFF;
-  border-bottom: 1px solid #D1D5DB;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  width: 100%;
-    }
 
-    .header-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      min-height: 80px;
-      gap: 24px;
-    }
-
-    /* Cụm Logo ngang chuẩn Brand Identity */
-    .brand-logo {
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .logo-mark {
-      width: 42px;
-      height: 32px;
-      flex-shrink: 0;
-    }
-
-    .logo-text-group {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .logo-wordmark {
-      font-family: var(--font-heading);
-      font-size: 1.25rem;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-      color: var(--bg-black);
-      display: inline-flex;
-      align-items: center;
-      line-height: 1.1;
-    }
-
-    .logo-v-svg {
-      width: 16px;
-      height: 17px;
-      margin: 0 2px 1px 0;
-    }
-
-    .logo-subtext {
-      font-family: var(--font-heading);
-      font-size: 0.5rem;
-      font-weight: 600;
-      letter-spacing: 0.24em;
-      color: var(--bg-black);
-      margin-top: 3px;
-      opacity: 0.85;
-    }
-
-    /* Menu điều hướng chính */
-    .main-nav ul {
-      display: flex;
-      align-items: center;
-      gap: 30px;
-    }
-
-    .main-nav a {
-      font-family: var(--font-body);
-      font-size: 0.94rem;
-      font-weight: 500;
-      color: var(--bg-black);
-      opacity: 0.75;
-      padding: 6px 0;
-      position: relative;
-    }
-
-    .main-nav a:hover,
-    .main-nav a.active {
-      opacity: 1;
-      font-weight: 600;
-    }
-
-    .main-nav a.active {
-  position: relative;
-  opacity: 1;
-  font-weight: 700;
-}
-
-.main-nav a.active::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -8px;
-  width: 100%;
-  height: 3px;
-  background-color: #A78BFA;
-  border-radius: 999px;
-  display: block;
-}
-
-    /* Cụm tiện ích bên phải (Tìm kiếm, Giỏ hàng, Tài khoản) */
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .action-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.9rem;
-      font-weight: 500;
-      color: var(--bg-black);
-    }
-
-    .action-link svg {
-      width: 18px;
-      height: 18px;
-      stroke: currentColor;
-      transition: var(--transition);
-    }
-
-    .action-link:hover {
-      color: var(--brand-purple);
-    }
-
-    .account-circle {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      border: 1.5px solid var(--bg-black);
-      display: inline-flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.68rem;
-      font-weight: 600;
-      line-height: 1.05;
-      text-align: center;
-      color: var(--bg-black);
-    }
-
-    .account-circle:hover {
-      border-color: var(--brand-purple);
-      background-color: var(--brand-purple-soft);
-    }
-
-/* ==========================================================================
-   SECTION 1: HERO - VỀ OWNIVERSE
-   ========================================================================== */
 .about-hero {
-  padding: var(--space-4) 0 var(--space-8);
-  background-color: var(--color-bg-soft);
+  padding: var(--about-space-4) 0 var(--about-section-y);
+  background-color: var(--about-bg-soft);
 }
 
-/* Breadcrumb */
-.breadcrumb {
-  margin-bottom: var(--space-4);
+/* ---- Breadcrumb (SỬA LỖI HIỆN SỐ "1." "2." VÀ CHỒNG CHỮ) ---- */
+.about .breadcrumb {
+  margin-bottom: var(--about-space-4);
 }
 
-.breadcrumb_list {
+.about .breadcrumb_list,
+.about .breadcrumb_item {
+  list-style: none;     /* tắt số thứ tự của <ol> */
+  margin: 0;
+  padding: 0;           /* tắt padding-left mặc định của <ol> */
+}
+
+.about .breadcrumb_item::marker { content: ""; }
+
+.about .breadcrumb_list {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-1);
+  gap: 4px 8px;
+
   font-size: 13px;
-  color: var(--color-text-muted);
+  line-height: 1.5;
+  color: var(--about-muted);
 }
 
-.breadcrumb_item + .breadcrumb_item::before {
+.about .breadcrumb_item {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.about .breadcrumb_item + .breadcrumb_item::before {
   content: ">";
-  margin-right: var(--space-1);
+  margin-right: 8px;
+  color: var(--about-text);
 }
 
-.breadcrumb_link:hover {
-  color: var(--color-text);
+.about .breadcrumb_link {
+  color: var(--about-muted);
+  transition: color 0.2s ease;
 }
 
-.breadcrumb_item--current {
+.about .breadcrumb_item--current {
   font-weight: 600;
-  color: var(--color-text);
+  color: var(--about-text);
 }
 
-/* Hero grid */
+/* ---- Layout hero ---- */
 .about-hero_grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
   align-items: center;
-  gap: var(--space-6);
+  gap: var(--about-split-gap);
 }
 
+.about-hero_content { min-width: 0; }
+
 .about-hero_title {
-  margin-bottom: var(--space-3);
-  font-family: var(--font-heading);
-  font-size: 44px;
-  font-weight: 700;
+  margin: 0 0 var(--about-space-3);
+
+  font-family: var(--about-heading);
+  /* Co giãn mượt: 28px (mobile) -> 44px (desktop), không bị ghi đè bởi media query */
+  font-size: clamp(28px, 3.2vw + 12px, 44px);
+  font-weight: 800;
   line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
 .about-hero_text {
   max-width: 480px;
-  margin-bottom: var(--space-4);
-  font-size: 16px;
-  color: var(--color-text-muted);
+  margin: 0 0 var(--about-space-4);
+
+  font-size: clamp(14px, 0.4vw + 12.5px, 16px);
+  line-height: 1.7;
+  color: var(--about-muted);
 }
 
 .about-hero_media {
+  width: 100%;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  background-color: var(--color-placeholder);
-  border: 1px solid var(--color-border);
+
+  background-color: var(--about-placeholder);
+  border: 1px solid var(--about-border);
   border-radius: 4px;
 }
 
@@ -360,27 +290,32 @@ img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
 }
 
 /* ==========================================================================
-   SECTION 2: CÂU CHUYỆN CỦA CHÚNG TÔI
+   SECTION 2: CÂU CHUYỆN
    ========================================================================== */
+
 .about-story {
-  padding: var(--space-8) 0;
+  padding: var(--about-section-y) 0;
+  background-color: var(--about-bg);
 }
 
 .about-story_grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
   align-items: center;
-  gap: var(--space-6);
+  gap: var(--about-split-gap);
 }
 
 .about-story_media {
+  width: 100%;
   aspect-ratio: 3 / 2;
   overflow: hidden;
-  background-color: var(--color-placeholder);
-  border: 1px solid var(--color-border);
+
+  background-color: var(--about-placeholder);
+  border: 1px solid var(--about-border);
   border-radius: 4px;
 }
 
@@ -388,519 +323,410 @@ img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
 }
 
 .about-story_content {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--about-space-2);
+  min-width: 0;
 }
 
 .about-story_text {
-  font-size: 16px;
-  color: var(--color-text-muted);
+  font-size: clamp(14px, 0.4vw + 12.5px, 15px);
+  line-height: 1.8;
+  color: var(--about-muted);
 }
 
 /* ==========================================================================
-   SECTION 3: GIÁ TRỊ CỦA OWNIVERSE
+   SECTION 3: GIÁ TRỊ
    ========================================================================== */
+
 .about-values {
-  padding: var(--space-8) 0;
-  background-color: var(--color-bg-soft);
+  padding: var(--about-section-y) 0;
+  background-color: var(--about-bg-soft);
 }
 
 .about-values_grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-3);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--about-grid-gap);
 }
 
-/* Value Card */
 .value-card {
-  padding: var(--space-3);
-  background-color: var(--color-bg);
-  border: 1px solid var(--color-border);
+  min-width: 0;
+  padding: clamp(18px, 2.4vw, 24px);
+
+  background-color: var(--about-bg);
+  border: 1px solid var(--about-border);
   border-radius: 4px;
+
+  transition: transform 0.25s ease,
+              box-shadow 0.25s ease;
 }
 
 .value-card_number {
   display: block;
-  margin-bottom: var(--space-2);
-  font-family: var(--font-heading);
-  font-size: 32px;
+  margin-bottom: var(--about-space-2);
+
+  font-family: var(--about-heading);
+  font-size: clamp(28px, 1.5vw + 20px, 32px);
   font-weight: 700;
   line-height: 1;
-  color: var(--color-accent);
+  color: var(--about-accent);
 }
 
 .value-card_title {
-  margin-bottom: var(--space-1);
-  font-family: var(--font-heading);
-  font-size: 18px;
-  font-weight: 600;
+  margin: 0 0 var(--about-space-1);
+
+  font-family: var(--about-heading);
+  font-size: clamp(16px, 0.4vw + 14.5px, 17px);
+  font-weight: 700;
+  line-height: 1.4;
 }
 
 .value-card_text {
   font-size: 14px;
-  color: var(--color-text-muted);
+  line-height: 1.7;
+  color: var(--about-muted);
 }
 
 /* ==========================================================================
-   SECTION 4: NGHỆ SĨ ĐỒNG HÀNH
+   SECTION 4: NGHỆ SĨ
    ========================================================================== */
+
 .about-artists {
-  padding: var(--space-8) 0;
+  padding: var(--about-section-y) 0;
+  background-color: var(--about-bg);
 }
 
 .about-artists_subtext {
-  margin-top: calc(var(--space-1) * -2);
-  margin-bottom: var(--space-4);
-  font-size: 14px;
-  color: var(--color-text-muted);
+  margin-top: -12px;
+  margin-bottom: var(--about-space-4);
+
+  font-size: clamp(13px, 0.4vw + 11.5px, 15px);
+  line-height: 1.6;
+  color: var(--about-muted);
 }
 
 .about-artists_grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-3);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--about-grid-gap);
 }
 
-/* Artist Card */
 .artist-card {
-  padding-bottom: var(--space-3);
-  background-color: var(--color-bg);
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
+  min-width: 0;
+  padding-bottom: var(--about-space-3);
+
   overflow: hidden;
+  background-color: var(--about-bg);
+  border: 1px solid var(--about-border);
+  border-radius: 4px;
+
+  transition: transform 0.25s ease,
+              box-shadow 0.25s ease;
 }
 
 .artist-card_media {
+  width: 100%;
   aspect-ratio: 4 / 3;
   overflow: hidden;
-  background-color: var(--color-placeholder);
+  background-color: var(--about-placeholder);
 }
 
 .artist-card_image {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
+  transition: transform 0.4s ease;
 }
 
 .artist-card_name {
-  margin: var(--space-2) var(--space-3) var(--space-1);
-  font-family: var(--font-heading);
-  font-size: 18px;
-  font-weight: 600;
+  margin: var(--about-space-2) var(--about-space-3) var(--about-space-1);
+
+  font-family: var(--about-heading);
+  font-size: clamp(16px, 0.4vw + 14.5px, 18px);
+  font-weight: 700;
 }
 
 .artist-card_link {
   display: inline-block;
-  margin: 0 var(--space-3);
+  margin: 0 var(--about-space-3);
+  padding: 4px 0;               /* tăng vùng chạm trên mobile */
+
   font-size: 14px;
-  font-weight: 500;
-  color: var(--color-text-muted);
+  font-weight: 600;
+  color: var(--about-muted);
+
   border-bottom: 1px solid transparent;
   transition: color 0.2s ease, border-color 0.2s ease;
 }
 
-.artist-card_link:hover {
-  color: var(--color-text);
-  border-bottom-color: var(--color-accent);
-}
-
 /* ==========================================================================
-   SECTION 5: CTA - KẾT NỐI VỚI OWNIVERSE
+   SECTION 5: CTA
    ========================================================================== */
+
 .about-cta {
-  padding: 0 0 var(--space-8);
+  padding: 0 0 var(--about-section-y);
 }
 
 .about-cta_box {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-4);
-  padding: var(--space-6) var(--space-4);
-  background-color: var(--color-bg-soft);
-  border: 1px solid var(--color-border);
-  border-left: 4px solid var(--color-accent);
+  gap: var(--about-space-4);
+
+  padding: var(--about-space-6) var(--about-space-4);
+
+  background-color: var(--about-bg-soft);
+  border: 1px solid var(--about-border);
+  border-left: 4px solid var(--about-accent);
   border-radius: 4px;
 }
 
+.about-cta_content { min-width: 0; }
+
 .about-cta_title {
-  margin-bottom: var(--space-1);
-  font-family: var(--font-heading);
-  font-size: 28px;
+  margin: 0 0 var(--about-space-1);
+
+  font-family: var(--about-heading);
+  font-size: clamp(21px, 1.6vw + 14px, 26px);
   font-weight: 700;
   line-height: 1.3;
 }
 
 .about-cta_text {
-  font-size: 15px;
-  color: var(--color-text-muted);
+  font-size: clamp(14px, 0.4vw + 12.5px, 15px);
+  line-height: 1.7;
+  color: var(--about-muted);
+}
+
+.about-cta_box .btn { flex-shrink: 0; }
+
+/* ==========================================================================
+   HIỆU ỨNG HOVER - chỉ áp dụng trên thiết bị có chuột
+   (tránh bị "dính" hover khi chạm trên điện thoại/tablet)
+   ========================================================================== */
+
+@media (hover: hover) and (pointer: fine) {
+  .about .btn--primary:hover {
+    background-color: #3A4150;
+    transform: translateY(-2px);
+  }
+
+  .about .breadcrumb_link:hover { color: var(--about-accent); }
+
+  .value-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(11, 11, 15, 0.07);
+  }
+
+  .artist-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(11, 11, 15, 0.08);
+  }
+
+  .artist-card:hover .artist-card_image { transform: scale(1.04); }
+
+  .artist-card_link:hover {
+    color: var(--about-text);
+    border-bottom-color: var(--about-accent);
+  }
 }
 
 /* ==========================================================================
-   FOOTER (dùng chung)
+   RESPONSIVE (thiết kế từ lớn xuống nhỏ)
    ========================================================================== */
-.site-footer {
-  background-color: var(--bg-black);
-  color: var(--pure-white);
-  padding: 36px 0 12px;
-  border-top: 1px solid #333333;
+
+/* ---------- Màn hình rất lớn (>= 1440px) ---------- */
+@media (min-width: 1440px) {
+  .about .container { max-width: 1280px; }
 }
 
-.footer-container {
-  width: 100%;
-}
-
-.footer-main {
-    display: grid;
-    grid-template-columns: 1.6fr 0.8fr 1fr 0.8fr 0.8fr;
-    gap: 36px;
-    padding-bottom: 30px;
-}
-/* Cột thương hiệu */
-.footer-brand {
-    min-width: 0;
-    max-width: 100%;
-    margin-left: 0;
-}
-
-.footer-logo {
-    display: inline-flex;
-    max-width: 100%;
-    align-items: center;
-    gap: 10px;
-}
-
-.footer-logo-content {
-    min-width: 0;
-}
-
-.footer-wordmark {
-    white-space: nowrap;
-    font-size: clamp(1.1rem, 5vw, 1.65rem);
-    letter-spacing: 0.1em;
-}
-
-.footer-logo-mark {
-    width: 44px;
-    max-width: 22%;
-    height: auto;
-    flex-shrink: 0;
-}
-.footer-logo-v {
-    width: 22px;
-    height: 22px;
-    margin: 0 2px 1px 0;
-    flex-shrink: 0;
-}
-.footer-logo-mark {
-  width: 54px;
-  height: 42px;
-  flex-shrink: 0;
-}
-
-.footer-logo-content {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 3px;
-}
-
-.footer-wordmark {
-  display: inline-flex;
-  align-items: center;
-  font-family: var(--font-heading);
-  font-size: 1.65rem;
-  font-weight: 700;
-  letter-spacing: 0.13em;
-  line-height: 1.15;
-  color: var(--pure-white);
-}
-
-.footer-logo-v {
-  color: var(--brand-purple);
-}
-
-.footer-subtext {
-  font-family: var(--font-heading);
-  font-size: 0.61rem;
-  font-weight: 600;
-  letter-spacing: 0.25em;
-  line-height: 1.5;
-  color: var(--brand-purple-soft);
-  white-space: nowrap;
-}
-
-.footer-logo:hover .footer-wordmark {
-  opacity: 0.8;
-}
-
-.footer-description {
-  margin-top: 24px;
-  max-width: 280px;
-  font-family: var(--font-body);
-  font-size: 0.9rem;
-  line-height: 1.8;
-  color: #D1D1D6;
-}
-
-/* Các cột liên kết */
-.footer-column h3 {
-  margin-bottom: 24px;
-  font-family: var(--font-heading);
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--pure-white);
-}
-
-.footer-column ul {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 0;
-  margin: 0;
-  list-style: none;
-}
-
-.footer-column a {
-  font-family: var(--font-body);
-  font-size: 0.7rem;
-  line-height: 1.6;
-  color: #D1D1D6;
-  transition: color 0.25s ease;
-}
-
-.footer-column a:hover {
-  color: var(--brand-purple);
-}
-
-/* Thanh bản quyền */
-.footer-bottom {
-    width: 100%;
-    margin-left: 0;
-    box-sizing: border-box;
-    border-top: 1px solid #3e3e3e;
-    padding-top: 20px;
-}
-.footer-bottom p {
-  margin-left: 40%;
-  font-family: var(--font-body);
-  font-size: 0.68rem;
-  color: #D1D1D6;;
-}
-
-/* Responsive tablet */
-@media (max-width: 900px) {
-  .footer-main {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 32px 24px;
+/* ---------- Laptop nhỏ / Tablet ngang (<= 1024px) ---------- */
+@media (max-width: 1024px) {
+  .about-hero_grid {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
   }
 
-  .footer-brand {
+  .about-story_grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+/* ---------- Tablet dọc (<= 768px) ---------- */
+@media (max-width: 768px) {
+  .about-hero {
+    padding-top: 28px;
+  }
+
+  /* Hero và Story chuyển thành 1 cột */
+  .about-hero_grid,
+  .about-story_grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .about-hero_content { max-width: 650px; }
+  .about-hero_text    { max-width: 560px; }
+
+  /* Values + Artists: 2 cột; card lẻ cuối cùng trải rộng để không bị mồ côi */
+  .about-values_grid,
+  .about-artists_grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .about-values_grid > :last-child:nth-child(odd),
+  .about-artists_grid > :last-child:nth-child(odd) {
     grid-column: 1 / -1;
   }
 
-  .footer-description {
-    max-width: 420px;
+  .about-cta_box {
+    padding: 32px 24px;
   }
 }
 
-/* Responsive mobile */
-/* =========================================
-   FOOTER RESPONSIVE - TABLET
-========================================= */
-@media (max-width: 900px) {
-    .footer-main {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 32px 40px;
-    }
-
-    .footer-brand {
-        grid-column: 1 / -1;
-        margin-bottom: 8px;
-    }
-
-    .footer-description {
-        max-width: 420px;
-    }
-}
-
-/* =========================================
-   FOOTER RESPONSIVE - MOBILE
-========================================= */
+/* ---------- Mobile (<= 600px) ---------- */
 @media (max-width: 600px) {
-    .site-footer {
-        padding: 28px 0 12px;
-    }
-
-    .footer-main {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 28px 20px;
-    padding-bottom: 24px;
-    margin-left: 0;
-    }   
-
-    .footer-brand {
-        grid-column: 1 / -1;
-        margin-bottom: 4px;
-    }
-
-    /* Logo */
-    .footer-logo {
-        gap: 10px;
-    }
-
-    .footer-logo-mark {
-        width: 44px;
-        height: 36px;
-    }
-
-    .footer-wordmark {
-        font-size: 1.3rem;
-        letter-spacing: 0.1em;
-    }
-
-    .footer-logo-v {
-        width: 18px;
-        height: 18px;
-    }
-
-    .footer-subtext {
-        font-size: 0.46rem;
-        letter-spacing: 0.17em;
-    }
-
-    .footer-description {
-        margin-top: 14px;
-        max-width: 100%;
-        font-size: 0.84rem;
-    }
-
-    /* Các cột liên kết */
-    .footer-column h3 {
-        font-size: 0.78rem;
-        margin-bottom: 14px;
-    }
-
-    .footer-column ul {
-        gap: 10px;
-    }
-
-    .footer-column a {
-        font-size: 0.8rem;
-    }
-
-    /* Copyright */
-    .footer-bottom {
-        padding-top: 16px;
-    }
-
-    .footer-bottom p {
-        font-size: 0.78rem;
-    }
-}
-
-/* =========================================
-   FOOTER RESPONSIVE - MOBILE NHỎ
-========================================= */
-@media (max-width: 600px) {
-    .footer-brand {
-        width: 100%;
-        overflow: hidden;
-    }
-
-    .footer-logo {
-        gap: 8px;
-    }
-
-    .footer-logo-mark {
-        width: 40px;
-    }
-
-    .footer-wordmark {
-        font-size: 1.2rem;
-    }
-
-    .footer-subtext {
-        font-size: 0.42rem;
-        letter-spacing: 0.13em;
-    }
-}
-
-/* ==========================================================================
-   RESPONSIVE
-   ========================================================================== */
-@media (max-width: 992px) {
-  .site-header_inner {
-    flex-wrap: wrap;
-    padding-top: var(--space-1);
-    padding-bottom: var(--space-1);
+  .about-hero {
+    padding: 24px 0 40px;
   }
 
-  .site-nav {
-    order: 3;
-    width: 100%;
-    overflow-x: auto;
+  .about .breadcrumb {
+    margin-bottom: 24px;
   }
 
-  .site-nav_list {
-    gap: var(--space-3);
-    white-space: nowrap;
+  .about .breadcrumb_list {
+    font-size: 11px;
+    gap: 4px 6px;
   }
 
-  .about-hero_grid,
-  .about-story_grid {
-    grid-template-columns: 1fr;
-    gap: var(--space-4);
+  .about .breadcrumb_item + .breadcrumb_item::before {
+    margin-right: 6px;
   }
 
+  .about-hero_title { margin-bottom: 16px; }
+  .about-hero_text  { margin-bottom: 24px; line-height: 1.7; }
+
+  .about .btn {
+    min-height: 44px;             /* giữ vùng chạm tối thiểu 44px */
+    padding: 11px 18px;
+    font-size: 12px;
+  }
+
+  .about .section-title {
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+  }
+
+  /* Values + Artists: 1 cột */
   .about-values_grid,
   .about-artists_grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .site-footer_inner {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media (max-width: 640px) {
-  .about-hero_title {
-    font-size: 36px;
+  .about-values_grid > :last-child:nth-child(odd),
+  .about-artists_grid > :last-child:nth-child(odd) {
+    grid-column: auto;
   }
 
-  .section-title,
-  .about-cta_title {
-    font-size: 24px;
+  .value-card_text { font-size: 13px; }
+
+  .about-artists_subtext {
+    margin-top: -8px;
+    margin-bottom: 24px;
   }
 
-  .about-hero,
-  .about-story,
-  .about-values,
-  .about-artists {
-    padding-top: var(--space-6);
-    padding-bottom: var(--space-6);
-  }
-
-  .about-values_grid,
-  .about-artists_grid {
-    grid-template-columns: 1fr;
-  }
+  /* CTA: xếp dọc, nút full-width cho dễ bấm */
+  .about-cta { padding-bottom: 40px; }
 
   .about-cta_box {
     flex-direction: column;
-    align-items: flex-start;
-    padding: var(--space-4) var(--space-3);
+    align-items: stretch;
+    gap: 20px;
+    padding: 26px 20px;
   }
 
-  .site-header_action {
-    display: none;
-  }
+  .about-cta_box .btn { width: 100%; }
+}
 
-  .site-footer_inner {
-    grid-template-columns: 1fr;
+/* ---------- Mobile nhỏ (<= 375px) ---------- */
+@media (max-width: 375px) {
+  .about-cta_box { padding: 22px 16px; }
+  .about .breadcrumb_list { font-size: 10.5px; }
+}
+
+/* ---------- Điện thoại xoay ngang (chiều cao thấp) ---------- */
+@media (max-height: 500px) and (orientation: landscape) {
+  .about-hero { padding-bottom: 32px; }
+}
+
+/* ==========================================================================
+   ACCESSIBILITY
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .about *,
+  .about *::before,
+  .about *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
+/* ==========================================================================
+   HERO NẰM NGANG TRÊN MỌI THIẾT BỊ (chữ trái - ảnh phải)
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .about-hero_grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);  /* giữ 2 cột */
+    align-items: center;
+    gap: 16px;
+  }
+
+  .about-hero_content {
+    max-width: none;
+  }
+
+  .about-hero_title {
+    margin-bottom: 10px;
+    font-size: clamp(18px, 5.2vw, 30px);   /* nhỏ lại để vừa nửa màn hình */
+    line-height: 1.2;
+  }
+
+  .about-hero_text {
+    max-width: none;
+    margin-bottom: 14px;
+    font-size: clamp(11px, 2.9vw, 15px);
+    line-height: 1.6;
+  }
+
+  .about .btn {
+    min-height: 40px;
+    padding: 9px 12px;
+    font-size: clamp(10px, 2.6vw, 13px);
+    letter-spacing: 0.02em;
+  }
+}
+
+/* Điện thoại nhỏ: thu gọn thêm cho vừa */
+@media (max-width: 420px) {
+  .about-hero_grid {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: 12px;
+  }
+
+  .about-hero_text {
+    font-size: 11px;
+    line-height: 1.55;
+  }
+
+  .about .btn {
+    padding: 9px 10px;
+    font-size: 10px;
+  }
+} 
