@@ -43,8 +43,10 @@
 /* ==========================================================================
    HEADER (dùng chung)
    ========================================================================== */
-.site-header {
-       background-color: #FFFFFF;
+.site-header 
+  .container {
+  max-width: 1140px;
+  background-color: #FFFFFF;
   border-bottom: 1px solid #D1D5DB;
   position: sticky;
   top: 0;
