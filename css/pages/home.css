@@ -1,3 +1,93 @@
+/* ---------- Banner slideshow (trên header) ---------- */
+.index-carousel {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-black);
+}
+
+.index-carousel_track {
+  position: relative;
+  aspect-ratio: 4 / 1;
+  min-height: 120px;
+}
+
+.index-carousel_slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  animation: index-carousel-fade 15s infinite;
+}
+
+.index-carousel_slide--1 { animation-delay: 0s; }
+.index-carousel_slide--2 { animation-delay: 5s; }
+.index-carousel_slide--3 { animation-delay: 10s; }
+
+.index-carousel_link { display: block; width: 100%; height: 100%; }
+
+.index-carousel_image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--img-frame);
+}
+
+/* Chấm chỉ báo (trang trí) */
+.index-carousel_dots {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 12px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.index-carousel_dot {
+  width: 24px;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--pure-white);
+  opacity: 0.4;
+  animation: index-carousel-dot 15s infinite;
+}
+
+.index-carousel_dot--1 { animation-delay: 0s; }
+.index-carousel_dot--2 { animation-delay: 5s; }
+.index-carousel_dot--3 { animation-delay: 10s; }
+
+/* Tạm dừng khi rê chuột hoặc focus bàn phím */
+.index-carousel:hover .index-carousel_slide,
+.index-carousel:hover .index-carousel_dot,
+.index-carousel:focus-within .index-carousel_slide,
+.index-carousel:focus-within .index-carousel_dot {
+  animation-play-state: paused;
+}
+
+@keyframes index-carousel-fade {
+  0%      { opacity: 1; }
+  28%     { opacity: 1; }
+  33.33%  { opacity: 0; }
+  94%     { opacity: 0; }
+  100%    { opacity: 1; }
+}
+
+@keyframes index-carousel-dot {
+  0%      { opacity: 1; background: var(--brand-purple); }
+  28%     { opacity: 1; background: var(--brand-purple); }
+  33.33%  { opacity: 0.4; background: var(--pure-white); }
+  94%     { opacity: 0.4; background: var(--pure-white); }
+  100%    { opacity: 1; background: var(--brand-purple); }
+}
+
+/* Người dùng tắt chuyển động: chỉ hiện banner đầu */
+@media (prefers-reduced-motion: reduce) {
+  .index-carousel_slide,
+  .index-carousel_dot { animation: none; }
+  .index-carousel_slide--1 { opacity: 1; }
+  .index-carousel_dot--1 { opacity: 1; background: var(--brand-purple); }
+}
+
 /* ---------- Khối chung của trang chủ ---------- */
 .index-section { padding: 56px 0; }
 .index-section--soft { background: var(--bg-soft); }
@@ -11,6 +101,60 @@
   padding: 48px 0;
   background: var(--bg-soft);
   border-bottom: 1px solid var(--border-gray);
+}
+
+.index-hero_layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.85fr) minmax(360px, 1.15fr);
+  align-items: center;
+  gap: 48px;
+}
+
+.index-hero_carousel {
+  min-width: 0;
+  width: 100%;
+}
+
+.index-hero_viewport {
+  overflow: hidden;
+  width: 100%;
+}
+
+.index-hero_track {
+  display: flex;
+  width: 100%;
+  transition: transform 600ms ease-in-out;
+}
+
+.index-hero_slide {
+  flex: 0 0 100%;
+  min-width: 0;
+}
+
+.index-hero_link {
+  display: block;
+  width: 100%;
+}
+
+.index-hero_dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.index-hero_dot {
+  width: 24px;
+  height: 4px;
+  border: 0;
+  padding: 0;
+  border-radius: var(--radius-pill);
+  background: var(--border-gray);
+  cursor: pointer;
+}
+
+.index-hero_dot.is-active {
+  background: var(--brand-purple);
 }
 
 .index-hero_inner { display: flex; align-items: center; gap: 48px; }
@@ -36,7 +180,11 @@
 
 .index-hero_actions { display: flex; flex-wrap: wrap; gap: 16px; }
 
-.index-hero_media { flex: 1.2 1 0; }
+.index-hero_media {
+  min-width: 0;
+  width: 100%;
+  margin: 0;
+}
 
 .index-hero_image {
   width: 100%;
@@ -44,6 +192,10 @@
   object-fit: cover;
   background: var(--img-frame);
   border-radius: var(--radius-image);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .index-hero_track { transition: none; }
 }
 
 /* ---------- Bộ sưu tập đặc biệt ---------- */
@@ -88,8 +240,9 @@
 @media (max-width: 900px) {
   .index-hero { padding: 32px 0; }
 
-  .index-hero_inner,
+  .index-hero_layout,
   .index-collection { flex-direction: column; align-items: stretch; gap: 32px; }
+  .index-hero_layout { grid-template-columns: 1fr; }
 
   .index-collection { padding: 32px 24px; }
   .index-hero_text { max-width: none; }

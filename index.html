@@ -12,7 +12,6 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@500;600;700;800&display=swap"
     rel="stylesheet"
   >
-
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/chuan-header.css">
   <link rel="stylesheet" href="css/chuan-footer.css">
@@ -20,7 +19,6 @@
   <link rel="stylesheet" href="css/pages/home.css">
 </head>
 <body>
-
   <link rel="stylesheet" href="css/chuanHeader.css">
 <header class="site-header">
     <div class="container header-inner">
@@ -46,7 +44,6 @@
         </div>
       </a>
 
-      <!-- Menu chính -->
       <nav class="main-nav" aria-label="Điều hướng chính">
         <ul>
           <li><a href="index.html"class="active" aria-current="page">Trang chủ</a></li>
@@ -84,65 +81,73 @@
 
   <main>
 
-    <!-- BANNER -->
-    <section class="index-hero" aria-labelledby="hero-title">
-      <div class="container index-hero_inner">
-        <div class="index-hero_content">
-          <h1 class="index-hero_title" id="hero-title"><span>Merchandise nghệ sĩ</span><br>Kết nối cùng cộng đồng.</h1>
-          <p class="index-hero_text">Khám phá merchandise chính hãng, bộ sưu tập độc quyền và tác phẩm từ nghệ sĩ bạn yêu thích.</p>
-          <div class="index-hero_actions">
-            <a href="products.html" class="btn btn--primary">Khám phá sản phẩm</a>
-            <a href="artist.html" class="btn btn--secondary">Tìm nghệ sĩ</a>
-          </div>
-        </div>
-        <figure class="index-hero_media">
-          <img class="index-hero_image" src="images/banners/Trang chủ-banner.png"
-               alt="Banner merchandise chính hãng của nghệ sĩ" width="960" height="640">
-        </figure>
+    <!-- HERO BANNER -->
+<section class="index-hero" aria-labelledby="hero-title">
+  <div class="container index-hero_layout">
+    <div class="index-hero_content">
+      <h1 class="index-hero_title" id="hero-title">Merchandise của nghệ sĩ.<br>Kết nối cùng cộng đồng.</h1>
+      <p class="index-hero_text">Khám phá merchandise chính hãng, bộ sưu tập độc quyền và tác phẩm từ nghệ sĩ bạn yêu thích.</p>
+      <div class="index-hero_actions">
+        <a href="products.html" class="btn btn--primary">Khám phá sản phẩm</a>
+        <a href="artist.html" class="btn btn--secondary">Tìm nghệ sĩ</a>
       </div>
-    </section>
+    </div>
 
-    <!-- NGHỆ SĨ NỔI BẬT -->
-    <section class="index-section" aria-labelledby="artists-title">
-      <div class="container">
-        <header class="section-title">
-          <h2 class="section-title_heading" id="artists-title">Nghệ sĩ nổi bật</h2>
-          <p class="section-title_desc">Gặp gỡ những nghệ sĩ của Owniverse</p>
-        </header>
-
-        <div class="index-section_grid index-section_grid--3">
-          <article class="artist-card">
-            <img class="artist-card_image" src="images/banners/Kairo-banner.png"
-                 alt="Chân dung nghệ sĩ A" width="600" height="400">
-            <div class="artist-card_body">
-              <h3 class="artist-card_name">KAIRO</h3>
-              <p class="artist-card_genre"> R&B / Pop / Dance-pop </p>
-              <a href="artist.html" class="artist-card_link">Xem trang nghệ sĩ →</a>
-            </div>
-          </article>
-
-          <article class="artist-card">
-            <img class="artist-card_image" src="images/banners/Mira-banner.png"
-                 alt="Chân dung nghệ sĩ B" width="600" height="400">
-            <div class="artist-card_body">
-              <h3 class="artist-card_name">MIRA</h3>
-              <p class="artist-card_genre">V-pop / Dance-pop </p>
-              <a href="artist.html" class="artist-card_link">Xem trang nghệ sĩ →</a>
-            </div>
-          </article>
-
-          <article class="artist-card">
-            <img class="artist-card_image" src="images/banners/Rhea-banner.png"
-                 alt="Chân dung nghệ sĩ C" width="600" height="400">
-            <div class="artist-card_body">
-              <h3 class="artist-card_name">RHEA</h3>
-              <p class="artist-card_genre"> Dark Pop </p>
-              <a href="artist.html" class="artist-card_link">Xem trang nghệ sĩ →</a>
-            </div>
-          </article>
-        </div>
+    <div class="index-hero_carousel" aria-roledescription="carousel" aria-label="Banner nghệ sĩ">
+      <div class="index-hero_viewport">
+        <ul class="index-hero_track">
+          <li class="index-hero_slide">
+            <a href="artist.html" class="index-hero_link" aria-label="Xem trang nghệ sĩ trên Owniverse">
+              <figure class="index-hero_media">
+                <img class="index-hero_image" src="images/banners/Trang chủ-banner.png"
+                     alt="Banner Owniverse" width="960" height="640">
+              </figure>
+            </a>
+          </li>
+          <li class="index-hero_slide">
+            <a href="artist.html" class="index-hero_link" aria-label="Xem trang nghệ sĩ Rhea">
+              <figure class="index-hero_media">
+                <img class="index-hero_image" src="images/banners/Rhea-banner.png"
+                     alt="Banner nghệ sĩ Rhea" width="960" height="640">
+              </figure>
+            </a>
+          </li>
+          <li class="index-hero_slide">
+            <a href="artist.html" class="index-hero_link" aria-label="Xem trang nghệ sĩ Kairo">
+              <figure class="index-hero_media">
+                <img class="index-hero_image" src="images/banners/Kairo-banner.png"
+                     alt="Banner nghệ sĩ Kairo" width="960" height="640">
+              </figure>
+            </a>
+          </li>
+          <li class="index-hero_slide">
+            <a href="artist.html" class="index-hero_link" aria-label="Xem trang nghệ sĩ Mira">
+              <figure class="index-hero_media">
+                <img class="index-hero_image" src="images/banners/Mira-banner.png"
+                     alt="Banner nghệ sĩ Mira" width="960" height="640">
+              </figure>
+            </a>
+          </li>
+        </ul>
       </div>
-    </section>
+
+      <ul class="index-hero_dots" aria-label="Chọn banner">
+        <li>
+          <button class="index-hero_dot index-hero_dot--1 is-active" type="button" aria-label="Hiển thị banner 1" aria-current="true" data-slide-index="0"></button>
+        </li>
+        <li>
+          <button class="index-hero_dot index-hero_dot--2" type="button" aria-label="Hiển thị banner 2" data-slide-index="1"></button>
+        </li>
+        <li>
+          <button class="index-hero_dot index-hero_dot--3" type="button" aria-label="Hiển thị banner 3" data-slide-index="2"></button>
+        </li>
+        <li>
+          <button class="index-hero_dot index-hero_dot--4" type="button" aria-label="Hiển thị banner 4" data-slide-index="3"></button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
 
     <!-- SẢN PHẨM NỔI BẬT -->
     <section class="index-section index-section--soft" aria-labelledby="products-title">
@@ -176,7 +181,7 @@
           </article>
 
           <article class="product-card">
-            <img class="product-card_image" src="images/products/Rhea-album-01.png"
+            <img class="product-card_image" src="images/products/rhea-album-01.png"
                  alt="Album vol 1 Rhea" width="500" height="500">
             <div class="product-card_body">
               <h3 class="product-card_title">RHEA | Album volume 1</h3>
@@ -307,6 +312,6 @@
 
   </div>
 </footer>
-
+<script src="js/main.js"></script>
 </body>
 </html>
