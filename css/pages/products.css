@@ -506,16 +506,16 @@ main .products-cta_img {
 
   main .products-filter_btn:hover,
   main .products-cta_btn:hover {
-      background-color: #374151;
-      border-color: #374151;
-    }
+    background-color: #374151;
+    border-color: #374151;
+  }
 
   main .product-card:hover { border-color: var(--pr-text); }
 
   main .product-card_btn:hover {
-      background-color: var(--pr-text);
-      color: #FFFFFF;
-    }
+    background-color: var(--pr-text);
+    color: #FFFFFF;
+  }
 
   main .products-pagination_link:hover { border-color: var(--pr-text); }
 }
@@ -539,148 +539,118 @@ main .products-pagination_link:focus-visible {
   :root { --pr-container: 1440px; }
 
   main .products-main_inner {
-      grid-template-columns: 288px minmax(0, 1fr);
-    }
+    grid-template-columns: 288px minmax(0, 1fr);
+  }
 }
 
 /* Màn hình rộng nhưng thấp: bỏ sticky để bộ lọc không bị cắt */
 @media (min-width: 992px) and (max-height: 599px) {
   main .products-filter {
-      position: static;
-      max-height: none;
-      overflow: visible;
-    }
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
 }
 
 /* Laptop nhỏ <= 1199px: 3 cột sản phẩm */
 @media (max-width: 1199px) {
   main .products-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 /* Tablet <= 991px: bộ lọc lên trên, banner xếp dọc */
 @media (max-width: 991px) {
   main .products-main_inner {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 24px;
-    }
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
 
   main .products-filter {
-      position: static;
-      max-height: none;
-      overflow: visible;
-      padding: 20px;
-    }
+    position: static;
+    max-height: none;
+    overflow: visible;
+    padding: 20px;
+  }
 
   main .products-filter_form {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 20px 24px;
-    }
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px 24px;
+  }
 
   main .products-filter_heading,
   main .products-filter_btn {
-      grid-column: 1 / -1;
-    }
+    grid-column: 1 / -1;
+  }
 
   main .products-filter_btn {
-      justify-self: start;
-      width: auto;
-      min-width: 160px;
-    }
+    justify-self: start;
+    width: auto;
+    min-width: 160px;
+  }
 
   main .products-cta_inner {
-      grid-template-columns: minmax(0, 1fr);
-    }
+    grid-template-columns: minmax(0, 1fr);
+  }
 
   main .products-cta_media {
-      max-width: 640px;
-    }
+    max-width: 640px;
+  }
 
   /* Nút thu gọn bộ lọc: chỉ hoạt động nếu sau này có JS chèn nút + thêm class */
   main .products-filter_toggle {
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      min-height: 44px;
-      padding: 0;
-      border: 0;
-      background: none;
-      font-family: var(--pr-font-heading);
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      color: var(--pr-text);
-      cursor: pointer;
-    }
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-family: var(--pr-font-heading);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--pr-text);
+    cursor: pointer;
+  }
 
   main .products-filter--collapsible .products-filter_toggle {
-      display: flex;
-    }
+    display: flex;
+  }
 
   main .products-filter--collapsible .products-filter_heading {
-      display: none;
-    }
+    display: none;
+  }
 
   main .products-filter--collapsible:not(.is-open) .products-filter_form {
-      display: none;
-    }
+    display: none;
+  }
 }
 
 /* Mobile <= 767px: 2 cột sản phẩm, bộ lọc gọn */
 @media (max-width: 767px) {
   main .products-filter {
-      padding: 16px;
-    }
+    padding: 16px;
+  }
 
   main .products-filter_form {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 16px;
-    }
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
 
   main .products-filter_btn {
-      justify-self: stretch;
-      width: 100%;
-    }
-
-  main .products-filter_group {
-      padding-bottom: 16px;
-    }
-
-  main .products-filter_title {
-      margin-bottom: 12px;
-    }
-
-  /* Danh sách checkbox chia 2 cột cho ngắn lại */
-  main .products-filter_list {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 4px 12px;
-      align-items: start;
-    }
-
-  /* Nhóm "Khoảng giá" (nhóm cuối) có chữ dài nên giữ 1 cột */
-  main .products-filter_group:last-of-type .products-filter_list {
-      grid-template-columns: minmax(0, 1fr);
-    }
-
-  main .products-filter_sublist {
-      padding-left: 16px;
-    }
-
-  main .products-filter_label {
-      min-height: 32px;
-      font-size: 14px;
-    }
+    justify-self: stretch;
+    width: 100%;
+  }
 
   main .products-toolbar_select {
-      font-size: 16px; /* iOS không tự zoom khi chọn */
-    }
+    font-size: 16px; /* iOS không tự zoom khi chọn */
+  }
 
   main .products-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 
   main .product-card_artist { font-size: 12px; }
 
@@ -689,33 +659,33 @@ main .products-pagination_link:focus-visible {
   main .products-pagination_list { gap: 6px; }
 
   main .products-cta_btn {
-      width: 100%;
-    }
+    width: 100%;
+  }
 }
 
 /* Mobile nhỏ <= 480px: thanh sắp xếp xếp dọc */
 @media (max-width: 480px) {
   main .products-toolbar {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 10px;
-    }
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
 
   main .products-toolbar_sort {
-      width: 100%;
-    }
+    width: 100%;
+  }
 
   main .products-toolbar_select {
-      flex: 1;
-      min-width: 0;
-    }
+    flex: 1;
+    min-width: 0;
+  }
 }
 
 /* Màn hình rất hẹp <= 359px: 1 cột sản phẩm */
 @media (max-width: 359px) {
   main .products-grid {
-      grid-template-columns: minmax(0, 1fr);
-    }
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 /* Thiết bị cảm ứng: vùng chạm lớn hơn */
@@ -734,6 +704,6 @@ main .products-pagination_link:focus-visible {
   main .products-filter_btn,
   main .products-cta_btn,
   main .products-pagination_link {
-      transition-duration: 0.01ms !important;
-    }
-}
+    transition-duration: 0.01ms !important;
+  }
+} 
