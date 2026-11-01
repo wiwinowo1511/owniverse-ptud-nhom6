@@ -1,931 +1,429 @@
 /* ==========================================================================
-       1. BẢNG MÀU CHỦ ĐẠO & KIỂU CHỮ (CHUẨN BRAND IDENTITY OWNIVERSE)
-       ========================================================================== */
-    :root {
-      --bg-black: #0B0B0F;          /* Đen chủ đạo (nền, chữ chính) */
-      --brand-purple: #A78BFA;      /* Tím thương hiệu (điểm nhấn, nút bấm) */
-      --brand-purple-soft: #E9DBFF; /* Tím nhạt (background phụ) */
-      --border-gray: #E5E7EB;       /* Xám sáng (bố cục, viền) */
-      --pure-white: #FFFFFF;        /* Trắng (nền, chữ phụ) */
-
-      --font-heading: 'Montserrat', sans-serif; /* Tiêu đề, nhấn mạnh */
-      --font-body: 'Inter', sans-serif;         /* Nội dung, văn bản */
-
-      --radius-card: 20px;
-      --radius-image: 14px;
-      --radius-pill: 9999px;        /* Bo tròn chuẩn Nút chính & Nút phụ */
-      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    /* ==========================================================================
-       2. RESET & CÀI ĐẶT CƠ BẢN
-       ========================================================================== */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: var(--font-body);
-      color: var(--bg-black);
-      background-color: var(--pure-white);
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    a {
-      text-decoration: none;
-      color: inherit;
-      transition: var(--transition);
-    }
-
-    ul {
-      list-style: none;
-    }
-
-    .container {
-      max-width: 1140px;
-      margin: 0 auto;
-      padding: 0 24px;
-    }
-
-    /* Hiệu ứng Focus rõ ràng bằng màu Tím thương hiệu (#A78BFA) */
-    a:focus-visible,
-    button:focus-visible,
-    input:focus-visible {
-      outline: 2.5px solid var(--brand-purple);
-      outline-offset: 3px;
-    }
-
-    /* ==========================================================================
-       3. HEADER & LOGO CHÍNH (FLEXBOX)
-       ========================================================================== */
-    .site-header {
-      background-color: var(--pure-white);
-      border-bottom: 1px solid var(--border-gray);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .header-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      min-height: 80px;
-      gap: 24px;
-    }
-
-    /* Cụm Logo ngang chuẩn Brand Identity */
-    .brand-logo {
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .logo-mark {
-      width: 42px;
-      height: 32px;
-      flex-shrink: 0;
-    }
-
-    .logo-text-group {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .logo-wordmark {
-      font-family: var(--font-heading);
-      font-size: 1.25rem;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-      color: var(--bg-black);
-      display: inline-flex;
-      align-items: center;
-      line-height: 1.1;
-    }
-
-    .logo-v-svg {
-      width: 16px;
-      height: 17px;
-      margin: 0 2px 1px 0;
-    }
-
-    .logo-subtext {
-      font-family: var(--font-heading);
-      font-size: 0.5rem;
-      font-weight: 600;
-      letter-spacing: 0.24em;
-      color: var(--bg-black);
-      margin-top: 3px;
-      opacity: 0.85;
-    }
-
-    /* Menu điều hướng chính */
-    .main-nav ul {
-      display: flex;
-      align-items: center;
-      gap: 30px;
-    }
-
-    .main-nav a {
-      font-family: var(--font-body);
-      font-size: 0.94rem;
-      font-weight: 500;
-      color: var(--bg-black);
-      opacity: 0.75;
-      padding: 6px 0;
-      position: relative;
-    }
-
-    .main-nav a:hover,
-    .main-nav a.active {
-      opacity: 1;
-      font-weight: 600;
-    }
-
-    .main-nav a.active {
-      font-family: var(--font-heading);
-      font-weight: 700;
-    }
-
-    .main-nav a.active::after {
-      content: "";
-      position: absolute;
-      bottom: -2px;
-      left: 0;
-      width: 100%;
-      height: 2.5px;
-      background-color: var(--brand-purple);
-      border-radius: var(--radius-pill);
-    }
-
-    /* Cụm tiện ích bên phải (Tìm kiếm, Giỏ hàng, Tài khoản) */
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .action-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.9rem;
-      font-weight: 500;
-      color: var(--bg-black);
-    }
-
-    .action-link svg {
-      width: 18px;
-      height: 18px;
-      stroke: currentColor;
-      transition: var(--transition);
-    }
-
-    .action-link:hover {
-      color: var(--brand-purple);
-    }
-
-    .account-circle {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      border: 1.5px solid var(--bg-black);
-      display: inline-flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.68rem;
-      font-weight: 600;
-      line-height: 1.05;
-      text-align: center;
-      color: var(--bg-black);
-    }
-
-    .account-circle:hover {
-      border-color: var(--brand-purple);
-      background-color: var(--brand-purple-soft);
-    }
-
-    /* ==========================================================================
-       4. HERO BANNER (CSS GRID - NỀN TÍM NHẠT #E9DBFF & PHONG CÁCH ẢNH TỐI)
-       ========================================================================== */
-    .hero-section {
-      margin: 28px 0;
-    }
-
-    .hero-box {
-      background-color: var(--brand-purple-soft);
-      border: 1px solid var(--border-gray);
-      border-radius: var(--radius-card);
-      padding: 40px 48px;
-      display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      align-items: center;
-      gap: 40px;
-    }
-
-    .hero-eyebrow {
-      font-family: var(--font-heading);
-      font-size: 0.82rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--bg-black);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 12px;
-    }
-
-    .hero-title {
-      font-family: var(--font-heading);
-      font-size: 2.05rem;
-      font-weight: 700;
-      line-height: 1.25;
-      color: var(--bg-black);
-      margin-bottom: 16px;
-    }
-
-    .hero-desc {
-      font-family: var(--font-body);
-      font-size: 0.96rem;
-      color: var(--bg-black);
-      opacity: 0.85;
-      max-width: 440px;
-    }
-
-    /* Khung Hình minh họa mang đúng Phong cách hình ảnh (Đen #0B0B0F + Tím #A78BFA) */
-    .hero-visual {
-      background-color: var(--bg-black);
-      background-image: 
-        radial-gradient(circle at 80% 20%, rgba(167, 139, 250, 0.45) 0%, transparent 55%),
-        radial-gradient(circle at 20% 85%, rgba(233, 219, 255, 0.2) 0%, transparent 50%);
-      border: 1px solid var(--border-gray);
-      border-radius: var(--radius-image);
-      min-height: 210px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      position: relative;
-      overflow: hidden;
-      color: var(--pure-white);
-    }
-
-    .hero-visual svg {
-      width: 84px;
-      height: 64px;
-      margin-bottom: 12px;
-      filter: drop-shadow(0 0 16px rgba(167, 139, 250, 0.6));
-    }
-
-    .hero-visual-caption {
-      font-family: var(--font-heading);
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.22em;
-      color: var(--brand-purple-soft);
-      text-transform: uppercase;
-    }
-
-    /* ==========================================================================
-       5. THANH TÌM KIẾM NGHỆ SĨ (FLEXBOX & NÚT CHÍNH #A78BFA)
-       ========================================================================== */
-    .search-section {
-      margin-bottom: 28px;
-    }
-
-    .search-bar {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .search-label {
-      font-family: var(--font-heading);
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: var(--bg-black);
-      white-space: nowrap;
-    }
-
-    .search-input {
-      flex: 1;
-      height: 46px;
-      padding: 0 20px;
-      font-family: var(--font-body);
-      font-size: 0.94rem;
-      color: var(--bg-black);
-      background-color: var(--pure-white);
-      border: 1.5px solid var(--border-gray);
-      border-radius: var(--radius-pill);
-      transition: var(--transition);
-    }
-
-    .search-input::placeholder {
-      color: var(--bg-black);
-      opacity: 0.45;
-    }
-
-    .search-input:hover {
-      border-color: var(--brand-purple);
-    }
-
-    .search-input:focus {
-      border-color: var(--brand-purple);
-      box-shadow: 0 0 0 4px var(--brand-purple-soft);
-      outline: none;
-    }
-
-    /* NÚT CHÍNH chuẩn Brand Identity: Nền #A78BFA, Chữ #FFFFFF, Bo tròn Pill */
-    .btn-primary {
-      height: 46px;
-      padding: 0 28px;
-      font-family: var(--font-heading);
-      font-size: 0.92rem;
-      font-weight: 600;
-      color: var(--pure-white);
-      background-color: var(--brand-purple);
-      border: 1.5px solid var(--brand-purple);
-      border-radius: var(--radius-pill);
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      white-space: nowrap;
-      transition: var(--transition);
-    }
-
-    .btn-primary svg {
-      width: 17px;
-      height: 17px;
-      stroke: currentColor;
-    }
-
-    .btn-primary:hover {
-      background-color: var(--bg-black);
-      border-color: var(--bg-black);
-      color: var(--pure-white);
-    }
-
-    /* ==========================================================================
-       6. DANH SÁCH THẺ NGHỆ SĨ (CSS GRID & NÚT PHỤ CHUẨN NHẬN DIỆN)
-       ========================================================================== */
-    .artists-section {
-      margin-bottom: 64px;
-    }
-
-    .artists-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 24px;
-    }
-
-    .artist-card {
-      background-color: var(--pure-white);
-      border: 1.5px solid var(--border-gray);
-      border-radius: var(--radius-card);
-      padding: 28px;
-      display: grid;
-      grid-template-columns: 200px 1fr auto;
-      align-items: center;
-      gap: 32px;
-      transition: var(--transition);
-    }
-
-    .artist-card:hover {
-      border-color: var(--brand-purple);
-      box-shadow: 0 10px 30px rgba(167, 139, 250, 0.14);
-      transform: translateY(-2px);
-    }
-
-    /* Khung ảnh nghệ sĩ theo Phong cách hình ảnh (Tông đen #0B0B0F & ánh tím #A78BFA) */
-    .artist-photo {
-      width: 200px;
-      height: 200px;
-      border-radius: var(--radius-image);
-      background-color: var(--bg-black);
-      border: 1px solid var(--border-gray);
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .artist-photo img {
-       width: 100%;
-       height: 100%;
-       object-fit: cover;
-       object-position: center top;
-    }
-
-    /* Ngôi sao 4 cánh phát sáng góc ảnh theo đúng mẫu Phong cách hình ảnh */
-    .artist-star-glow {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      width: 22px;
-      height: 22px;
-      z-index: 2;
-      color: var(--brand-purple-soft);
-      filter: drop-shadow(0 0 6px var(--brand-purple));
-    }
-
-    .artist-card:hover .artist-photo img {
-      transform: scale(1.06);
-      opacity: 1;
-    }
-
-    /* Phần thông tin ở giữa thẻ (Tên, Mô tả ngắn, Mạng xã hội) */
-    .artist-body {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 10px;
-    }
-
-    .artist-name {
-      font-family: var(--font-heading);
-      font-size: 1.45rem;
-      font-weight: 700;
-      color: var(--bg-black);
-      letter-spacing: 0.02em;
-    }
-
-    .artist-desc {
-      font-family: var(--font-body);
-      font-size: 0.95rem;
-      color: var(--bg-black);
-      opacity: 0.82;
-      line-height: 1.65;
-      max-width: 590px;
-    }
-
-    /* Cụm liên kết mạng xã hội kèm Icon chuẩn từ bảng Icon & Elements */
-    .artist-socials {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
-      margin-top: 6px;
-    }
-
-    .social-item {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-family: var(--font-body);
-      font-size: 0.84rem;
-      font-weight: 600;
-      color: var(--bg-black);
-    }
-
-    .social-item svg {
-      width: 15px;
-      height: 15px;
-      fill: currentColor;
-      transition: var(--transition);
-    }
-
-    .social-item:hover {
-      color: var(--brand-purple);
-    }
-
-    /* NÚT PHỤ chuẩn Brand Identity: Nền #FFFFFF, Viền & Chữ #A78BFA, Bo tròn Pill */
-    .artist-cta {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-    }
-
-    .btn-secondary {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 10px 24px;
-      font-family: var(--font-heading);
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--brand-purple);
-      background-color: var(--pure-white);
-      border: 1.5px solid var(--brand-purple);
-      border-radius: var(--radius-pill);
-      white-space: nowrap;
-      transition: var(--transition);
-    }
-
-    .btn-secondary svg {
-      width: 16px;
-      height: 16px;
-      stroke: currentColor;
-      transition: transform 0.25s ease;
-    }
-
-    .btn-secondary:hover {
-      background-color: var(--brand-purple);
-      color: var(--pure-white);
-    }
-
-    .btn-secondary:hover svg {
-      transform: translateX(4px);
-    }
-
-/* ========================================
-   7. FOOTER OWNIVERSE
-   ======================================== */
-
-.site-footer {
-  background-color: var(--bg-black);
-  color: var(--pure-white);
-  padding: 36px 0 12px;
-  border-top: 1px solid #333333;
+   ARTIST.CSS - TRANG NGHỆ SĨ OWNIVERSE
+   Chỉ quản lý nội dung riêng của trang Nghệ sĩ (hero, tìm kiếm, danh sách).
+   Header: chuanHeader.css + header-responsive.css
+   Footer: chuanFooter.css
+   ========================================================================== */
+
+/* ---------- NỀN TẢNG (độ ưu tiên 0: file CSS khác luôn được ưu tiên hơn) ---------- */
+:where(:root) {
+  --bg-black: #0B0B0F;
+  --brand-purple: #A78BFA;
+  --brand-purple-soft: #E9DBFF;
+  --border-gray: #E5E7EB;
+  --pure-white: #FFFFFF;
+
+  --font-heading: 'Montserrat', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  --radius-card: 20px;
+  --radius-image: 14px;
+  --radius-pill: 9999px;
+  --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.footer-container {
+:where(*, *::before, *::after) {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:where(body) {
+  font-family: var(--font-body);
+  color: var(--bg-black);
+  background-color: var(--pure-white);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+:where(a) {
+  color: inherit;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+:where(ul, ol) { list-style: none; }
+:where(img)    { max-width: 100%; }
+
+/* Cùng 1 container cho header, nội dung và footer -> luôn thẳng hàng (1200px như About, Sản phẩm) */
+:where(.container) {
   width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: clamp(16px, 4vw, 24px);
 }
 
-.footer-main {
-    display: grid;
-    grid-template-columns: 1.6fr 0.8fr 1fr 0.8fr 0.8fr;
-    gap: 36px;
-    padding-bottom: 30px;
-}
-/* Cột thương hiệu */
-.footer-brand {
-    min-width: 0;
-    max-width: 100%;
-    margin-left: 0;
+.site-footer .footer-container {
+  padding-inline: clamp(16px, 4vw, 24px);
 }
 
-.footer-logo {
-    display: inline-flex;
-    max-width: 100%;
-    align-items: center;
-    gap: 10px;
+/* Focus rõ ràng bằng tím thương hiệu */
+.hero-section a:focus-visible,
+.search-section input:focus-visible,
+.search-section button:focus-visible,
+.artists-section a:focus-visible {
+  outline: 2.5px solid var(--brand-purple);
+  outline-offset: 3px;
 }
 
-.footer-logo-content {
-    min-width: 0;
+/* ==========================================================================
+   1. HERO BANNER
+   ========================================================================== */
+.hero-section {
+  margin-block: clamp(16px, 3vw, 28px);
 }
 
-.footer-wordmark {
-    white-space: nowrap;
-    font-size: clamp(1.1rem, 5vw, 1.65rem);
-    letter-spacing: 0.1em;
+.hero-box {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  align-items: center;
+  gap: clamp(20px, 4vw, 40px);
+  padding: clamp(24px, 4vw, 40px) clamp(20px, 5vw, 48px);
+
+  background-color: var(--brand-purple-soft);
+  border: 1px solid var(--border-gray);
+  border-radius: var(--radius-card);
 }
 
-.footer-logo-mark {
-    width: 44px;
-    max-width: 22%;
-    height: auto;
-    flex-shrink: 0;
-}
-.footer-logo-v {
-    width: 22px;
-    height: 22px;
-    margin: 0 2px 1px 0;
-    flex-shrink: 0;
-}
-.footer-logo-mark {
-  width: 54px;
-  height: 42px;
-  flex-shrink: 0;
-}
+.hero-content { min-width: 0; }
 
-.footer-logo-content {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 3px;
-}
-
-.footer-wordmark {
+.hero-eyebrow {
   display: inline-flex;
   align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+
   font-family: var(--font-heading);
-  font-size: 1.65rem;
+  font-size: clamp(0.72rem, 0.3vw + 0.66rem, 0.82rem);
   font-weight: 700;
-  letter-spacing: 0.13em;
-  line-height: 1.15;
-  color: var(--pure-white);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bg-black);
 }
 
-.footer-logo-v {
-  color: var(--brand-purple);
-}
+.hero-title {
+  margin-bottom: 16px;
 
-.footer-subtext {
   font-family: var(--font-heading);
-  font-size: 0.61rem;
+  font-size: clamp(1.45rem, 1.6vw + 1rem, 2.05rem);   /* ~23px (mobile) -> 33px (desktop) */
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--bg-black);
+  overflow-wrap: break-word;
+}
+
+.hero-desc {
+  max-width: 440px;
+
+  font-family: var(--font-body);
+  font-size: clamp(0.88rem, 0.3vw + 0.82rem, 0.96rem);
+  color: var(--bg-black);
+  opacity: 0.85;
+}
+
+/* Khung hình minh họa (nền đen + ánh tím) */
+.hero-visual {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: clamp(160px, 24vw, 210px);
+  padding: 24px;
+  overflow: hidden;
+
+  color: var(--pure-white);
+  background-color: var(--bg-black);
+  background-image:
+    radial-gradient(circle at 80% 20%, rgba(167, 139, 250, 0.45) 0%, transparent 55%),
+    radial-gradient(circle at 20% 85%, rgba(233, 219, 255, 0.2) 0%, transparent 50%);
+  border: 1px solid var(--border-gray);
+  border-radius: var(--radius-image);
+}
+
+.hero-visual svg {
+  width: 84px;
+  height: 64px;
+  margin-bottom: 12px;
+  filter: drop-shadow(0 0 16px rgba(167, 139, 250, 0.6));
+}
+
+.hero-visual-caption {
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
   font-weight: 600;
-  letter-spacing: 0.25em;
-  line-height: 1.5;
+  letter-spacing: 0.22em;
+  text-align: center;
+  text-transform: uppercase;
   color: var(--brand-purple-soft);
+}
+
+/* ==========================================================================
+   2. THANH TÌM KIẾM NGHỆ SĨ
+   ========================================================================== */
+.search-section {
+  margin-bottom: clamp(20px, 3vw, 28px);
+}
+
+.search-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+}
+
+.search-label {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--bg-black);
   white-space: nowrap;
 }
 
-.footer-logo:hover .footer-wordmark {
-  opacity: 0.8;
-}
+.search-input {
+  flex: 1 1 220px;
+  min-width: 0;
+  height: 46px;
+  padding: 0 20px;
 
-.footer-description {
-  margin-top: 24px;
-  max-width: 280px;
   font-family: var(--font-body);
-  font-size: 0.9rem;
-  line-height: 1.8;
-  color: #D1D1D6;
+  font-size: 0.94rem;
+  color: var(--bg-black);
+  background-color: var(--pure-white);
+  border: 1.5px solid var(--border-gray);
+  border-radius: var(--radius-pill);
+  transition: var(--transition);
 }
 
-/* Các cột liên kết */
-.footer-column h3 {
-  margin-bottom: 24px;
+.search-input::placeholder {
+  color: var(--bg-black);
+  opacity: 0.45;
+}
+
+.search-input:focus {
+  border-color: var(--brand-purple);
+  box-shadow: 0 0 0 4px var(--brand-purple-soft);
+  outline: none;
+}
+
+/* NÚT CHÍNH: nền tím, chữ trắng, bo tròn */
+.search-bar .btn-primary {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 46px;
+  padding: 0 28px;
+
   font-family: var(--font-heading);
-  font-size: 0.85rem;
-  font-weight: 700;
+  font-size: 0.92rem;
+  font-weight: 600;
   color: var(--pure-white);
+  white-space: nowrap;
+  background-color: var(--brand-purple);
+  border: 1.5px solid var(--brand-purple);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: var(--transition);
 }
 
-.footer-column ul {
+.search-bar .btn-primary svg {
+  width: 17px;
+  height: 17px;
+  stroke: currentColor;
+}
+
+/* ==========================================================================
+   3. DANH SÁCH THẺ NGHỆ SĨ
+   ========================================================================== */
+.artists-section {
+  margin-bottom: clamp(40px, 6vw, 64px);
+}
+
+.artists-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(16px, 2.4vw, 24px);
+}
+
+.artist-card {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(20px, 3vw, 32px);
+  padding: clamp(20px, 3vw, 28px);
+
+  background-color: var(--pure-white);
+  border: 1.5px solid var(--border-gray);
+  border-radius: var(--radius-card);
+  transition: var(--transition);
+}
+
+/* Khung ảnh: luôn VUÔNG để thấy trọn khuôn mặt ở mọi kích thước */
+.artist-photo {
+  position: relative;
+  width: 200px;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+
+  background-color: var(--bg-black);
+  border: 1px solid var(--border-gray);
+  border-radius: var(--radius-image);
+}
+
+.artist-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;          /* giữ khuôn mặt (phần trên ảnh) luôn nằm trong khung */
+  transition: transform 0.4s ease;
+}
+
+/* Ngôi sao 4 cánh phát sáng ở góc ảnh */
+.artist-star-glow {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  width: 22px;
+  height: 22px;
+  color: var(--brand-purple-soft);
+  filter: drop-shadow(0 0 6px var(--brand-purple));
+}
+
+/* Thông tin giữa thẻ */
+.artist-body {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 0;
-  margin: 0;
-  list-style: none;
+  justify-content: center;
+  gap: 10px;
+  min-width: 0;
 }
 
-.footer-column a {
+.artist-name {
+  font-family: var(--font-heading);
+  font-size: clamp(1.25rem, 0.8vw + 1.1rem, 1.45rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--bg-black);
+}
+
+.artist-desc {
+  max-width: 590px;
+
   font-family: var(--font-body);
-  font-size: 0.7rem;
-  line-height: 1.6;
-  color: #D1D1D6;
-  transition: color 0.25s ease;
+  font-size: clamp(0.88rem, 0.3vw + 0.82rem, 0.95rem);
+  line-height: 1.65;
+  color: var(--bg-black);
+  opacity: 0.82;
 }
 
-.footer-column a:hover {
+.artist-socials {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin-top: 6px;
+}
+
+.social-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+
+  font-family: var(--font-body);
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--bg-black);
+}
+
+.social-item svg {
+  width: 15px;
+  height: 15px;
+  fill: currentColor;
+  transition: var(--transition);
+}
+
+/* NÚT PHỤ: nền trắng, viền và chữ tím, bo tròn */
+.artist-cta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.artist-cta .btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 24px;
+
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 600;
   color: var(--brand-purple);
+  white-space: nowrap;
+  background-color: var(--pure-white);
+  border: 1.5px solid var(--brand-purple);
+  border-radius: var(--radius-pill);
+  transition: var(--transition);
 }
 
-/* Thanh bản quyền */
-.footer-bottom {
-    width: 100%;
-    margin-left: 0;
-    box-sizing: border-box;
-    border-top: 1px solid #3e3e3e;
-    padding-top: 20px;
-}
-.footer-bottom p {
-  margin-left: 40%;
-  font-family: var(--font-body);
-  font-size: 0.68rem;
-  color: #D1D1D6;;
+.artist-cta .btn-secondary svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  transition: transform 0.25s ease;
 }
 
-/* Responsive tablet */
+/* ==========================================================================
+   HOVER - chỉ trên thiết bị có chuột (tránh "dính" hover khi chạm)
+   ========================================================================== */
+@media (hover: hover) and (pointer: fine) {
+  .search-input:hover { border-color: var(--brand-purple); }
+
+  .search-bar .btn-primary:hover {
+    background-color: var(--bg-black);
+    border-color: var(--bg-black);
+    color: var(--pure-white);
+  }
+
+  .artist-card:hover {
+    border-color: var(--brand-purple);
+    box-shadow: 0 10px 30px rgba(167, 139, 250, 0.14);
+    transform: translateY(-2px);
+  }
+
+  .artist-card:hover .artist-photo img { transform: scale(1.06); }
+
+  .social-item:hover { color: var(--brand-purple); }
+
+  .artist-cta .btn-secondary:hover {
+    background-color: var(--brand-purple);
+    color: var(--pure-white);
+  }
+
+  .artist-cta .btn-secondary:hover svg { transform: translateX(4px); }
+}
+
+/* ==========================================================================
+   RESPONSIVE (từ lớn xuống nhỏ)
+   ========================================================================== */
+
+/* Tablet (<= 900px): thẻ 2 cột (ảnh | nội dung), nút xuống hàng riêng */
 @media (max-width: 900px) {
-  .footer-main {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 32px 24px;
-  }
+  .search-label { flex-basis: 100%; }
 
-  .footer-brand {
-    grid-column: 1 / -1;
-  }
-
-  .footer-description {
-    max-width: 420px;
-  }
-}
-
-/* Responsive mobile */
-/* =========================================
-   FOOTER RESPONSIVE - TABLET
-========================================= */
-@media (max-width: 900px) {
-    .footer-main {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 32px 40px;
-    }
-
-    .footer-brand {
-        grid-column: 1 / -1;
-        margin-bottom: 8px;
-    }
-
-    .footer-description {
-        max-width: 420px;
-    }
-}
-
-/* =========================================
-   FOOTER RESPONSIVE - MOBILE
-========================================= */
-@media (max-width: 600px) {
-    .site-footer {
-        padding: 28px 0 12px;
-    }
-
-    .footer-main {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 28px 20px;
-    padding-bottom: 24px;
-    margin-left: 0;
-    }   
-
-    .footer-brand {
-        grid-column: 1 / -1;
-        margin-bottom: 4px;
-    }
-
-    /* Logo */
-    .footer-logo {
-        gap: 10px;
-    }
-
-    .footer-logo-mark {
-        width: 44px;
-        height: 36px;
-    }
-
-    .footer-wordmark {
-        font-size: 1.3rem;
-        letter-spacing: 0.1em;
-    }
-
-    .footer-logo-v {
-        width: 18px;
-        height: 18px;
-    }
-
-    .footer-subtext {
-        font-size: 0.46rem;
-        letter-spacing: 0.17em;
-    }
-
-    .footer-description {
-        margin-top: 14px;
-        max-width: 100%;
-        font-size: 0.84rem;
-    }
-
-    /* Các cột liên kết */
-    .footer-column h3 {
-        font-size: 0.78rem;
-        margin-bottom: 14px;
-    }
-
-    .footer-column ul {
-        gap: 10px;
-    }
-
-    .footer-column a {
-        font-size: 0.8rem;
-    }
-
-    /* Copyright */
-    .footer-bottom {
-        padding-top: 16px;
-    }
-
-    .footer-bottom p {
-        font-size: 0.78rem;
-    }
-}
-
-/* =========================================
-   FOOTER RESPONSIVE - MOBILE NHỎ
-========================================= */
-@media (max-width: 600px) {
-    .footer-brand {
-        width: 100%;
-        overflow: hidden;
-    }
-
-    .footer-logo {
-        gap: 8px;
-    }
-
-    .footer-logo-mark {
-        width: 40px;
-    }
-
-    .footer-wordmark {
-        font-size: 1.2rem;
-    }
-
-    .footer-subtext {
-        font-size: 0.42rem;
-        letter-spacing: 0.13em;
-    }
-}
-
-   /* =========================================
-   8. RESPONSIVE TOÀN TRANG OWNIVERSE
-   ========================================= */
-
-/* TABLET: 601px - 900px */
-@media (min-width: 601px) and (max-width: 900px) {
-
-  /* Container toàn trang */
-  .container {
-    width: 100%;
-    max-width: 100%;
-    padding-left: 24px;
-    padding-right: 24px;
-    box-sizing: border-box;
-  }
-
-  /* Header */
-  .header-inner {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 18px 24px;
-    padding: 16px 0;
-  }
-
-  .brand-logo {
-    flex-shrink: 0;
-  }
-
-  .header-actions {
-    margin-left: auto;
-    gap: 14px;
-  }
-
-  .main-nav {
-    order: 3;
-    width: 100%;
-    min-width: 0;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding: 8px 0;
-  }
-
-  .main-nav ul {
-    display: flex;
-    flex-wrap: nowrap;
-    width: max-content;
-    gap: 24px;
-    white-space: nowrap;
-  }
-
-  /* Hero */
-  .hero-box {
-    grid-template-columns: 1fr 0.8fr;
-    gap: 24px;
-    padding: 32px;
-  }
-
-  .hero-title {
-    font-size: 1.75rem;
-  }
-
-  .hero-visual {
-    min-width: 0;
-  }
-
-  /* Tìm kiếm */
-  .search-bar {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 12px;
-  }
-
-  .search-label {
-    grid-column: 1 / -1;
-  }
-
-  .search-input {
-    width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
-  }
-
-  /* Danh sách nghệ sĩ */
   .artist-card {
     grid-template-columns: 150px minmax(0, 1fr);
-    gap: 24px;
-    padding: 24px;
   }
 
-  .artist-photo {
-    width: 150px;
-    height: 150px;
-  }
-
-  .artist-body {
-    min-width: 0;
-  }
+  .artist-photo { width: 150px; }
 
   .artist-cta {
     grid-column: 1 / -1;
@@ -933,316 +431,55 @@
     padding-top: 16px;
     border-top: 1px solid var(--border-gray);
   }
-
-  /* Footer */
-  .footer-main {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 28px 24px;
-  }
-
-  .footer-brand {
-    grid-column: 1 / -1;
-    min-width: 0;
-  }
-
-  .footer-bottom {
-    width: 100%;
-    margin-left: 0;
-    box-sizing: border-box;
-  }
 }
 
-
-/* MOBILE: 600px trở xuống */
+/* Điện thoại (<= 600px) */
 @media (max-width: 600px) {
-
-  /* Container */
-  .container {
-    width: 100%;
-    max-width: 100%;
-    padding-left: 20px;
-    padding-right: 20px;
-    box-sizing: border-box;
-  }
-
-  /* Header */
-  .header-inner {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 14px;
-    padding: 14px 0;
-  }
-
-  .brand-logo {
-    max-width: 100%;
-    flex-shrink: 0;
-  }
-
-  .logo-mark {
-    width: 36px;
-    height: 28px;
-  }
-
-  .logo-wordmark {
-    font-size: 1.1rem;
-    letter-spacing: 0.1em;
-  }
-
-  .logo-v-svg {
-    width: 13px;
-    height: 14px;
-  }
-
-  .logo-subtext {
-    font-size: 0.43rem;
-    letter-spacing: 0.12em;
-  }
-
-  .header-actions {
-    width: 100%;
-    margin-left: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 14px;
-  }
-
-  .main-nav {
-    order: 3;
-    width: 100%;
-    min-width: 0;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding: 8px 0 10px;
-    scrollbar-width: thin;
-  }
-
-  .main-nav ul {
-    display: flex;
-    flex-wrap: nowrap;
-    width: max-content;
-    gap: 20px;
-    white-space: nowrap;
-  }
-
-  /* Hero */
-  .hero-section {
-    margin: 20px 0;
-  }
-
   .hero-box {
     grid-template-columns: minmax(0, 1fr);
-    gap: 24px;
-    padding: 24px 20px;
-  }
-
-  .hero-title {
-    font-size: 1.55rem;
-  }
-
-  .hero-desc {
-    font-size: 0.9rem;
   }
 
   .hero-visual {
-    width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
+    min-height: 170px;
   }
 
-  /* Tìm kiếm */
-  .search-bar {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-  }
-
-  .search-input,
-  .btn-primary {
-    width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
-  }
-
-  /* Thẻ nghệ sĩ */
+  /* Thẻ nghệ sĩ xếp dọc; ảnh vuông, full chiều ngang -> không bị cắt mất nửa */
   .artist-card {
     grid-template-columns: minmax(0, 1fr);
-    gap: 20px;
-    padding: 20px;
+    gap: 18px;
   }
 
   .artist-photo {
     width: 100%;
-    height: 220px;
-    box-sizing: border-box;
-  }
-
-  .artist-body {
-    min-width: 0;
-  }
-
-  .artist-name {
-    font-size: 1.3rem;
-  }
-
-  .artist-desc {
-    font-size: 0.88rem;
-  }
-
-  .artist-socials {
-    gap: 12px;
+    max-width: 360px;
+    aspect-ratio: 1 / 1;
+    height: auto;
   }
 
   .artist-cta {
     width: 100%;
     justify-content: stretch;
-    padding-top: 16px;
-    border-top: 1px solid var(--border-gray);
   }
 
-  .btn-secondary {
+  .artist-cta .btn-secondary {
     width: 100%;
-    box-sizing: border-box;
-  }
-
-  /* Footer */
-  .site-footer {
-    padding: 28px 0 12px;
-  }
-
-  .footer-main {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 28px 20px;
-    padding-bottom: 24px;
-  }
-
-  .footer-brand {
-    grid-column: 1 / -1;
-    min-width: 0;
-  }
-
-  .footer-logo {
-    gap: 8px;
-    max-width: 100%;
-  }
-
-  .footer-logo-mark {
-    width: 40px;
-    height: 32px;
-  }
-
-  .footer-logo-content {
-    min-width: 0;
-  }
-
-  .footer-wordmark {
-    font-size: 1.2rem;
-    letter-spacing: 0.08em;
-    white-space: nowrap;
-  }
-
-  .footer-logo-v {
-    width: 16px;
-    height: 16px;
-  }
-
-  .footer-subtext {
-    font-size: 0.4rem;
-    letter-spacing: 0.12em;
-    white-space: nowrap;
-  }
-
-  .footer-description {
-    margin-top: 14px;
-    max-width: 100%;
-    font-size: 0.84rem;
-  }
-
-  .footer-column {
-    min-width: 0;
-  }
-
-  .footer-column h3 {
-    font-size: 0.76rem;
-    margin-bottom: 14px;
-  }
-
-  .footer-column ul {
-    gap: 10px;
-  }
-
-  .footer-column a {
-    font-size: 0.78rem;
-    overflow-wrap: anywhere;
-  }
-
-  .footer-bottom {
-    width: 100%;
-    margin-left: 0;
-    padding-top: 16px;
-    box-sizing: border-box;
-  }
-
-  .footer-bottom p {
-    font-size: 0.76rem;
   }
 }
 
-
-/* MOBILE RẤT NHỎ: 380px trở xuống */
-@media (max-width: 380px) {
-
-  .container {
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-
-  .header-actions {
-    gap: 10px;
-  }
-
-  .action-link {
-    font-size: 0.78rem;
-  }
-
-  .hero-box {
-    padding: 20px 16px;
-  }
-
-  .artist-card {
-    padding: 16px;
-  }
-
-  .footer-main {
-    column-gap: 14px;
-  }
-
-  .footer-wordmark {
-    font-size: 1.05rem;
-  }
-
-  .footer-subtext {
-    font-size: 0.35rem;
-    letter-spacing: 0.1em;
+/* Điện thoại nhỏ (<= 480px): nút tìm kiếm full chiều ngang */
+@media (max-width: 480px) {
+  .search-bar .btn-primary {
+    flex: 1 1 100%;
   }
 }
-/* ===== MOBILE HEADER FIX ===== */
-@media (max-width: 600px) {
-    header {
-        box-sizing: border-box;
-        width: 100%;
-    }
 
-    header .container,
-    .header-container,
-    .nav-container,
-    .navbar-container {
-        width: 100%;
-        max-width: 100%;
-        padding-left: 16px;
-        padding-right: 16px;
-        box-sizing: border-box;
-    }
-}
+@media (prefers-reduced-motion: reduce) {
+  .artist-card,
+  .artist-photo img,
+  .artist-cta .btn-secondary,
+  .artist-cta .btn-secondary svg {
+    transition: none;
+  }
 
+  .artist-card:hover { transform: none; }
+} 
