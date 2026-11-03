@@ -70,13 +70,13 @@ img {
   max-width: 100%;
 }
 
-/* ---------- Container ---------- */
-.container {
-
+/* ---------- Container: chỉ áp dụng trong nội dung About, không ảnh hưởng footer chung ---------- */
+.about .container {
   width: 100%;
   max-width: 1140px;
   margin: 0 auto;
-  padding: 0 var(--space-3);
+  padding-left: var(--space-3);
+  padding-right: var(--space-3);
 }
 
 /* ==========================================================================
@@ -428,7 +428,7 @@ img {
 
 .artist-card_media {
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 5 / 3;
   overflow: hidden;
   background-color: var(--about-placeholder);
 }
@@ -727,59 +727,4 @@ img {
     font-size: 10px;
   }
 } 
-}
-
-/* ==========================================================================
-   FIX RESPONSIVE RIÊNG ABOUT: ảnh nghệ sĩ
-   ========================================================================== */
-
-/* Reset mặc định của figure và loại bỏ khoảng trống inline của ảnh */
-.about .artist-card_media {
-  display: block;
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 100%;
-  margin: 0;
-  padding: 0;
-  aspect-ratio: 5 / 3;
-  overflow: hidden;
-  line-height: 0;
-}
-
-.about .artist-card_image {
-  display: block;
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 100%;
-  height: 100%;
-  margin: 0;
-  object-fit: cover;
-  object-position: center;
-}
-
-/* Tablet và điện thoại: bảo đảm card/ảnh không vượt khỏi cột grid */
-@media (max-width: 768px) {
-  .about .about-artists_grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .about .artist-card {
-    min-width: 0;
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .about .artist-card_media {
-    aspect-ratio: 5 / 3;
-  }
-}
-
-@media (max-width: 480px) {
-  .about .artist-card_media {
-    aspect-ratio: 5 / 3;
-  }
-
-  .about .artist-card_image {
-    object-position: center;
-  }
 }
