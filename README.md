@@ -7,16 +7,14 @@
 - **Khách hàng mục tiêu:** Người hâm mộ tại Việt Nam, chủ yếu là người trẻ/Gen Z, các fan club và người mua quà tặng cho fan. Nhóm tổ chức sự kiện, câu lạc bộ là định hướng mở rộng từ kế hoạch Buổi 1, chưa phải phạm vi triển khai hiện tại.
 - **Vấn đề hướng tới:** Thông tin merchandise phân tán, rủi ro hàng nhái và thiếu minh bạch trong các đợt đặt trước (pre-order). Đây là bài toán kinh doanh, không phải những vấn đề đã được giải quyết bằng hệ thống vận hành ở Buổi 2.
 
-### Thành viên nhóm (kế thừa phân công trong README Buổi 1)
+### Thành viên nhóm 
 
 | Thành viên | Vai trò được phân công |
 |---|---|
-| Ánh Hằng | Trưởng nhóm / Business Analyst (BA) |
-| Minh Nguyệt | Thiết kế giao diện và trải nghiệm người dùng (UI/UX) |
-| Phương Vy | Frontend Developer - phụ trách logic và định hướng API |
-| Mỹ Dung | Frontend Developer - UI/CSS và Responsive |
-| Muội Nhiên | Backend Developer - định hướng API và cơ sở dữ liệu |
-| Bảo Ngọc | Backend Developer - định hướng xác thực và xử lý đơn hàng |
+| Phương Vy | Trưởng nhóm / Thiết kế giao diện tổng thể, xây dựng wireframe và quy chuẩn giao diện cho 5 trang; phát triển trang danh sách nghệ sĩ (artist.html). | Ánh Hằng | Tổ chức cấu trúc repository, quản lý tài nguyên; xây dựng trang chủ (index.html), Header, Footer và Banner dùng chung. |
+| Mỹ Dung | Xây dựng giao diện danh sách sản phẩm (products.html), bảo đảm hiển thị tối thiểu 8 sản phẩm với bố cục và liên kết phù hợp. |
+| Muội Nhiên | Thiết kế và kiểm thử responsive ở ba kích thước màn hình (1366px, 768px, 390px); kiểm tra và điều chỉnh lỗi hiển thị. |
+| Bảo Ngọc | Xây dựng giao diện trang chi tiết sản phẩm (product-detail.html) và trang giới thiệu thương hiệu (about.html). |
 | Phạm Huy | QA/Tester và Technical Writer |
 
 ## 2. Cấu trúc thư mục
