@@ -2,23 +2,24 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tất cả sản phẩm | OWNIVERSE</title>
-  <meta name="description" content="Khám phá merchandise chính hãng từ những nghệ sĩ bạn yêu thích tại OWNIVERSE.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Owniverse – Merch của nghệ sĩ, kết nối cùng cộng đồng</title>
+  <meta name="description" content="Merchandise chính hãng, bộ sưu tập độc quyền từ nghệ sĩ bạn yêu thích.">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="css/pages/base.css">
-  <link rel="stylesheet" href="css/pages/layout.css">
-  <link rel="stylesheet" href="css/pages/components.css">
+ <!-- CSS nền tảng -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- CSS Header và Footer dùng chung -->
+  <link rel="stylesheet" href="css/chuanHeader.css">
+  <link rel="stylesheet" href="css/chuanFooter.css">
+  <!-- CSS riêng trang Products -->
   <link rel="stylesheet" href="css/pages/products.css">
- 
 </head>
 <body>
-
-  <!-- ========== HEADER (dùng chung) ========== -->
  
 <header class="site-header">
     <div class="container header-inner">
@@ -34,7 +35,7 @@
         <div class="logo-text-group">
           <span class="logo-wordmark">
             OWNI
-            <!-- Chữ V cách điệu tam giác tím chuẩn Brand Identity -->
+           
             <svg class="logo-v-svg" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path d="M2 3H18L10 18L2 3Z" stroke="#A78BFA" stroke-width="3" stroke-linejoin="round"/>
             </svg>
@@ -44,12 +45,11 @@
         </div>
       </a>
 
-      <!-- Menu chính -->
       <nav class="main-nav" aria-label="Điều hướng chính">
         <ul>
           <li><a href="index.html">Trang chủ</a></li>
           <li><a href="about.html">Về chúng tôi</a></li>
-         <li><a href="products.html" class="active" aria-current="page">Sản phẩm</a></li>
+          <li><a href="products.html" class="active" aria-current="page">Sản phẩm</a></li>
           <li><a href="artist.html" >Nghệ sĩ</a></li>
           <li><a href="community.html">Cộng đồng</a></li>
         </ul>
@@ -79,6 +79,7 @@
 
     </div>
   </header>
+<body>
   <main>
 
     <!-- ========== PAGE HEADER ========== -->
