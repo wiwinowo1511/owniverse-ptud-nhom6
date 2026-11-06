@@ -1246,3 +1246,18 @@
     }
 }
 
+@media (max-width: 600px) {
+  body .artist-photo {
+    width: 100%;
+    max-width: 360px;
+    height: auto;
+    aspect-ratio: 1 / 1;      /* khung vuông, thấy trọn mặt */
+  }
+
+  body .artist-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 15%;   /* giữ phần đầu/khuôn mặt luôn trong khung */
+  }
+} 

@@ -137,3 +137,56 @@ Các yêu cầu liên quan đến thanh toán, bảo mật và chương trình t
 
 ### Người kiểm tra
 Phạm Lê Bảo Ngọc.
+
+
+# AI Usage Log – BTLMS2
+
+## 1. Công cụ AI đã dùng
+
+| Công cụ | Dùng cho |
+|---|---|
+| ChatGPT | Lập kế hoạch triển khai (Bước 1); kiểm tra và sửa lỗi responsive (Bước 7) |
+| Claude | Kiểm tra cấu trúc dự án (Bước 2); Đặc tả giao diện (Bước 3); header, footer, banner, trang chủ (Bước 4); Trang danh sách sản phẩm (Bước 5); Trang chi tiết sản phẩm, trang giới thiệu và trang nghệ sĩ (Bước 6.1, 6.2), 6.3; Kiểm tra responsive trên nhiều thiết bị (Bước 7); Rà soát hover/focus (Bước 8); Báo cáo kiểm thử (Bước 9) |
+| Gemini | Giao diện trang danh sách nghệ sĩ (Bước 6.3) |
+| GitHub Copilot (VS Code) | Sửa lỗi carousel ở Hero banner trang chủ |
+
+## 2. AI hỗ trợ từng bước
+
+| Bước | Nội dung | Công cụ | Kết quả nhóm sử dụng |
+|---|---|---|---|
+| 1 | Kế hoạch triển khai giao diện | ChatGPT | Dựa vào gợi ý và thế mạnh thành viên để lập bảng kế hoạch, bảng phân công |
+| 2 | Kiểm tra cấu trúc repository, quy ước đặt tên file/class, đường dẫn tương đối, lỗi khi tích hợp | Claude | Điều chỉnh cấu trúc thư mục, thêm thư mục `docs`, thống nhất quy ước đặt tên |
+| 3 | Đặc tả giao diện 5 trang: thành phần dùng chung, bảng màu, kiểu chữ, điều hướng (chưa viết mã) | Claude | Dùng làm bộ quy chuẩn giao diện chung |
+| 4 | Header, footer, banner, trang chủ | Claude | Nhóm yêu cầu chỉnh lại theo quy ước đặt tên và giữ nguyên `chuanHeader.css` |
+| 5 | Trang danh sách sản phẩm (page header, bộ lọc, lưới sản phẩm, banner) | Claude | Dùng và chỉnh theo bố cục của nhóm |
+| 6.1 | Trang chi tiết sản phẩm | AI (chưa ghi rõ công cụ) | Dùng, kèm gallery ảnh bằng CSS thuần |
+| 6.2 | Trang giới thiệu (hero, câu chuyện, giá trị, nghệ sĩ, kết nối) | Claude | Dùng và chỉnh theo bộ nhận diện |
+| 6.3 | Trang danh sách nghệ sĩ, ô tìm kiếm | Gemini | Dùng, chỉnh ảnh nghệ sĩ bằng `object-fit` và `object-position` |
+| 7 | Phát hiện và sửa lỗi responsive (header, hero, lưới, footer, ảnh) | ChatGPT | Áp dụng bằng media queries, Grid, Flexbox |
+| 8 | Rà soát hiệu ứng hover/focus trong các file CSS | Claude | Lập bảng liệt kê hiệu ứng theo từng thành phần |
+| 9 | Báo cáo kiểm thử | Claude | Lập bảng liệt kê theo từng thành phần |
+## 3. Đánh giá nội dung AI tạo ra (theo thành viên)
+
+| Thành viên | Đề xuất của AI | Cách kiểm tra | Kết quả và bài học |
+|---|---|---|---|
+| Ánh Hằng | Claude đề xuất carousel Hero banner bằng CSS thuần (dải 500%, `@keyframes`, chấm chỉ báo trang trí) | Chép vào `index.html`, `home.css`, chạy Live Preview, rê chuột và bấm chấm chỉ báo | Chạy sai: `<h1>` và nút trượt theo ảnh, chấm chỉ báo không khớp. Dùng Copilot sửa nhiều lần cho đến khi chạy ổn. Bài học: AI nghe hợp lý vẫn phải kiểm thử, cách phức tạp chưa chắc tốt, nên đối chiếu bằng công cụ thứ hai |
+| Phương Vy | `object-fit: cover` kết hợp `object-position` cho ảnh nghệ sĩ bị lệch khung | Live Preview, thử đổi kích thước cửa sổ | Ảnh vừa khung, giữ tỉ lệ, các thẻ đồng nhất. Bài học: cần thử với nhiều ảnh khác tỉ lệ, kiểm tra trên trình duyệt trước khi áp dụng |
+| Bảo Ngọc | Gallery ảnh sản phẩm bằng radio + `:checked` + `nth-of-type`, không dùng JavaScript | Live Preview, bấm các ảnh nhỏ | Đổi ảnh đúng như kỳ vọng. Bài học: AI là công cụ hỗ trợ, người làm phải tự kiểm tra và chỉnh theo bài của nhóm |
+| Muội Nhiên | Đoạn CSS responsive cho trang Artist trên tablet | Đối chiếu với HTML thực tế, mô phỏng tablet bằng Chrome DevTools | Không dùng nguyên văn, chỉnh lại theo cấu trúc trang. Bài học: không dùng hoàn toàn mã AI, cần đánh giá và thử nghiệm |
+
+## 4. Nguyên tắc nhóm áp dụng khi dùng AI
+
+- Luôn đặt ràng buộc trong prompt: không tạo lại toàn bộ dự án, không dùng JavaScript hoặc framework CSS, giữ đúng quy ước và bộ nhận diện.
+- Không dán nguyên văn: đọc hiểu, chỉnh theo cấu trúc HTML/CSS thực tế của nhóm.
+- Kiểm tra bằng Live Preview, Chrome DevTools và các kích thước màn hình cụ thể.
+- Đối chiếu giữa nhiều công cụ AI, ghi lại và giải thích các phần đã thay đổi.
+- Nhóm trưởng kiểm tra tính thống nhất giao diện trước khi merge.
+
+## 5. Liên kết cuộc trò chuyện với AI
+
+- Kế hoạch triển khai (ChatGPT): https://chatgpt.com/share/6ae6fbc7-ff44-83ec-bcd7-2b8dce06a5f7
+- Trang danh sách sản phẩm (Claude): https://claude.ai/share/34249857-75a0-4449-a234-22be1f8af9f8
+- Trang giới thiệu (Claude): https://claude.ai/share/265119a0-036e-437a-ba30-b4577a922c88
+- Carousel Hero banner (Claude): https://claude.ai/share/8f63063e-1e64-456a-8732-27c94160ae5e
+- Kiểm tra responsive (ChatGPT): https://chatgpt.com/share/6ae7428f-246c-83ec-b949-04ce6c6cead5
+- Nhật ký sửa carousel với Copilot: https://github.com/wiwinowo1511/owniverse-ptud-nhom6/blob/main/js/chat.json
