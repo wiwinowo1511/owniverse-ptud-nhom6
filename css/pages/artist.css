@@ -1261,3 +1261,20 @@
     object-position: center 15%;   /* giữ phần đầu/khuôn mặt luôn trong khung */
   }
 } 
+/* Bắt buộc: .artist-card đang dùng display: grid nên phải ép ẩn thủ công */
+.artist-card[hidden] {
+  display: none;
+}
+
+.artist-empty {
+  padding: 48px 16px;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--bg-black);
+  opacity: 0.7;
+}
+
+.artist-empty[hidden] {
+  display: none;
+}
