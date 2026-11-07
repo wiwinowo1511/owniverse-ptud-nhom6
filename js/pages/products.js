@@ -18,7 +18,7 @@ const PRODUCTS = [
   {
     id: 2,
     name: "Album After Dark - Rhea",
-    price: 499000,
+    price: 549000,
     category: "album",
     image: "images/products/rhea-album-01.png",
     artist: "Rhea",
