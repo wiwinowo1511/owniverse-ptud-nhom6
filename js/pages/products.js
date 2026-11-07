@@ -18,7 +18,7 @@ const PRODUCTS = [
   {
     id: 2,
     name: "Album After Dark - Rhea",
-    price: 549000,
+    price: 499000,
     category: "album",
     image: "images/products/rhea-album-01.png",
     artist: "Rhea",
@@ -134,7 +134,126 @@ function escapeHtml(value) {
 
 
 /* ---------- 3. HIỂN THỊ SẢN PHẨM ---------- */
+/* ---------- 3.1. TÌM KIẾM, LỌC VÀ SẮP XẾP ---------- */
 
+// Chuẩn hóa chữ để tìm kiếm không phân biệt chữ hoa, chữ thường và dấu tiếng Việt
+function normalizeText(text) {
+  return String(text || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .trim();
+}
+
+
+// Kiểm tra danh mục cha và danh mục con
+function productMatchesCategory(product, selectedCategories) {
+  if (selectedCategories.length === 0) return true;
+
+  const categoryGroups = {
+    "ao": ["ao-thun", "ao-khoac"],
+    "quan": ["quan-dai", "quan-short"],
+    "phu-kien": ["day-deo", "moc-khoa", "card", "phone-case", "pin-cai", "sticker"],
+    "tui": ["tui-tote", "tui-deo-cheo"]
+  };
+
+  return selectedCategories.some(function (category) {
+    if (category === product.category) return true;
+
+    return categoryGroups[category]?.includes(product.category) || false;
+  });
+}
+
+
+// Kiểm tra khoảng giá
+function productMatchesPrice(product, selectedPrices) {
+  if (selectedPrices.length === 0) return true;
+
+  return selectedPrices.some(function (range) {
+    switch (range) {
+      case "duoi-300":
+        return product.price < 300000;
+
+      case "300-500":
+        return product.price >= 300000 && product.price <= 500000;
+
+      case "500-1000":
+        return product.price > 500000 && product.price <= 1000000;
+
+      case "tren-1000":
+        return product.price > 1000000;
+
+      default:
+        return false;
+    }
+  });
+}
+
+
+// Lấy danh sách sản phẩm sau khi tìm kiếm, lọc và sắp xếp
+function getFilteredProducts() {
+  const searchInput = document.querySelector("#product-search");
+
+  const keyword = normalizeText(searchInput?.value || "");
+
+  const selectedArtists = Array.from(
+    document.querySelectorAll('input[name="artist"]:checked')
+  ).map(input => input.value.toLowerCase());
+
+  const selectedCategories = Array.from(
+    document.querySelectorAll('input[name="category"]:checked')
+  ).map(input => input.value);
+
+  const selectedPrices = Array.from(
+    document.querySelectorAll('input[name="price"]:checked')
+  ).map(input => input.value);
+
+  const sortValue = document.querySelector(".products-toolbar_select")?.value || "popular";
+
+  // Tìm kiếm và lọc sản phẩm
+  let result = PRODUCTS.filter(function (product) {
+    const searchable = normalizeText(product.name + " " + product.artist);
+    const matchesKeyword =
+      !keyword ||
+      keyword.split(/\s+/).every(function (word) {
+        return searchable.includes(word);
+      });
+
+    const matchesArtist =
+      selectedArtists.length === 0 ||
+      selectedArtists.includes(product.artist.toLowerCase());
+
+    const matchesCategory =
+      productMatchesCategory(product, selectedCategories);
+
+    const matchesPrice =
+      productMatchesPrice(product, selectedPrices);
+
+    return (
+      matchesKeyword &&
+      matchesArtist &&
+      matchesCategory &&
+      matchesPrice
+    );
+  });
+
+  // Sắp xếp sản phẩm theo giá
+  if (sortValue === "price-asc") {
+    result.sort((a, b) => a.price - b.price);
+  } else if (sortValue === "price-desc") {
+    result.sort((a, b) => b.price - a.price);
+  }
+
+  return result;
+}
+
+
+// Cập nhật danh sách sản phẩm sau mỗi thao tác
+function updateProductList() {
+  const filteredProducts = getFilteredProducts();
+  renderProducts(filteredProducts);
+}
 
 // Tạo HTML cho một thẻ sản phẩm (giữ nguyên cấu trúc và class hiện tại)
 function createProductCardHtml(product) {
@@ -193,18 +312,94 @@ function handleProductImageError(event) {
   }
 }
 
+/* ---------- 3.2. TÌM KIẾM TRÊN HEADER VÀ SỰ KIỆN LỌC ---------- */
 
+function initHeaderSearch() {
+  const toggle = document.querySelector("#search-toggle");
+  const panel = document.querySelector("#search-panel");
+  const form = document.querySelector("#search-form");
+  const input = document.querySelector("#product-search");
+  const closeBtn = document.querySelector(".search-close");
+  if (!toggle || !panel || !form || !input) return;
+
+  const onProductsPage = !!document.querySelector(".products-grid");
+
+  function openPanel() {
+    panel.hidden = false;
+    toggle.setAttribute("aria-expanded", "true");
+    input.focus();
+  }
+
+  function closePanel() {
+    panel.hidden = true;
+    toggle.setAttribute("aria-expanded", "false");
+  }
+
+  toggle.addEventListener("click", function () {
+    panel.hidden ? openPanel() : closePanel();
+  });
+
+  if (closeBtn) closeBtn.addEventListener("click", closePanel);
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape" && !panel.hidden) {
+      closePanel();
+      toggle.focus();
+    }
+  });
+
+  // Đọc từ khóa từ URL (products.html?q=...)
+  const query = new URLSearchParams(window.location.search).get("q");
+  if (query) {
+    input.value = query;
+    openPanel();
+  }
+
+  // Trang khác: để form tự chuyển sang products.html?q=...
+  if (!onProductsPage) return;
+
+  // Trang sản phẩm: lọc ngay khi gõ
+  input.addEventListener("input", updateProductList);
+
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+    updateProductList();
+
+    const url = new URL(window.location.href);
+    const keyword = input.value.trim();
+    if (keyword) {
+      url.searchParams.set("q", keyword);
+    } else {
+      url.searchParams.delete("q");
+    }
+    history.replaceState(null, "", url);
+  });
+}
+
+// Bộ lọc và sắp xếp cũng phải gọi updateProductList thì mới kết hợp được với tìm kiếm
+function initProductFilters() {
+  const filterForm = document.querySelector(".products-filter_form");
+  const sortSelect = document.querySelector(".products-toolbar_select");
+
+  if (filterForm) {
+    filterForm.addEventListener("change", updateProductList);
+    filterForm.addEventListener("submit", function (event) {
+      event.preventDefault();
+      updateProductList();
+    });
+  }
+
+  if (sortSelect) sortSelect.addEventListener("change", updateProductList);
+}
 /* ---------- 4. KHỞI TẠO ---------- */
 document.addEventListener("DOMContentLoaded", function () {
+  initHeaderSearch(); // chạy trước để điền từ khóa từ URL
+
   const grid = document.querySelector(".products-grid");
   if (!grid) return; // Trang khác chỉ dùng dữ liệu thì không render
 
-
   grid.addEventListener("error", handleProductImageError, true);
-  renderProducts(PRODUCTS);
+  initProductFilters();
+  updateProductList(); // thay cho renderProducts(PRODUCTS)
 });
-
-
-
-
 
