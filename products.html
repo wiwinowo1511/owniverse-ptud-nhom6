@@ -57,13 +57,14 @@
 
       <!-- Cụm tiện ích kèm Icon nét mảnh chuẩn mục Icon & Elements -->
       <div class="header-actions">
-        <a href="#artist-search" class="action-link">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-          Tìm kiếm
-        </a>
+       <button type="button" class="action-link search-toggle" id="search-toggle"
+        aria-expanded="false" aria-controls="search-panel">
+  <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <circle cx="11" cy="11" r="8"></circle>
+    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+  </svg>
+  Tìm kiếm
+</button>
         <a href="cart.html" class="action-link">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="9" cy="21" r="1"></circle>
@@ -78,8 +79,19 @@
       </div>
 
     </div>
+    <div class="search-panel" id="search-panel" hidden>
+  <div class="container">
+    <form class="search-form" id="search-form" action="products.html" method="get" role="search">
+      <input class="search-input" id="product-search" type="search" name="q"
+             placeholder="Tìm sản phẩm hoặc nghệ sĩ..." autocomplete="off"
+             aria-label="Tìm kiếm sản phẩm">
+      <button class="search-submit" type="submit">Tìm</button>
+      <button class="search-close" type="button" aria-label="Đóng tìm kiếm">&times;</button>
+    </form>
+  </div>
+</div>
   </header>
-
+<body>
   <main>
 
     <!-- ========== PAGE HEADER ========== -->
@@ -221,7 +233,7 @@
                 <div class="product-card_body">
                   <h3 class="product-card_title">Album After Dark - Rhea</h3>
                   <p class="product-card_artist">Nghệ sĩ: Rhea</p>
-                  <p class="product-card_price">549.000đ</p>
+                  <p class="product-card_price">499.000đ</p>
                   <a class="product-card_btn" href="product-detail.html">Xem chi tiết</a>
                 </div>
               </article>
@@ -445,6 +457,5 @@
   </div>
 </footer>
 <script src="js/pages/products.js"></script>
-<script src="js/cart/cart-store.js"></script>
 </body>
 </html>
