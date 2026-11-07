@@ -606,3 +606,109 @@
     font-size: 0.6rem;
   }
 } 
+/* =========================
+   11. THANH TÌM KIẾM TRÊN HEADER
+========================= */
+
+/* Nút "Tìm kiếm" là <button> nên cần reset để giống các .action-link khác */
+.search-toggle {
+    appearance: none;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+}
+
+/* Panel xổ xuống dưới header (nằm trong .site-header nên dính theo header khi cuộn) */
+.search-panel {
+    background-color: var(--pure-white);
+    border-top: 1px solid var(--border-gray);
+    padding: 12px 0;
+}
+
+.search-panel[hidden] {
+    display: none;
+}
+
+.search-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.search-input {
+    flex: 1;
+    min-width: 0;
+    height: 44px;
+    padding: 0 18px;
+    border: 1.5px solid var(--border-gray);
+    border-radius: var(--radius-pill);
+    background-color: var(--pure-white);
+    font-family: var(--font-body);
+    font-size: 0.94rem;
+    color: var(--bg-black);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--brand-purple);
+    box-shadow: 0 0 0 3px var(--brand-purple-soft);
+}
+
+.search-submit {
+    height: 44px;
+    padding: 0 24px;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background-color: var(--bg-black);
+    color: var(--pure-white);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.25s ease;
+}
+
+.search-submit:hover {
+    background-color: var(--brand-purple);
+}
+
+.search-close {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border: 0;
+    background: none;
+    font-size: 1.8rem;
+    line-height: 1;
+    color: var(--bg-black);
+    opacity: 0.6;
+    cursor: pointer;
+    transition: opacity 0.25s ease;
+}
+
+.search-close:hover {
+    opacity: 1;
+}
+
+/* Điện thoại */
+@media (max-width: 600px) {
+    .search-panel {
+        padding: 10px 0;
+    }
+
+    .search-input,
+    .search-submit,
+    .search-close {
+        height: 40px;
+    }
+
+    .search-submit {
+        padding: 0 16px;
+    }
+
+    .search-close {
+        width: 36px;
+    }
+}
