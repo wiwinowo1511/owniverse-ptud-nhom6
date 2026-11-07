@@ -376,13 +376,12 @@ function initHeaderSearch() {
   });
 }
 
-// Bộ lọc và sắp xếp cũng phải gọi updateProductList thì mới kết hợp được với tìm kiếm
+// Bộ lọc chỉ chạy khi bấm "ÁP DỤNG"; sắp xếp thì vẫn đổi ngay khi chọn
 function initProductFilters() {
   const filterForm = document.querySelector(".products-filter_form");
   const sortSelect = document.querySelector(".products-toolbar_select");
 
   if (filterForm) {
-    filterForm.addEventListener("change", updateProductList);
     filterForm.addEventListener("submit", function (event) {
       event.preventDefault();
       updateProductList();
