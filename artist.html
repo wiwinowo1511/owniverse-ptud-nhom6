@@ -260,6 +260,12 @@
         </article>
 
       </div>
+            </div> <!-- kết thúc .artists-grid -->
+
+      <p class="artist-empty" id="artist-empty" role="status" hidden>
+        Không tìm thấy nghệ sĩ nào phù hợp.
+      </p>
+    </section>
     </section>
 
   </main>
@@ -362,3 +368,68 @@
 
   </div>
 </footer>
+<script>
+(function () {
+  var input = document.querySelector("#artist-search");
+  var form = document.querySelector(".search-bar");
+  var cards = document.querySelectorAll(".artist-card");
+  var emptyMsg = document.querySelector("#artist-empty");
+  if (!input || !form) return;
+
+  // Không phân biệt hoa/thường và dấu tiếng Việt
+  function normalize(text) {
+    return String(text || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .trim();
+  }
+
+  function filterArtists() {
+    var words = normalize(input.value).split(/\s+/).filter(Boolean);
+    var visible = 0;
+
+    cards.forEach(function (card) {
+      var name = card.querySelector(".artist-name").textContent;
+      var desc = card.querySelector(".artist-desc").textContent;
+      var text = normalize(name + " " + desc);
+
+      var matched = words.every(function (word) {
+        return text.includes(word);
+      });
+
+      card.hidden = !matched;
+      if (matched) visible++;
+    });
+
+    if (emptyMsg) emptyMsg.hidden = visible !== 0;
+  }
+
+  // Gõ tới đâu lọc tới đó
+  input.addEventListener("input", filterArtists);
+
+  // Bấm nút "Tìm kiếm" hoặc Enter: lọc tại chỗ, không tải lại trang
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+    filterArtists();
+  });
+
+  // Hỗ trợ artist.html?keyword=kairo
+  var q = new URLSearchParams(window.location.search).get("keyword");
+  if (q) {
+    input.value = q;
+    filterArtists();
+  }
+
+  // Nút "Tìm kiếm" trên header: cuộn xuống ô tìm kiếm và đặt con trỏ vào đó
+  var headerSearch = document.querySelector('.header-actions a[href="#artist-search"]');
+  if (headerSearch) {
+    headerSearch.addEventListener("click", function (event) {
+      event.preventDefault();
+      input.scrollIntoView({ behavior: "smooth", block: "center" });
+      input.focus({ preventScroll: true });
+    });
+  }
+})();
+</script>
