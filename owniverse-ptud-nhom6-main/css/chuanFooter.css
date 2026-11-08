@@ -1,0 +1,427 @@
+
+/* ==========================================================
+   OWNIVERSE - FOOTER
+   File: chuanFooter.css
+========================================================== */
+
+.site-footer {
+  width: 100%;
+  padding: 40px 0 16px;
+  background: var(--bg-black);
+  color: var(--pure-white);
+  border-top: 1px solid #333333;
+}
+
+.footer-container {
+  width: 100%;
+}
+
+/* ==========================================================
+   1. BỐ CỤC FOOTER
+========================================================== */
+
+.footer-main {
+  display: grid;
+  grid-template-columns: 1.6fr 0.9fr 1fr 0.9fr 0.9fr;
+  gap: 32px;
+  padding-bottom: 32px;
+}
+
+/* ==========================================================
+   2. CỘT THƯƠNG HIỆU
+========================================================== */
+
+.footer-brand {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.footer-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  text-decoration: none;
+}
+
+.footer-logo-mark {
+  display: block;
+  width: 48px;
+  height: 38px;
+  flex-shrink: 0;
+}
+
+.footer-logo-content {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+}
+
+.footer-wordmark {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  line-height: 1.15;
+  color: var(--pure-white);
+  white-space: nowrap;
+}
+
+.footer-logo-v {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin: 0 2px 1px 0;
+  color: var(--brand-purple);
+}
+
+.footer-subtext {
+  font-family: var(--font-heading);
+  font-size: 0.56rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  line-height: 1.5;
+  color: var(--brand-purple-soft);
+  white-space: nowrap;
+}
+
+.footer-logo:hover .footer-wordmark {
+  opacity: 0.8;
+}
+
+.footer-description {
+  max-width: 300px;
+  margin-top: 20px;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  line-height: 1.8;
+  color: #D1D1D6;
+}
+
+/* ==========================================================
+   3. CÁC CỘT LIÊN KẾT
+========================================================== */
+
+.footer-column {
+  min-width: 0;
+}
+
+.footer-column h3 {
+  margin-bottom: 20px;
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--pure-white);
+}
+
+.footer-column ul {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.footer-column a {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: #D1D1D6;
+  text-decoration: none;
+  overflow-wrap: break-word;
+  transition: color 0.25s ease;
+}
+
+.footer-column a:hover {
+  color: var(--brand-purple);
+}
+
+/* ==========================================================
+   4. THANH BẢN QUYỀN
+========================================================== */
+
+.footer-bottom {
+  width: 100%;
+  box-sizing: border-box;
+  padding-top: 18px;
+  border-top: 1px solid #3e3e3e;
+  text-align: center;
+}
+
+.footer-bottom p {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  line-height: 1.6;
+  color: #D1D1D6;
+}
+
+
+/* ==========================================================
+   5. RESPONSIVE - LAPTOP
+   Kích thước: 901px - 1200px
+========================================================== */
+
+@media (min-width: 901px) and (max-width: 1200px) {
+
+  .footer-main {
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: 32px 28px;
+  }
+
+  .footer-brand {
+    grid-column: 1 / -1;
+  }
+
+  .footer-description {
+    max-width: 480px;
+  }
+}
+
+
+/* ==========================================================
+   6. RESPONSIVE - TABLET
+   Kích thước: 601px - 900px
+========================================================== */
+
+@media (min-width: 601px) and (max-width: 900px) {
+
+  .site-footer {
+    padding-top: 34px;
+  }
+
+  .footer-main {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 30px 32px;
+    padding-bottom: 28px;
+  }
+
+  .footer-brand {
+    grid-column: 1 / -1;
+  }
+
+  .footer-description {
+    max-width: 480px;
+  }
+
+  .footer-column h3 {
+    margin-bottom: 16px;
+  }
+}
+
+
+/* ==========================================================
+   7. RESPONSIVE - MOBILE
+   Kích thước: 376px - 600px
+========================================================== */
+
+@media (min-width: 376px) and (max-width: 600px) {
+
+  .site-footer {
+    padding: 30px 0 14px;
+  }
+
+  .footer-main {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 26px 20px;
+    padding-bottom: 24px;
+  }
+
+  .footer-brand {
+    grid-column: 1 / -1;
+  }
+
+  .footer-logo {
+    gap: 9px;
+  }
+
+  .footer-logo-mark {
+    width: 42px;
+    height: 34px;
+  }
+
+  .footer-wordmark {
+    font-size: 1.25rem;
+    letter-spacing: 0.1em;
+  }
+
+  .footer-logo-v {
+    width: 17px;
+    height: 17px;
+  }
+
+  .footer-subtext {
+    font-size: 0.44rem;
+    letter-spacing: 0.15em;
+  }
+
+  .footer-description {
+    max-width: 100%;
+    margin-top: 14px;
+    font-size: 0.82rem;
+    line-height: 1.7;
+  }
+
+  .footer-column h3 {
+    margin-bottom: 13px;
+    font-size: 0.78rem;
+  }
+
+  .footer-column ul {
+    gap: 10px;
+  }
+
+  .footer-column a {
+    font-size: 0.76rem;
+  }
+
+  .footer-bottom {
+    padding-top: 15px;
+  }
+
+  .footer-bottom p {
+    font-size: 0.68rem;
+  }
+}
+
+
+/* ==========================================================
+   8. RESPONSIVE - MOBILE NHỎ
+   Kích thước: <= 375px
+========================================================== */
+
+@media (max-width: 375px) {
+
+  .site-footer {
+    padding: 26px 0 12px;
+  }
+
+  .footer-main {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px 14px;
+    padding-bottom: 22px;
+  }
+
+  .footer-brand {
+    grid-column: 1 / -1;
+  }
+
+  .footer-logo {
+    gap: 8px;
+  }
+
+  .footer-logo-mark {
+    width: 38px;
+    height: 32px;
+  }
+
+  .footer-wordmark {
+    font-size: 1.12rem;
+    letter-spacing: 0.09em;
+  }
+
+  .footer-logo-v {
+    width: 15px;
+    height: 15px;
+  }
+
+  .footer-subtext {
+    font-size: 0.39rem;
+    letter-spacing: 0.12em;
+  }
+
+  .footer-description {
+    max-width: 100%;
+    margin-top: 12px;
+    font-size: 0.78rem;
+    line-height: 1.65;
+  }
+
+  .footer-column h3 {
+    margin-bottom: 12px;
+    font-size: 0.74rem;
+  }
+
+  .footer-column ul {
+    gap: 9px;
+  }
+
+  .footer-column a {
+    font-size: 0.72rem;
+  }
+
+  .footer-bottom {
+    padding-top: 14px;
+  }
+
+  .footer-bottom p {
+    font-size: 0.64rem;
+  }
+}
+
+
+/* ==========================================================
+   9. HẠN CHẾ CHUYỂN ĐỘNG
+========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-column a,
+  .footer-logo .footer-wordmark {
+    transition: none;
+  }
+}
+
+/* ==========================================================
+   TINH CHỈNH FOOTER THEO HTML THỰC TẾ
+========================================================== */
+
+/* Đảm bảo các cột không tràn nội dung */
+.footer-main > * {
+  min-width: 0;
+}
+
+.footer-column a {
+  overflow-wrap: anywhere;
+}
+
+/* Căn chỉnh logo */
+.footer-logo {
+  align-items: center;
+}
+
+.footer-logo-mark {
+  width: 48px;
+  height: 38px;
+  object-fit: contain;
+}
+
+.footer-logo-content {
+  flex-shrink: 1;
+}
+
+/* Tablet và mobile */
+@media (max-width: 900px) {
+  .footer-brand {
+    grid-column: 1 / -1;
+  }
+
+  .footer-description {
+    max-width: 460px;
+  }
+}
+
+/* Bản quyền */
+.footer-bottom {
+  text-align: center;
+}
+
+.footer-bottom p {
+  margin: 0;
+}
