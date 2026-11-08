@@ -6,6 +6,8 @@
 const CART_STORAGE_KEY = "owniverse_cart";
 const CART_MAX_QTY = 99;          // Số lượng tối đa mỗi sản phẩm
 const CART_PAGE = "cart.html";
+const CART_CHECKOUT_HASH = "#cart-summary";               // khu vực tóm tắt + nút THANH TOÁN
+const CART_CHECKOUT_URL = CART_PAGE + CART_CHECKOUT_HASH; // đích của nút "Mua ngay"
 
 /* ---------- 1. DỮ LIỆU ---------- */
 
@@ -37,7 +39,7 @@ function saveCart(cart) {
   } catch (error) {
     console.warn("Không thể lưu giỏ hàng:", error);
   }
-  updateCartCount();
+  notifyCartChange();
 }
 
 // Tìm dòng trong giỏ theo id (id số hoặc chuỗi đều được)
@@ -45,6 +47,12 @@ function findCartItem(cart, id) {
   return cart.find(function (item) {
     return String(item.id) === String(id);
   }) || null;
+}
+
+// Số lượng của một sản phẩm trong giỏ (0 nếu chưa có)
+function getCartQuantity(id) {
+  const item = findCartItem(getCart(), id);
+  return item ? item.quantity : 0;
 }
 
 /* ---------- 2. THAO TÁC ---------- */
@@ -93,6 +101,15 @@ function removeFromCart(id) {
   }));
 }
 
+// "Mua ngay": thêm vào giỏ rồi chuyển thẳng tới khu vực thanh toán của giỏ hàng
+function buyNow(id, quantity) {
+  if (addToCart(id, quantity)) {
+    window.location.href = CART_CHECKOUT_URL;
+    return true;
+  }
+  return false;
+}
+
 /* ---------- 3. TÍNH TOÁN ---------- */
 
 // Tổng số lượng (cộng số lượng của tất cả dòng)
@@ -120,6 +137,12 @@ function updateCartCount() {
   });
 }
 
+// Giỏ vừa thay đổi: cập nhật huy hiệu và báo cho các trang khác (vd. nút trên thẻ sản phẩm)
+function notifyCartChange() {
+  updateCartCount();
+  document.dispatchEvent(new CustomEvent("cart:change"));
+}
+
 // Thông báo ngắn ở cuối màn hình
 function showToast(message) {
   let toast = document.querySelector(".cart-toast");
@@ -139,25 +162,65 @@ function showToast(message) {
 }
 
 /* ---------- 5. KHỞI TẠO ---------- */
-document.addEventListener("DOMContentLoaded", updateCartCount);
+// Tự gắn huy hiệu vào link "Giỏ hàng" ở header nếu trang chưa có sẵn
+// -> trang nào chỉ cần nạp cart-common.css + cart-store.js là có số lượng giỏ hàng.
+function ensureCartBadge() {
+  document.querySelectorAll('.action-link[href="' + CART_PAGE + '"]').forEach(function (link) {
+    const svg = link.querySelector("svg");
+    if (!svg || link.querySelector("[data-cart-count]")) return;
 
-// Nút "Thêm vào giỏ" ở trang danh sách (thẻ do JS sinh ra nên dùng event delegation)
+    const icon = document.createElement("span");
+    icon.className = "cart-icon";
+    const badge = document.createElement("span");
+    badge.className = "cart-badge";
+    badge.setAttribute("data-cart-count", "");
+    badge.hidden = true;
+    badge.textContent = "0";
+
+    svg.parentNode.insertBefore(icon, svg);
+    icon.appendChild(svg);
+    icon.appendChild(badge);
+  });
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  ensureCartBadge();
+  updateCartCount();
+});
+
+// Nút "Thêm vào giỏ" / "Bỏ khỏi giỏ" ở trang danh sách (thẻ do JS sinh ra nên dùng event delegation)
+// Chỉ thêm/bớt trong giỏ, KHÔNG chuyển trang.
 document.addEventListener("click", function (event) {
-  const button = event.target.closest("[data-add-to-cart]");
-  if (!button) return;
+  const addBtn = event.target.closest("[data-add-to-cart]");
+  const removeBtn = event.target.closest("[data-remove-from-cart]");
+  if (!addBtn && !removeBtn) return;
   event.preventDefault();
 
-  const id = button.dataset.addToCart;
-  if (addToCart(id, 1)) {
-    const product = getProductById(id);
-    showToast("Đã thêm “" + (product ? product.name : "sản phẩm") + "” vào giỏ hàng");
+  if (addBtn) {
+    const id = addBtn.dataset.addToCart;
+    if (addToCart(id, 1)) {
+      const product = getProductById(id);
+      const qty = getCartQuantity(id);
+      showToast("Đã thêm “" + (product ? product.name : "sản phẩm") + "” vào giỏ hàng" + (qty > 1 ? " (x" + qty + ")" : ""));
+    }
+    return;
   }
+
+  const id = removeBtn.dataset.removeFromCart;
+  const product = getProductById(id);
+  removeFromCart(id);
+  showToast("Đã bỏ “" + (product ? product.name : "sản phẩm") + "” khỏi giỏ hàng");
+
+  // Nút "Bỏ khỏi giỏ" vừa bị ẩn -> chuyển focus sang nút "Thêm vào giỏ" cùng thẻ
+  const card = removeBtn.closest(".product-card");
+  const addAgain = card && card.querySelector("[data-add-to-cart]");
+  if (addAgain) addAgain.focus();
 });
 
 // Đồng bộ khi đổi ở tab khác hoặc quay lại bằng nút Back (bfcache)
 window.addEventListener("storage", function (event) {
-  if (event.key === CART_STORAGE_KEY || event.key === null) updateCartCount();
+  if (event.key === CART_STORAGE_KEY || event.key === null) notifyCartChange();
 });
 window.addEventListener("pageshow", function (event) {
-  if (event.persisted) updateCartCount();
+  if (event.persisted) notifyCartChange();
 });

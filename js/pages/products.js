@@ -1,5 +1,3 @@
-
-
 /* ---------- 1. DỮ LIỆU SẢN PHẨM ----------
    Thêm sản phẩm mới: sao chép một khối { ... } bên dưới,
    đổi id (không được trùng) và chỉnh các thuộc tính.
@@ -18,7 +16,7 @@ const PRODUCTS = [
   {
     id: 2,
     name: "Album After Dark - Rhea",
-    price: 499000,
+    price: 549000,
     category: "album",
     image: "images/products/rhea-album-01.png",
     artist: "Rhea",
@@ -65,7 +63,7 @@ const PRODUCTS = [
     name: "Túi tote Signature của Kairo",
     price: 250000,
     category: "tui-tote",
-    image: "images/products/Kairo-tui-tote-01.jpg",
+    image: "images/products/Kairo-tui-tote-01.png",
     artist: "Kairo",
     description: "Túi tote canvas dày in logo Signature, có túi nhỏ bên trong và quai đeo vai thoải mái. Phù hợp đi học, đi làm và đi chơi."
   },
@@ -255,12 +253,19 @@ function updateProductList() {
   renderProducts(filteredProducts);
 }
 
+// Số lượng sản phẩm này đang có trong giỏ (0 nếu chưa có hoặc chưa nạp cart-store.js)
+function getInCartQuantity(id) {
+  return typeof getCartQuantity === "function" ? getCartQuantity(id) : 0;
+}
+
 // Tạo HTML cho một thẻ sản phẩm (giữ nguyên cấu trúc và class hiện tại)
 function createProductCardHtml(product) {
   const name = escapeHtml(product.name);
+  const id = escapeHtml(product.id);
+  const inCart = getInCartQuantity(product.id);
   return `
     <li class="products-grid_item">
-      <article class="product-card" data-product-id="${escapeHtml(product.id)}">
+      <article class="product-card${inCart ? " is-in-cart" : ""}" data-product-id="${id}">
         <div class="product-card_media">
           <img class="product-card_img" src="${escapeHtml(encodeURI(product.image))}" alt="${name}" loading="lazy">
         </div>
@@ -268,11 +273,28 @@ function createProductCardHtml(product) {
           <h3 class="product-card_title">${name}</h3>
           <p class="product-card_artist">Nghệ sĩ: ${escapeHtml(product.artist)}</p>
           <p class="product-card_price">${formatPrice(product.price)}</p>
-          <a class="product-card_btn" href="${getProductDetailUrl(product.id)}">Xem chi tiết</a>
+          <div class="product-card_actions">
+            <button type="button" class="product-card_btn product-card_btn--add" data-add-to-cart="${id}" aria-label="Thêm ${name} vào giỏ hàng">Thêm vào giỏ</button>
+            <button type="button" class="product-card_btn product-card_btn--remove" data-remove-from-cart="${id}" aria-label="Bỏ ${name} khỏi giỏ hàng"${inCart ? "" : " hidden"}>Bỏ khỏi giỏ (${inCart})</button>
+            <a class="product-card_btn" href="${getProductDetailUrl(product.id)}">Xem chi tiết</a>
+          </div>
         </div>
       </article>
     </li>`;
 }
+
+// Cập nhật nút "Bỏ khỏi giỏ" trên các thẻ đang hiển thị (không vẽ lại cả danh sách)
+function syncCartButtons() {
+  document.querySelectorAll(".product-card[data-product-id]").forEach(function (card) {
+    const qty = getInCartQuantity(card.dataset.productId);
+    const removeBtn = card.querySelector("[data-remove-from-cart]");
+    card.classList.toggle("is-in-cart", qty > 0);
+    if (!removeBtn) return;
+    removeBtn.hidden = qty === 0;
+    removeBtn.textContent = "Bỏ khỏi giỏ (" + qty + ")";
+  });
+}
+document.addEventListener("cart:change", syncCartButtons);
 
 
 // Hiển thị danh sách sản phẩm vào .products-grid
@@ -378,13 +400,39 @@ function initHeaderSearch() {
 
 // Bộ lọc chỉ chạy khi bấm "ÁP DỤNG"; sắp xếp thì vẫn đổi ngay khi chọn
 function initProductFilters() {
+  const filterBox = document.querySelector(".products-filter");
+  const filterToggle = document.querySelector(".products-filter_toggle");
   const filterForm = document.querySelector(".products-filter_form");
   const sortSelect = document.querySelector(".products-toolbar_select");
+
+  // Màn hình hẹp: nút bật/tắt bộ lọc (nút này chỉ hiện khi <= 991px, xem products.css)
+  function isToggleVisible() {
+    return !!filterToggle && getComputedStyle(filterToggle).display !== "none";
+  }
+
+  function setFilterOpen(open) {
+    if (!filterBox || !filterToggle) return;
+    filterBox.classList.toggle("is-open", open);
+    filterToggle.setAttribute("aria-expanded", String(open));
+  }
+
+  if (filterToggle) {
+    filterToggle.addEventListener("click", function () {
+      setFilterOpen(!filterBox.classList.contains("is-open"));
+    });
+  }
 
   if (filterForm) {
     filterForm.addEventListener("submit", function (event) {
       event.preventDefault();
       updateProductList();
+
+      // Điện thoại/tablet: áp dụng xong thì thu gọn bộ lọc và đưa người dùng tới kết quả
+      if (isToggleVisible()) {
+        setFilterOpen(false);
+        const toolbar = document.querySelector(".products-toolbar");
+        if (toolbar) toolbar.scrollIntoView({ block: "start" });
+      }
     });
   }
 
@@ -401,4 +449,3 @@ document.addEventListener("DOMContentLoaded", function () {
   initProductFilters();
   updateProductList(); // thay cho renderProducts(PRODUCTS)
 });
-
