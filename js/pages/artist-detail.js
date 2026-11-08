@@ -63,7 +63,7 @@ const artists = {
                 status: "ongoing",
                 description:
                     "Cùng KALEO tham gia chiến dịch nghe nhạc và chia sẻ digital single First Light, lan tỏa những giai điệu đầu tiên trong hành trình âm nhạc của KAIRO.",
-                image: "images/activities/kairo-streaming-party.jpg",
+                image: "images/event/kairo-streaming-party.png",
                 link: "#"
             },
             {
@@ -73,7 +73,7 @@ const artists = {
                 status: "upcoming",
                 description:
                     "Buổi gặp gỡ đặc biệt dành cho KAIRO và KALEO với những màn trình diễn trực tiếp, giao lưu cùng người hâm mộ và nhiều hoạt động tương tác thú vị.",
-                image: "images/activities/kairo-fan-meeting.jpg",
+                image: "images/event/kairo-shiny-paradise-fan-meeting.png",
                 link: "#"
             },
             {
@@ -83,7 +83,7 @@ const artists = {
                 status: "ended",
                 description:
                     "Sự kiện showcase giới thiệu mini album BLUEPRINT, đánh dấu một cột mốc đáng nhớ trong hành trình trưởng thành về âm nhạc và phong cách biểu diễn của KAIRO.",
-                image: "images/activities/kairo-blueprint-showcase.jpg",
+                image: "images/event/kairo-blueprint-showcase.png",
                 link: "#"
             }
         ],
@@ -177,7 +177,7 @@ const artists = {
         status: "ongoing",
         description:
             'Dự án streaming do cộng đồng MIEL tổ chức nhằm lan tỏa ca khúc "Orbit" và ủng hộ hành trình âm nhạc của MIRA.',
-        image: "images/activities/mira-streaming-project.jpg",
+        image: "images/event/mira-streaming-party.png",
         link: "#"
     },
     {
@@ -187,7 +187,7 @@ const artists = {
         status: "upcoming",
         description:
             "Concert solo đầu tiên của MIRA, hứa hẹn mang đến những màn trình diễn đặc biệt cùng các ca khúc nổi bật trong hành trình âm nhạc của cô.",
-        image: "images/activities/mira-solo-concert.jpg",
+        image: "images/event/mira-the-next-chapter.png",
         link: "#"
     },
     {
@@ -197,7 +197,7 @@ const artists = {
         status: "ended",
         description:
             'Sự kiện nghe album "Beyond the Stars" dành cho người hâm mộ, cùng khám phá những giai điệu và câu chuyện phía sau ca khúc "Orbit".',
-        image: "images/activities/mira-listening-party.jpg",
+        image: "images/event/mira-beyond-the-stars.png",
         link: "#"
     }
 ],
@@ -259,7 +259,7 @@ const artists = {
                 status: "ongoing",
                 description:
                     "Cùng VANTA tham gia chiến dịch nghe nhạc và chia sẻ dự án ECLIPSE, lan tỏa sản phẩm âm nhạc mới của RHEA trên các nền tảng trực tuyến.",
-                image: "images/activities/rhea-eclipse-streaming.jpg",
+                image: "images/event/rhea-eclipse-comback-streaming-project.png",
                 link: "#"
             },
             {
@@ -269,7 +269,7 @@ const artists = {
                 status: "upcoming",
                 description:
                     "Sự kiện giới thiệu dự án ECLIPSE với những màn trình diễn trực tiếp, chia sẻ về quá trình sản xuất âm nhạc và giao lưu cùng người hâm mộ.",
-                image: "images/activities/rhea-eclipse-showcase.jpg",
+                image: "images/event/rhea-eclipse-showcase.png",
                 link: "#"
             },
             {
@@ -279,7 +279,7 @@ const artists = {
                 status: "ended",
                 description:
                     "Sự kiện đặc biệt dành cho VANTA nhân dịp phát hành mini album OUT OF FRAME, với các hoạt động giao lưu và trải nghiệm merchandise độc quyền.",
-                image: "images/activities/rhea-out-of-frame-event.jpg",
+                image: "images/event/rhea-out-of-frame.png",
                 link: "#"
             }
         ],
