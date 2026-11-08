@@ -18,6 +18,8 @@
   <link rel="stylesheet" href="css/chuanFooter.css">
   <!-- CSS riêng trang Products -->
   <link rel="stylesheet" href="css/pages/products.css">
+  <!-- CSS dùng chung của giỏ hàng: toast + huy hiệu số lượng -->
+  <link rel="stylesheet" href="css/cart-common.css">
 </head>
 <body>
  
@@ -66,11 +68,14 @@
   Tìm kiếm
 </button>
         <a href="cart.html" class="action-link">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <span class="cart-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="9" cy="21" r="1"></circle>
             <circle cx="20" cy="21" r="1"></circle>
             <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
           </svg>
+            <span class="cart-badge" data-cart-count hidden>0</span>
+          </span>
           Giỏ hàng
         </a>
         <a href="account.html" class="account-circle" aria-label="Tài khoản">
@@ -91,7 +96,6 @@
   </div>
 </div>
   </header>
-<body>
   <main>
 
     <!-- ========== PAGE HEADER ========== -->
@@ -113,8 +117,12 @@
       <div class="products-main_inner">
 
         <!-- Sidebar bộ lọc -->
-        <aside class="products-filter" aria-label="Bộ lọc sản phẩm">
-          <form class="products-filter_form" action="products.html" method="get">
+        <aside class="products-filter products-filter--collapsible" aria-label="Bộ lọc sản phẩm">
+          <!-- Chỉ hiện khi <= 991px: bấm để mở/thu gọn bộ lọc -->
+          <button type="button" class="products-filter_toggle" aria-expanded="false" aria-controls="products-filter-form">
+            BỘ LỌC SẢN PHẨM <span class="products-filter_toggle-icon" aria-hidden="true"></span>
+          </button>
+          <form class="products-filter_form" id="products-filter-form" action="products.html" method="get">
             <h2 class="products-filter_heading">BỘ LỌC SẢN PHẨM</h2>
 
             <fieldset class="products-filter_group">
@@ -233,7 +241,7 @@
                 <div class="product-card_body">
                   <h3 class="product-card_title">Album After Dark - Rhea</h3>
                   <p class="product-card_artist">Nghệ sĩ: Rhea</p>
-                  <p class="product-card_price">499.000đ</p>
+                  <p class="product-card_price">549.000đ</p>
                   <a class="product-card_btn" href="product-detail.html">Xem chi tiết</a>
                 </div>
               </article>
@@ -298,7 +306,7 @@
             <li class="products-grid_item">
               <article class="product-card">
                 <div class="product-card_media">
-                  <img class="product-card_img" src="images/products/Kairo-tui-tote-01.jpg" alt="Túi tote Signature của Kairo" loading="lazy">
+                  <img class="product-card_img" src="images/products/Kairo-tui-tote-01.png" alt="Túi tote Signature của Kairo" loading="lazy">
                 </div>
                 <div class="product-card_body">
                   <h3 class="product-card_title">Túi tote Signature của Kairo</h3>
@@ -457,5 +465,6 @@
   </div>
 </footer>
 <script src="js/pages/products.js"></script>
+<script src="js/cart/cart-store.js"></script>
 </body>
 </html>

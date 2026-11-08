@@ -233,6 +233,10 @@
 .cart-summary_row--total dd { font-size: 20px; font-weight: 700; }
 .cart-summary_note { font-family: var(--ct-font-body); font-size: 13px; line-height: 1.5; color: var(--ct-text-soft); }
 
+/* Làm nổi bật khi đến từ nút "Mua ngay" */
+.cart-summary { transition: box-shadow 0.3s ease; }
+.cart-summary.is-highlight { box-shadow: 0 0 0 3px var(--ct-accent); }
+
 /* ---------- 6. Nút ---------- */
 .cart-btn {
   display: inline-flex;
@@ -288,7 +292,8 @@
 }
 
 /* ---------- 9. Responsive ---------- */
-@media (max-width: 991px) {
+/* <= 1099px: tóm tắt đơn hàng xuống dưới danh sách (vùng 992-1099px trước đây quá chật cho dòng sản phẩm) */
+@media (max-width: 1099px) {
   .cart-main_inner { grid-template-columns: minmax(0, 1fr); }
   .cart-summary { position: static; }
 }
@@ -310,11 +315,25 @@
   .cart-empty .cart-btn { width: 100%; min-width: 0; }
 }
 
+/* Điện thoại hẹp <= 399px: ô số lượng + thành tiền xuống hàng riêng, không bị tràn ngang */
+@media (max-width: 399px) {
+  .cart-item {
+    grid-template-columns: 72px minmax(0, 1fr) auto;
+    grid-template-areas:
+      "media info remove"
+      "qty   qty  total";
+  }
+  .cart-qty,
+  .cart-item_total { align-self: center; }
+}
+
 @media (pointer: coarse) {
+  .cart-item_remove { min-width: 44px; min-height: 44px; }
   .cart-qty_btn { width: 44px; height: 44px; }
   .cart-qty_input { height: 44px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cart-btn { transition-duration: 0.01ms !important; }
+  .cart-btn,
+  .cart-summary { transition-duration: 0.01ms !important; }
 }

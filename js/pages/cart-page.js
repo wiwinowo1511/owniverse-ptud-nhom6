@@ -124,5 +124,16 @@ document.addEventListener("DOMContentLoaded", function () {
     if (event.persisted) renderCart();
   });
 
+  // Đến từ nút "Mua ngay" (cart.html#cart-summary): cuộn tới phần thanh toán, làm nổi bật và đặt focus vào nút THANH TOÁN
+  function revealCheckoutIfRequested() {
+    if (window.location.hash !== CART_CHECKOUT_HASH || summary.hidden) return;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    summary.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+    summary.classList.add("is-highlight");
+    setTimeout(function () { summary.classList.remove("is-highlight"); }, 2400);
+    if (checkoutBtn) checkoutBtn.focus({ preventScroll: true });
+  }
+
   renderCart();
+  revealCheckoutIfRequested();
 });

@@ -280,6 +280,7 @@ main .products-search_input::placeholder {
 }
 /* ---------- Thanh đếm & sắp xếp ---------- */
 main .products-toolbar {
+  scroll-margin-top: var(--pr-header-offset);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -409,6 +410,45 @@ main .product-card_btn {
   text-align: center;
   color: var(--pr-text);
   transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* ---------- Cụm nút trên thẻ sản phẩm ---------- */
+main .product-card_actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+}
+
+main .product-card_actions .product-card_btn {
+  margin-top: 0;
+}
+
+/* <button> và <a> có cùng kích thước, cùng chiều cao dòng */
+main .product-card_btn {
+  line-height: 1.4;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+main .product-card_btn[hidden] {
+  display: none;
+}
+
+main .product-card_btn--add {
+  background-color: var(--pr-text);
+  color: #FFFFFF;
+}
+
+main .product-card_btn--remove {
+  border-color: #B91C1C;
+  color: #B91C1C;
+}
+
+/* Thẻ đã có trong giỏ: viền đậm nhẹ để dễ nhận biết */
+main .product-card.is-in-cart {
+  border-color: var(--pr-border-strong);
 }
 
 /* ---------- Phân trang ---------- */
@@ -545,6 +585,18 @@ main .products-cta_img {
   }
 
   main .products-pagination_link:hover { border-color: var(--pr-text); }
+
+  main .product-card_btn--add:hover {
+    background-color: #374151;
+    border-color: #374151;
+    color: #FFFFFF;
+  }
+
+  main .product-card_btn--remove:hover {
+    background-color: #B91C1C;
+    border-color: #B91C1C;
+    color: #FFFFFF;
+  }
 }
 
 main .products-toolbar_select:focus-visible,
@@ -646,6 +698,24 @@ main .products-pagination_link:focus-visible {
     display: flex;
   }
 
+  main .products-filter_toggle-icon::before {
+    content: "+";
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  main .products-filter_toggle[aria-expanded="true"] .products-filter_toggle-icon::before {
+    content: "\2212";
+  }
+
+  /* Khi mở: tách nút bật/tắt khỏi nội dung bộ lọc */
+  main .products-filter--collapsible.is-open .products-filter_toggle {
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--pr-border);
+  }
+
   main .products-filter--collapsible .products-filter_heading {
     display: none;
   }
@@ -721,7 +791,7 @@ main .products-pagination_link:focus-visible {
 
   main .products-filter_label { min-height: 36px; }
 
-  main .product-card_btn { padding-block: 12px; }
+  main .product-card_btn { padding-block: 12px; min-height: 44px; }
 }
 
 /* Người dùng bật "giảm chuyển động" */
@@ -733,4 +803,4 @@ main .products-pagination_link:focus-visible {
   main .products-pagination_link {
     transition-duration: 0.01ms !important;
   }
-} 
+}

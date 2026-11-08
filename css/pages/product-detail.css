@@ -405,7 +405,7 @@
 }
 
 .product-page .btn-primary {
-  flex: 2 1 220px;                     /* nút chính rộng gấp đôi nút phụ */
+  flex: 1 1 160px;                     /* "Mua ngay" và "Thêm vào giỏ" rộng bằng nhau */
   background: var(--pd-black);
   color: var(--pd-white);
 }
@@ -414,6 +414,18 @@
   flex: 1 1 140px;
   background: transparent;
   color: var(--pd-black);
+}
+
+.product-page .btn-add {
+  flex: 1 1 160px;
+}
+
+/* "Yêu thích" nằm riêng một hàng bên dưới, thấp hơn hai nút mua */
+.product-page .btn-fav {
+  flex: 1 1 100%;
+  min-height: 44px;
+  font-weight: 600;
+  border-width: 1.5px;
 }
 
 /* ---------- 6. Dải cam kết ---------- */
@@ -655,4 +667,4 @@
   .product-page .btn-primary:hover {
     transform: none;
   }
-} 
+}

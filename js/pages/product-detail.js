@@ -1,7 +1,7 @@
 /* ==========================================================
    OWNIVERSE - Trang chi tiết: gắn chức năng giỏ hàng
-   - "Mua hàng": thêm vào giỏ rồi chuyển sang cart.html
-   - "Thêm vào giỏ": thêm vào giỏ, ở lại trang
+   - "Mua ngay": thêm vào giỏ rồi chuyển tới phần thanh toán của cart.html
+   - "Thêm vào giỏ hàng": chỉ thêm vào giỏ, ở lại trang (hiện thông báo)
    ========================================================== */
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.querySelector(".buy-form");
@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if (String(productId) !== String(defaultId)) fillProductInfo(product);
 
   const qtyInput = form.querySelector("#qty");
+  const addBtn = form.querySelector('[data-detail-action="add"]');
 
   // Đọc số lượng hợp lệ (>= 1, không vượt max của ô nhập)
   function readQuantity() {
@@ -27,12 +28,21 @@ document.addEventListener("DOMContentLoaded", function () {
     return valid;
   }
 
-    form.addEventListener("submit", function (event) {
+  // "Mua ngay" (nút submit, cũng là phím Enter trong ô số lượng): thêm rồi nhảy tới thanh toán
+  form.addEventListener("submit", function (event) {
     event.preventDefault();
-    if (addToCart(productId, readQuantity())) {
-      window.location.href = CART_PAGE;   // thêm vào giỏ rồi chuyển sang giỏ hàng
-    }
+    buyNow(productId, readQuantity());
   });
+
+  // "Thêm vào giỏ hàng": chỉ thêm, không chuyển trang
+  if (addBtn) {
+    addBtn.addEventListener("click", function () {
+      const qty = readQuantity();
+      if (addToCart(productId, qty)) {
+        showToast("Đã thêm " + qty + " “" + product.name + "” vào giỏ hàng");
+      }
+    });
+  }
 });
 
 // Cập nhật nội dung chính của trang tĩnh theo sản phẩm được chọn
