@@ -20,6 +20,7 @@
   --font-heading: "Montserrat", sans-serif;
   --font-body: "Inter", sans-serif;
 
+  
   --radius-pill: 9999px;
   --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
