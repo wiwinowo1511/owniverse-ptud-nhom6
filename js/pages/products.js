@@ -10,6 +10,15 @@ const PRODUCTS = [
     price: 650000,
     category: "ao-thun",
     image: "images/products/Kairo-ao-thun-01.jpg",
+<<<<<<< HEAD
+=======
+    images: [
+      "images/products/Kairo-ao-thun-01.jpg",
+      "images/products/Kairo-ao-thun-02.png",
+      "images/products/Kairo-ao-thun-03.png",
+      "images/products/Kairo-ao-thun-04.png"
+    ],
+>>>>>>> chitietSP
     artist: "Kairo",
     description: "Áo thun cotton 100% form rộng, in logo Signature của Kairo ở mặt trước. Chất vải dày dặn, thoáng mát, phù hợp mặc hằng ngày hoặc đi concert."
   },
@@ -19,6 +28,15 @@ const PRODUCTS = [
     price: 549000,
     category: "album",
     image: "images/products/rhea-album-01.png",
+<<<<<<< HEAD
+=======
+    images: [
+      "images/products/rhea-album-01.png",
+      "images/products/rhea-album-02.png",
+      "images/products/rhea-album-03.png",
+      "images/products/rhea-album-04.png"
+    ],
+>>>>>>> chitietSP
     artist: "Rhea",
     description: "Album After Dark của Rhea phiên bản vật lý, kèm photobook, poster và photocard ngẫu nhiên. Số lượng có hạn."
   },
@@ -28,6 +46,15 @@ const PRODUCTS = [
     price: 80000,
     category: "sticker",
     image: "images/products/Mira-sticker-01.jpg",
+<<<<<<< HEAD
+=======
+    images: [
+      "images/products/Mira-sticker-01.jpg",
+      "images/products/Mira-sticker-02.png",
+      "images/products/Mira-sticker-03.png",
+      "images/products/Mira-sticker-04.png"
+    ],
+>>>>>>> chitietSP
     artist: "Mira",
     description: "Bộ sticker họa tiết do Mira thiết kế, chất liệu vinyl chống nước, dán được lên laptop, sổ tay và bình nước."
   },
@@ -37,6 +64,15 @@ const PRODUCTS = [
     price: 900000,
     category: "ao-khoac",
     image: "images/products/Kairo-Hoodie-01.jpg",
+<<<<<<< HEAD
+=======
+    images: [
+      "images/products/Kairo-Hoodie-01.jpg",
+      "images/products/Kairo-Hoodie-02.png",
+      "images/products/Kairo-Hoodie-03.png",
+      "images/products/Kairo-Hoodie-04.png"
+    ],
+>>>>>>> chitietSP
     artist: "Kairo",
     description: "Hoodie nỉ bông dày, mũ hai lớp, logo Signature thêu ở ngực. Giữ ấm tốt, form oversize dễ phối đồ."
   },
@@ -46,6 +82,15 @@ const PRODUCTS = [
     price: 600000,
     category: "ao-thun",
     image: "images/products/rhea-ao-thun-01.png",
+<<<<<<< HEAD
+=======
+    images: [
+      "images/products/rhea-ao-thun-01.png",
+      "images/products/rhea-ao-thun-02.png",
+      "images/products/rhea-ao-thun-03.png",
+      "images/products/rhea-ao-thun-04.png"
+    ],
+>>>>>>> chitietSP
     artist: "Rhea",
     description: "Áo thun Vanta Club của Rhea với họa tiết in kỹ thuật cao, bền màu sau nhiều lần giặt. Chất cotton mềm, thấm hút tốt."
   },
@@ -55,6 +100,15 @@ const PRODUCTS = [
     price: 100000,
     category: "moc-khoa",
     image: "images/products/Mira-moc-khoa-01.jpg",
+<<<<<<< HEAD
+=======
+    images: [
+      "images/products/Mira-moc-khoa-01.jpg",
+      "images/products/Mira-moc-khoa-02.png",
+      "images/products/Mira-moc-khoa-03.png",
+      "images/products/Mira-moc-khoa-04.png"
+    ],
+>>>>>>> chitietSP
     artist: "Mira",
     description: "Móc khóa acrylic trong suốt in hình Mira hai mặt, kèm khoen kim loại chắc chắn. Nhỏ gọn, dễ treo lên túi hoặc chùm chìa khóa."
   },
@@ -64,6 +118,15 @@ const PRODUCTS = [
     price: 250000,
     category: "tui-tote",
     image: "images/products/Kairo-tui-tote-01.png",
+<<<<<<< HEAD
+=======
+    images: [
+      "images/products/Kairo-tui-tote-01.png",
+      "images/products/Kairo-tui-tote-02.png",
+      "images/products/Kairo-tui-tote-03.png",
+      "images/products/Kairo-tui-tote-04.png"
+    ],
+>>>>>>> chitietSP
     artist: "Kairo",
     description: "Túi tote canvas dày in logo Signature, có túi nhỏ bên trong và quai đeo vai thoải mái. Phù hợp đi học, đi làm và đi chơi."
   },
@@ -73,6 +136,15 @@ const PRODUCTS = [
     price: 499000,
     category: "album",
     image: "images/products/mira-album-01.png",
+<<<<<<< HEAD
+=======
+    images: [
+      "images/products/mira-album-01.png",
+      "images/products/Mira-album-02.png",
+      "images/products/Mira-album-03.png",
+      "images/products/Mira-album-04.png"
+    ],
+>>>>>>> chitietSP
     artist: "Mira",
     description: "Album Beyond the Star của Mira phiên bản vật lý, gồm đĩa, photobook và thẻ ảnh. Thiết kế bìa độc quyền của Owniverse."
   }

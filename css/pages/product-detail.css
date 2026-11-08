@@ -667,4 +667,46 @@
   .product-page .btn-primary:hover {
     transform: none;
   }
+<<<<<<< HEAD
+=======
+}
+/* ---------- 9. Mã sản phẩm không tồn tại ---------- */
+/* Thuộc tính hidden luôn thắng các rule display: grid/flex của trang */
+.product-page [hidden] {
+  display: none !important;
+}
+
+.product-not-found {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  margin-top: clamp(8px, 2vw, 16px);
+  padding: clamp(40px, 8vw, 80px) var(--pd-gutter);
+  text-align: center;
+  background: var(--pd-surface);
+  border: 1px solid var(--pd-border);
+  border-radius: var(--pd-radius);
+}
+
+.product-not-found_title {
+  font-family: var(--pd-heading);
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.product-not-found_text {
+  max-width: 52ch;
+  color: var(--pd-muted);
+}
+
+.product-not-found_id {
+  font-weight: 700;
+  color: var(--pd-black);
+  overflow-wrap: anywhere;
+}
+
+.product-not-found_link {
+  margin-top: 12px;
+>>>>>>> chitietSP
 }
