@@ -170,9 +170,6 @@ const PRODUCTS = [
     description: "Album Beyond the Star của Mira phiên bản vật lý, gồm đĩa, photobook và thẻ ảnh. Thiết kế bìa độc quyền của Owniverse.",
     images: [                      // tối đa 4 ảnh, ảnh đầu là ảnh lớn mặc định
       "images/products/mira-album-01.png",
-      "images/products/mira-album-02.png",
-      "images/products/mira-album-03.png",
-      "images/products/mira-album-04.png"
     ],
     specs: [                       // bảng "Thông tin sản phẩm"
       { label: "Chất liệu", value: "Bìa carton cứng, in kỹ thuật số cao cấp, đĩa kèm photobook và thẻ ảnh." },
