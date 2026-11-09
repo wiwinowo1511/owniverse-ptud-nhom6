@@ -5,8 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>AFTERDARK Vol.01 - Rhea | Owniverse</title>
 
+
   <!-- Giữ nguyên các link CSS chung của trang chủ (biến :root, reset, .container...) -->
   <!-- <link rel="stylesheet" href="css/style.css"> -->
+
 
   <!-- THÊM MỚI: CSS riêng cho trang chi tiết sản phẩm -->
   <link rel="stylesheet" href="css/pages/product-detail.css">
@@ -19,6 +21,7 @@
 </head>
 <body>
 
+
   <!-- ===== HEADER: dán nguyên mã Header của nhóm ở đây =====
        CHỈ SỬA 1 CHỖ: thêm class="active" cho mục "Sản phẩm":
        <li><a href="products.html" class="active">Sản phẩm</a></li>
@@ -26,7 +29,7 @@
 <link rel="stylesheet" href="css/chuanHeader.css">
 <header class="site-header">
     <div class="container header-inner">
-      
+     
       <!-- Logo chính (ngang) chuẩn Brand Identity -->
       <a href="index.html" class="brand-logo" aria-label="Trang chủ Owniverse">
         <svg class="logo-mark" viewBox="0 0 64 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -48,6 +51,7 @@
         </div>
       </a>
 
+
       <!-- Menu chính -->
       <nav class="main-nav" aria-label="Điều hướng chính">
         <ul>
@@ -58,6 +62,7 @@
           <li><a href="community.html">Cộng đồng</a></li>
         </ul>
       </nav>
+
 
       <!-- Cụm tiện ích kèm Icon nét mảnh chuẩn mục Icon & Elements -->
       <div class="header-actions">
@@ -84,13 +89,17 @@
         </a>
       </div>
 
+
     </div>
   </header>
+
+
 
 
   <!-- ===== THÊM MỚI: nội dung chính ===== -->
   <main class="product-page">
     <div class="container">
+
 
       <!-- Breadcrumb + liên kết quay lại danh sách -->
       <div class="page-top">
@@ -104,8 +113,22 @@
         <a href="products.html" class="back-link">← Quay lại danh sách sản phẩm</a>
       </div>
 
+
+      <!-- THÊM MỚI: hiển thị khi ?id= thiếu hoặc không có trong PRODUCTS (product-detail.js bật/tắt) -->
+      <section class="not-found" id="product-not-found" aria-labelledby="not-found-title" hidden>
+        <h1 class="not-found-title" id="not-found-title">Không tìm thấy sản phẩm</h1>
+        <p class="not-found-text" data-not-found-text></p>
+        <a href="products.html" class="btn btn-primary">Xem tất cả sản phẩm</a>
+      </section>
+
+
+      <!-- THÊM MỚI: nội dung sản phẩm nằm trong #product-content để ẩn một lần khi không tìm thấy -->
+      <div id="product-content">
+
+
       <!-- Khối chính: ảnh | thông tin -->
       <section class="product-layout" aria-labelledby="product-title">
+
 
         <!-- CỘT ẢNH: thư viện ảnh thuần CSS (radio + label), không dùng JavaScript -->
         <div class="gallery">
@@ -113,6 +136,7 @@
           <input class="gallery-radio" type="radio" name="gallery" id="g2" aria-label="Xem ảnh 2">
           <input class="gallery-radio" type="radio" name="gallery" id="g3" aria-label="Xem ảnh 3">
           <input class="gallery-radio" type="radio" name="gallery" id="g4" aria-label="Xem ảnh 4">
+
 
           <!-- Ảnh lớn: thứ tự phải khớp với thứ tự thumbnail bên dưới -->
           <div class="gallery-main">
@@ -125,6 +149,7 @@
             <img class="gallery-slide" src="images/products/rhea-album-04.png"
                  alt="Postcard, sticker pack, photo card và film strip">
           </div>
+
 
           <div class="gallery-thumbs">
             <label class="gallery-thumb" for="g1">
@@ -142,19 +167,23 @@
           </div>
         </div>
 
+
         <!-- CỘT THÔNG TIN -->
         <div class="product-info">
           <span class="product-badge">Album chính hãng</span>
           <h1 class="product-title" id="product-title">AFTERDARK Vol.01</h1>
           <p class="product-artist">Nghệ sĩ: <a href="artist.html">Rhea </a></p>
 
+
           <p class="product-price">549.000đ</p>
+
 
           <p class="product-summary">
             Album đầu tay của Rhea với concept đỏ - đen ma mị, lấy cảm hứng từ đóa hồng có gai.
             Trọn bộ gồm 8 hạng mục, từ photobook, đĩa CD-R đến film strip.
           </p>
           <blockquote class="product-quote">Welcome to my dark side - No rules, just Rhea</blockquote>
+
 
           <!-- "Mua ngay" (submit) -> thêm vào giỏ + nhảy tới thanh toán; "Thêm vào giỏ hàng" chỉ thêm. Xử lý trong product-detail.js -->
          <form class="buy-form" action="cart.html" method="get" data-product-id="2">
@@ -171,6 +200,7 @@
         </div>
       </section>
 
+
       <!-- Dải cam kết -->
       <ul class="trust-strip">
         <li class="trust-item"><span class="trust-icon" aria-hidden="true">✓</span>Sản phẩm chính hãng</li>
@@ -179,10 +209,12 @@
         <li class="trust-item"><span class="trust-icon" aria-hidden="true">✉</span>Hỗ trợ khách hàng</li>
       </ul>
 
+
       <!-- Mô tả sản phẩm -->
       <section aria-labelledby="desc-title">
         <h2 class="section-title" id="desc-title">Mô tả sản phẩm</h2>
         <div class="detail-box">
+
 
           <div class="detail-specs">
             <h3>Thông tin sản phẩm</h3>
@@ -197,6 +229,7 @@
               <div><dt>Film Strip</dt><dd>01 dải phim nhựa 4 khung hình ghi lại khoảnh khắc biểu diễn trên sân khấu (50 x 150 mm).</dd></div>
             </dl>
           </div>
+
 
           <div class="detail-intro">
             <h3>Giới thiệu</h3>
@@ -213,13 +246,16 @@
             </p>
           </div>
 
+
         </div>
       </section>
+
 
       <!-- Sản phẩm liên quan (dữ liệu mẫu theo wireframe, thay bằng sản phẩm thật) -->
  <section aria-labelledby="related-title">
   <h2 class="section-title" id="related-title">Sản phẩm liên quan</h2>
   <div class="related-grid">
+
 
     <article class="related-card">
       <div class="related-thumb">
@@ -230,6 +266,7 @@
       <a href="product-detail.html?id=4" class="btn btn-secondary">Xem chi tiết</a>
     </article>
 
+
     <article class="related-card">
       <div class="related-thumb">
         <img src="images/products/mira-album-01.png" alt="Album Beyond The Star - Mira">
@@ -238,6 +275,7 @@
       <p class="related-price">499.000đ</p>
       <a href="product-detail.html?id=8" class="btn btn-secondary">Xem chi tiết</a>
     </article>
+
 
     <article class="related-card">
       <div class="related-thumb">
@@ -248,6 +286,7 @@
       <a href="product-detail.html?id=6" class="btn btn-secondary">Xem chi tiết</a>
     </article>
 
+
     <article class="related-card">
       <div class="related-thumb">
         <img src="images/products/Kairo-tui-tote-01.png" alt="Túi tote signature của Kairo">
@@ -257,21 +296,27 @@
       <a href="product-detail.html?id=7" class="btn btn-secondary">Xem chi tiết</a>
     </article>
 
+
   </div>
 </section>
+      </div><!-- /#product-content -->
     </div>
   </main>
+
 
   <!-- ===== FOOTER: dán nguyên mã Footer của nhóm ở đây, không cần sửa ===== -->
 <script src="js/pages/products.js"></script>
 <script src="js/cart/cart-store.js"></script>
 <script src="js/pages/product-detail.js"></script>
 
+
 <link rel="stylesheet" href="css/chuanFooter.css">
 <footer class="site-footer">
   <div class="container footer-container">
 
+
     <div class="footer-main">
+
 
       <!-- Cột 1: Logo và giới thiệu -->
       <div class="footer-brand">
@@ -284,12 +329,14 @@
              transform="rotate(-22 32 24)"
              stroke="#A78BFA" stroke-width="2.5"/>
 
+
     <path d="M32 4C34 17 38 21 51 23
          C38 25 34 29 32 42
          C30 29 26 25 13 23
          C26 21 30 17 32 4Z"
       fill="#E9DBFF"/>
   </svg>
+
 
   <!-- Tên thương hiệu và slogan -->
   <span class="footer-logo-content">
@@ -308,14 +355,17 @@
     ERSE
 </span>
 
+
     <span class="footer-subtext">ARTISTS × FANS × FOREVER</span>
   </span>
 </a>
+
 
         <p class="footer-description">
           Nơi người hâm mộ kết nối với nghệ sĩ qua những sản phẩm chính hãng.
         </p>
       </div>
+
 
       <!-- Cột 2: Mua sắm -->
       <div class="footer-column">
@@ -325,6 +375,7 @@
           <li><a href="products.html">Sản phẩm mới</a></li>
         </ul>
       </div>
+
 
       <!-- Cột 3: Chăm sóc khách hàng -->
       <div class="footer-column">
@@ -336,6 +387,7 @@
         </ul>
       </div>
 
+
       <!-- Cột 4: Về Owniverse -->
       <div class="footer-column">
         <h3>VỀ CHÚNG TÔI</h3>
@@ -345,6 +397,7 @@
           <li><a href="#">Tin tức</a></li>
         </ul>
       </div>
+
 
       <!-- Cột 5: Hỗ trợ -->
       <div class="footer-column">
@@ -356,14 +409,18 @@
         </ul>
       </div>
 
+
     </div>
+
 
     <!-- Bản quyền -->
     <div class="footer-bottom">
       <p>&copy; 2026 Owniverse. All rights reserved.</p>
     </div>
 
+
   </div>
 </footer>
 </body>
 </html>
+
