@@ -1,123 +1,132 @@
 # OWNIVERSE - Website thương mại điện tử merchandise nghệ sĩ
 
-## 1. Giới thiệu dự án
+## 1. Giới thiệu và mục tiêu dự án
 
-**OWNIVERSE** là mô hình thương mại điện tử D2C (Direct-to-Consumer): đơn vị quản lý nghệ sĩ trực tiếp giới thiệu và kinh doanh merchandise đến người hâm mộ, không vận hành theo mô hình sàn nhiều người bán. Trong phạm vi bài tập, website giới thiệu sản phẩm của 3 nghệ sĩ giả định thuộc cùng một công ty quản lý: **KAIRO, MIRA và RHEA**.
+**OWNIVERSE** là dự án website thương mại điện tử dành cho merchandise gắn với nghệ sĩ, được xây dựng theo định hướng D2C (Direct-to-Consumer): một đơn vị vận hành tập trung giới thiệu sản phẩm và kết nối nghệ sĩ với người hâm mộ, thay vì hoạt động như sàn giao dịch nhiều nhà bán.
 
-- **Khách hàng mục tiêu:** Người hâm mộ tại Việt Nam, chủ yếu là người trẻ/Gen Z, các fan club và người mua quà tặng cho fan. Nhóm tổ chức sự kiện, câu lạc bộ là định hướng mở rộng từ kế hoạch Buổi 1, chưa phải phạm vi triển khai hiện tại.
-- **Vấn đề hướng tới:** Thông tin merchandise phân tán, rủi ro hàng nhái và thiếu minh bạch trong các đợt đặt trước (pre-order). Đây là bài toán kinh doanh, không phải những vấn đề đã được giải quyết bằng hệ thống vận hành ở Buổi 2.
+Website sử dụng dữ liệu minh họa về ba nghệ sĩ **KAIRO, MIRA và RHEA** cùng các sản phẩm như album, áo, phụ kiện và đồ lưu niệm. Dự án hướng tới trải nghiệm khám phá nghệ sĩ, tìm sản phẩm phù hợp và quản lý giỏ hàng trên một giao diện thống nhất.
 
-### Thành viên nhóm 
+**Mục tiêu triển khai:**
 
-| Thành viên | Vai trò được phân công |
+- Xây dựng giao diện thương mại điện tử có nhận diện thương hiệu nhất quán, hỗ trợ nhiều kích thước màn hình.
+- Tổ chức thông tin về nghệ sĩ và sản phẩm theo cấu trúc rõ ràng, thuận tiện để tra cứu.
+- Phát triển các tương tác phía trình duyệt: tìm kiếm, lọc, sắp xếp, xem chi tiết và quản lý giỏ hàng.
+- Rèn luyện quy trình làm việc nhóm: phân tích yêu cầu, thiết kế giao diện, lập trình, tích hợp, kiểm thử và quản lý mã nguồn.
+
+**Phạm vi hiện tại:** Website **frontend mô phỏng** được xây dựng bằng HTML, CSS và JavaScript. Dữ liệu sản phẩm đang được quản lý trong mã JavaScript; giỏ hàng lưu bằng `localStorage`. 
+
+## 2. Thành viên và phân công công việc
+
+| Thành viên | Phần việc được phân công trong giai đoạn hiện tại |
 |---|---|
-| Phương Vy | Trưởng nhóm / Thiết kế giao diện tổng thể, xây dựng wireframe và quy chuẩn giao diện cho 5 trang; phát triển trang danh sách nghệ sĩ (artist.html). | Ánh Hằng | Tổ chức cấu trúc repository, quản lý tài nguyên; xây dựng trang chủ (index.html), Header, Footer và Banner dùng chung. |
-| Mỹ Dung | Xây dựng giao diện danh sách sản phẩm (products.html), bảo đảm hiển thị tối thiểu 8 sản phẩm với bố cục và liên kết phù hợp. |
-| Muội Nhiên | Thiết kế và kiểm thử responsive ở ba kích thước màn hình (1366px, 768px, 390px); kiểm tra và điều chỉnh lỗi hiển thị. |
-| Bảo Ngọc | Xây dựng giao diện trang chi tiết sản phẩm (product-detail.html) và trang giới thiệu thương hiệu (about.html). |
-| Phạm Huy | QA/Tester và Technical Writer |
+| **Ánh Hằng** | Điều phối và chuẩn bị dự án; thống nhất cấu trúc, quy ước phối hợp và quản lý mã nguồn; phụ trách tổng hợp báo cáo sử dụng AI; phối hợp tích hợp trang chi tiết sản phẩm |
+| **Mỹ Dung** | Chuẩn hóa dữ liệu, xây dựng danh sách sản phẩm; phối hợp phát triển giao diện và chức năng giỏ hàng. |
+| **Muội Nhiên** | Phát triển tìm kiếm, bộ lọc và sắp xếp sản phẩm; phối hợp tích hợp giỏ hàng với `localStorage`. |
+| **Bảo Ngọc** | Phát triển và tích hợp trang chi tiết sản phẩm động theo ID; phối hợp xây dựng chức năng giỏ hàng. |
+| **Vy Huỳnh** | Phát triển và tích hợp trang chi tiết nghệ sĩ; thực hiện chức năng lưu và khôi phục dữ liệu giỏ hàng. |
+| **Quang Huy** | Tích hợp và kiểm thử website; tổng hợp test case, ghi nhận lỗi; phụ trách README, tài liệu và công việc GitHub trong giai đoạn hoàn thiện. |
 
-## 2. Cấu trúc thư mục
+## 3. Công nghệ và công cụ sử dụng
 
-Cấu trúc dưới đây ghi nhận các đường dẫn đã đối chiếu trên nhánh `main` của repository
+| Công nghệ / công cụ | Vai trò |
+|---|---|
+| **HTML5** | Cấu trúc các trang và thành phần nội dung. |
+| **CSS3** | Thiết kế giao diện; sử dụng **Flexbox**, **CSS Grid** và **Media Queries** để bố trí, điều chỉnh responsive. |
+| **JavaScript (Vanilla JS)** | Quản lý dữ liệu sản phẩm, thao tác DOM, tìm kiếm/lọc/sắp xếp, điều hướng chi tiết và logic giỏ hàng. |
+| **Web Storage API (`localStorage`)** | Lưu trạng thái giỏ hàng trong trình duyệt với khóa `owniverse_cart`. |
+| **Git và GitHub** | Lưu trữ mã nguồn, theo dõi thay đổi và phối hợp nhóm. |
+| **Visual Studio Code, Live Server, Chrome DevTools** | Phát triển, chạy website và kiểm thử giao diện, JavaScript, tài nguyên mạng, dữ liệu lưu trữ. |
+
+## 4. Cấu trúc thư mục dự án
+
+Cấu trúc chính trong bản mã nguồn được cung cấp:
 
 ```text
 owniverse-ptud-nhom6/
-├── .gitignore
-├── README.md
-├── index.html
-├── products.html
-├── product-detail.html
-├── about.html
-├── artist.html
-├── chuanHeader.html
-├── chuanFooter.html
+├── index.html                 # Trang chủ
+├── about.html                 # Giới thiệu OWNIVERSE
+├── products.html              # Danh sách và bộ lọc sản phẩm
+├── product-detail.html        # Chi tiết sản phẩm theo ID
+├── artist.html                # Danh sách nghệ sĩ
+├── artist-detail.html         # Chi tiết nghệ sĩ
+├── cart.html                  # Giỏ hàng
+├── chuanHeader.html           # Mẫu header dùng chung
+├── chuanFooter.html           # Mẫu footer dùng chung
 ├── css/
-│   ├── style.css
+│   ├── style.css              # Kiểu dáng chung
 │   ├── chuanHeader.css
 │   ├── chuanFooter.css
-│   └── pages/
-│       ├── home.css
-│       ├── products.css
-│       ├── product-detail.css
-│       ├── about.css
-│       └── artist.css
-├── images/
-│   ├── banners/
-│   ├── products/
-│   ├── artists/
-│   └── about/
+│   └── pages/                 # CSS cho từng trang
 ├── js/
-│   └── main.js
-└── docs/
-    ├── REQUIREMENTS.md
-    └── PROJECT_PLAN.md
+│   ├── pages/                 # Logic hiển thị, tìm kiếm, lọc, trang chi tiết
+│   ├── cart/                  # Giỏ hàng và localStorage
+│   ├── common/                # Tiện ích dùng chung
+│   └── data/                  # Thư mục dữ liệu trong cấu trúc dự án
+├── images/                    # Hình sản phẩm, nghệ sĩ, banner, logo...
+├── docs/                      # Yêu cầu, kế hoạch, thiết kế và nhật ký AI
+└── README.md
 ```
 
-- **Các file HTML ở thư mục gốc:** 5 trang giao diện chính; `chuanHeader.html` và `chuanFooter.html` là các tệp tham khảo cho thành phần giao diện chung, không tính vào 5 trang chính.
-- **`css/style.css`:** Biến màu, kiểu chữ, reset và một số thành phần dùng chung. **`css/chuanHeader.css`, `css/chuanFooter.css`:** Kiểu dáng header/footer. **`css/pages/`:** CSS theo từng trang.
-- **`images/`:** Hình banner, sản phẩm, nghệ sĩ và phần giới thiệu. **`js/main.js`:** Mã JavaScript điều khiển banner/carousel ở trang chủ.
-- **`docs/`:** Tài liệu yêu cầu và kế hoạch từ giai đoạn phân tích.
+## 5. Giao diện và chức năng hiện có
 
-## 3. Danh sách các trang đã xây dựng
-
-| Trang | Nội dung giao diện hiện có |
+| Khu vực | Nội dung và chức năng |
 |---|---|
-| [`index.html`](index.html) | Trang chủ với header, menu, khu vực giới thiệu, banner/carousel nghệ sĩ, sản phẩm nổi bật và bộ sưu tập. |
-| [`products.html`](products.html) | Danh sách sản phẩm dạng lưới, bộ lọc checkbox theo nghệ sĩ/danh mục, lựa chọn sắp xếp, các thẻ sản phẩm và liên kết xem chi tiết. Biểu mẫu lọc/sắp xếp chưa được xác nhận xử lý dữ liệu thực. |
-| [`product-detail.html`](product-detail.html) | Trang minh họa chi tiết album AFTERDARK Vol.01 của RHEA: thư viện ảnh, giá, mô tả, số lượng, nút mua hàng và sản phẩm liên quan. Thư viện ảnh dùng radio/label và CSS. |
-| [`about.html`](about.html) | Giới thiệu OWNIVERSE, câu chuyện thương hiệu, giá trị cốt lõi và ba nghệ sĩ đồng hành. |
-| [`artist.html`](artist.html) | Giới thiệu KAIRO, MIRA, RHEA bằng hình ảnh, mô tả và liên kết; có biểu mẫu tìm kiếm ở mức giao diện. |
+| **Trang chủ** | Giới thiệu thương hiệu, banner/carousel, nội dung và liên kết khám phá sản phẩm, nghệ sĩ. |
+| **Giới thiệu** | Thông tin thương hiệu và định hướng kết nối nghệ sĩ với người hâm mộ. |
+| **Danh sách sản phẩm** | Hiển thị **13 sản phẩm** từ dữ liệu JavaScript; tìm kiếm, lọc theo danh mục/nghệ sĩ/giá, sắp xếp theo giá và kết hợp nhiều điều kiện. |
+| **Chi tiết sản phẩm** | Hiển thị thông tin sản phẩm theo tham số `id` trên URL, lựa chọn số lượng và thêm vào giỏ; có thông báo khi ID không tồn tại. |
+| **Nghệ sĩ** | Danh sách ba nghệ sĩ KAIRO, MIRA, RHEA; tìm kiếm nghệ sĩ và xem trang chi tiết theo tham số URL. |
+| **Giỏ hàng** | Thêm sản phẩm, cộng dồn sản phẩm trùng ID, tăng/giảm số lượng, xóa sản phẩm, cập nhật tổng tiền và số lượng trên header. |
+| **Lưu trữ giỏ hàng** | Duy trì dữ liệu sau khi tải lại trang và đồng bộ giữa các trang thông qua `localStorage`. |
+| **Responsive** | Giao diện đã được quan sát trên Desktop (1366px), Tablet (768px) và Mobile (390px); còn một số điểm cần tối ưu. |
 
-## 4. Công nghệ sử dụng
+Danh sách trên tổng hợp các phần đã có trong mã nguồn và các luồng chức năng chính được ghi nhận khi kiểm thử. Một số thao tác trên màn hình nhỏ và tình huống biên vẫn cần xác minh bổ sung. Website hiện chưa có chức năng đăng nhập, checkout/thanh toán thực tế hoặc quản trị đơn hàng.
 
-| Công nghệ | Vai trò và bằng chứng trong mã nguồn |
-|---|---|
-| **HTML5** | Cấu trúc nội dung và biểu mẫu; sử dụng các phần tử ngữ nghĩa như `header`, `nav`, `main`, `section`, `article`, `form`. |
-| **CSS3** | Màu sắc, font, khoảng cách, card, nút bấm, trạng thái `hover`/`focus` và cách hiển thị hình ảnh. |
-| **CSS Grid** | Chia cột và bố trí lưới nghệ sĩ, danh sách sản phẩm, nội dung trang. |
-| **Flexbox** | Sắp xếp menu, header, nút bấm và các nhóm thành phần theo hàng/cột. |
-| **Media Queries** | Khai báo các quy tắc CSS thay đổi bố cục tại những ngưỡng màn hình khác nhau
-| **JavaScript (phạm vi nhỏ)** | File `js/main.js` được `index.html` nạp để chuyển slide, xử lý các nút chỉ báo và tạm dừng carousel theo tương tác/thiết lập giảm chuyển động. |
-| **Google Fonts** | Tải các font **Inter** và **Montserrat** trong các tệp giao diện. |
+## 6. Hướng dẫn cài đặt và chạy website
 
-## 5. Hướng dẫn chạy website
-
-**Bước 1 - Tải mã nguồn:** Truy cập [repository OWNIVERSE](https://github.com/wiwinowo1511/owniverse-ptud-nhom6), chọn Code → Download ZIP, rồi giải nén. Nếu đã cài Git, có thể dùng:
+**Cách 1 - Tải repository:**
 
 ```bash
 git clone https://github.com/wiwinowo1511/owniverse-ptud-nhom6.git
 cd owniverse-ptud-nhom6
 ```
 
-Bước 2 - Mở trong Visual Studio Code: Chọn **File → Open Folder** và mở thư mục `owniverse-ptud-nhom6` vừa tải về.
+Hoặc chọn **Code → Download ZIP** trên GitHub, sau đó giải nén.
 
-**Bước 3 - Chạy bằng Live Server:** Cài tiện ích **Live Server** trong VS Code nếu chưa có; nhấp phải `index.html` → **Open with Live Server**. Trình duyệt sẽ mở địa chỉ localhost do tiện ích cung cấp.
+**Cách 2 - Chạy bằng Live Server:**
 
-**Bước 4 - Điều hướng:** Bắt đầu ở `index.html`, sau đó dùng menu hoặc truy cập trực tiếp `products.html`, `product-detail.html`, `about.html`, `artist.html`. 
+1. Mở thư mục dự án có chứa `index.html` bằng **Visual Studio Code**.
+2. Cài tiện ích **Live Server** (nếu chưa có).
+3. Nhấp phải `index.html` → **Open with Live Server**.
+4. Truy cập địa chỉ localhost do Live Server cung cấp; các trang chính có thể được mở qua menu điều hướng.
 
-## 6. Hiện trạng, hạn chế và định hướng tiếp theo
+Website frontend không yêu cầu cài đặt Node.js hay cơ sở dữ liệu để chạy các chức năng đã nêu. Cổng localhost có thể thay đổi tùy môi trường.
 
-### Đã thể hiện trong mã nguồn
+## 7. Vấn đề đã gặp và hướng khắc phục
 
-- Có cấu trúc và nội dung giao diện cho **5 trang HTML** nêu tại mục 3.
-- Có các quy tắc CSS cho Grid, Flexbox, Media Queries và hiệu ứng tương tác giao diện.
-- Có JavaScript cho carousel trang chủ; có cơ chế chọn ảnh chi tiết sản phẩm bằng HTML/CSS.
+Trong quá trình tích hợp và kiểm thử, nhóm ghi nhận các vấn đề chính:
 
-**Các mục trên là kết quả đối chiếu mã nguồn, chưa phải kết luận rằng mọi giao diện đều hiển thị đúng khi chạy trên trình duyệt.**
+| Vấn đề | Nguyên nhân / biểu hiện | Hướng xử lý và hiện trạng |
+|---|---|---|
+| **CSS không tải được (404)** | Một số trang tham chiếu `css/cart-common.css` nhưng tệp chưa có ở đường dẫn tương ứng. | Bổ sung stylesheet đúng đường dẫn; **chờ xác nhận kết quả kiểm thử lại sau khi áp dụng bản sửa**. |
+| **Khai báo trùng JavaScript** | `cart.html` nạp `cart-store.js` hai lần, dẫn tới lỗi `CART_STORAGE_KEY has already been declared`. | Bỏ lần nạp trùng, giữ đúng thứ tự script; **chờ xác nhận kết quả kiểm thử lại**. |
+| **Hiển thị khi lọc ít sản phẩm** | Thanh phân trang chưa phản ánh đúng số kết quả đang hiển thị. | Cần tiếp tục điều chỉnh và kiểm tra. |
+| **Giao diện Mobile** | Thanh điều hướng có dấu hiệu bị cắt tại viewport 390px. | Cần kiểm tra khả năng cuộn/truy cập menu và tối ưu khi cần. |
 
-### Hạn chế đã xác nhận qua kiểm tra tĩnh
+## 8. Repository và tài liệu dự án
 
-- **Trang đích chưa có trong danh sách file ở thư mục gốc nhánh `main`:** Các liên kết tới `community.html`, `cart.html`, `account.html`, `contact.html` và các trang riêng `artist-kairo.html`, `artist-mira.html`, `artist-rhea.html` đang xuất hiện trong HTML. Vì vậy không nên coi những điều hướng này là hoàn thiện.
-- **Liên kết tạm/anchor chưa khớp:** Có các liên kết `href="#"` và liên kết `#artist-search` trên những trang không có phần tử mang `id="artist-search"`.
-- **Khai báo stylesheet và cấu trúc HTML cần rà soát:** `index.html` nạp lặp `css/style.css`; `products.html` lặp các khai báo CSS, đồng thời có nhiều thẻ `<head>`/`<body>`. Một số stylesheet được đặt trong phần `<body>`. Các vấn đề này **chưa có minh chứng đã sửa**.
-- **Tham chiếu CSS chưa tìm thấy trên nhánh `main`:** `about.html` gọi `css/pages/base.css`, `css/pages/layout.css` và `css/pages/components.css`, nhưng chưa thấy các tệp tương ứng tại đường dẫn đó. Cần đối chiếu lại bản mới nhất trước khi nộp.
+- **GitHub:** https://github.com/wiwinowo1511/owniverse-ptud-nhom6
+- **Tài liệu yêu cầu:** [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md)
+- **Kế hoạch dự án:** [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md)
+- **Nhật ký sử dụng AI:** [`docs/AI_USAGE_LOG.md`](docs/AI_USAGE_LOG.md)
+- **Báo cáo và minh chứng Buổi 3:** [PTUD_N6_LMS Buổi 3](https://docs.google.com/document/d/1J1-i471R6R8mMntBw-g9tfjwzp1wRW23QKRXPNjygWo/edit?usp=sharing)
 
-### Chức năng mới ở mức giao diện hoặc dự kiến
+## 9. Sử dụng AI trong quá trình thực hiện
 
-- **Tìm kiếm/lọc:** Có ô nhập, checkbox và form.
-- **Mua hàng:** Số lượng và nút mua đã được trình bày; form ở trang chi tiết trỏ tới `cart.html`, chưa phải giỏ hàng hoặc quy trình đặt hàng hoạt động.
-- **Tài khoản, thanh toán, đơn hàng, pre-order:** Chưa triển khai/kiểm chứng các luồng đăng nhập, thanh toán trực tuyến, đặt cọc hoặc tra cứu trạng thái đơn.
-- **Quản trị và đối tác nghệ sĩ:** Quản lý danh mục, biến thể, tồn kho, đợt mở bán, voucher, dashboard và phân quyền
+Nhóm sử dụng AI như công cụ **hỗ trợ tham khảo, đề xuất giải pháp và rà soát sản phẩm** trong các giai đoạn:
 
-**Tài liệu tham chiếu của dự án:** [Yêu cầu dự án](docs/REQUIREMENTS.md) · [Kế hoạch dự án](docs/PROJECT_PLAN.md).
+| Giai đoạn | Nội dung hỗ trợ được ghi nhận |
+|---|---|
+| **Phân tích và lập kế hoạch** | Hỗ trợ xây dựng, phản biện yêu cầu; gợi ý kế hoạch và phân công công việc. |
+| **Thiết kế và phát triển giao diện** | Gợi ý bố cục, HTML/CSS, responsive, kiểm tra các thành phần giao diện và xử lý carousel. |
+| **Tích hợp, kiểm thử và tài liệu** | Hỗ trợ xây dựng test case, phân tích thông báo lỗi DevTools, đề xuất cách khắc phục và biên soạn tài liệu dự án. |
