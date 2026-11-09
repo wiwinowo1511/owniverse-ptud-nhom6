@@ -119,7 +119,6 @@ Trong quá trình tích hợp và kiểm thử, nhóm ghi nhận các vấn đ�
 - **Tài liệu yêu cầu:** [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md)
 - **Kế hoạch dự án:** [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md)
 - **Nhật ký sử dụng AI:** [`docs/AI_USAGE_LOG.md`](docs/AI_USAGE_LOG.md)
-- **Báo cáo và minh chứng Buổi 3:** [PTUD_N6_LMS Buổi 3](https://docs.google.com/document/d/1J1-i471R6R8mMntBw-g9tfjwzp1wRW23QKRXPNjygWo/edit?usp=sharing)
 
 ## 9. Sử dụng AI trong quá trình thực hiện
 
