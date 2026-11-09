@@ -9,7 +9,7 @@
 const PRODUCTS = [
  {
   id: 1,
-  name: "Áo thun Signature của Kairo",
+  name: "Áo thun Signature - Kairo",
   price: 450000,
   category: "ao-thun",
   image: "images/products/Kairo-ao-thun-01.jpg",
@@ -57,7 +57,7 @@ const PRODUCTS = [
   },
   {
     id: 3,
-    name: "Sticker họa tiết của Mira",
+    name: "Sticker họa tiết - Mira",
     price: 80000,
     category: "sticker",
     image: "images/products/Mira-sticker-01.jpg",
@@ -78,7 +78,7 @@ const PRODUCTS = [
   },
   {
     id: 4,
-    name: "Hoodie Signature của Kairo",
+    name: "Hoodie Signature - Kairo",
     price: 900000,
     category: "ao-khoac",
     image: "images/products/Kairo-Hoodie-01.jpg",
@@ -120,7 +120,7 @@ const PRODUCTS = [
   },
   {
     id: 6,
-    name: "Móc khóa Acrylic của Mira",
+    name: "Móc khóa Acrylic - Mira",
     price: 100000,
     category: "moc-khoa",
     image: "images/products/Mira-moc-khoa-01.jpg",
@@ -141,7 +141,7 @@ const PRODUCTS = [
   },
   {
     id: 7,
-    name: "Túi tote Signature của Kairo",
+    name: "Túi tote Signature - Kairo",
     price: 250000,
     category: "tui-tote",
     image: "images/products/Kairo-tui-tote-01.png",
