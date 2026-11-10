@@ -186,14 +186,14 @@ const PRODUCTS = [
     name: "Single Album First Light - Kairo",
     price: 350000,
     category: "album",
-    image: "images/products/kairo-debut-album-01.png",
+    image: "images/products/Kairo-debut-album-01.png",
     artist: "Kairo",
     description: "Single album đầu tay \"First Light\" phát hành ngày 21.06.2024 đánh dấu màn debut chính thức của Kairo. Kèm photobook và 2 photocard, 1 sticker, 1 post card, 1 CD, 1 giấy lyrics.",
     images: [
-      "images/products/kairo-debut-album-01.png",
-      "images/products/kairo-debut-album-02.png",
-      "images/products/kairo-debut-album-03.png",
-      "images/products/kairo-debut-album-04.png"
+      "images/products/Kairo-debut-album-01.png",
+      "images/products/Kairo-debut-album-02.png",
+      "images/products/Kairo-debut-album-03.png",
+      "images/products/Kairo-debut-album-04.png"
     ],
     specs: [
       { label: "Thành phần", value: "01 photobook, 02 photocard, 01 sticker, 01 postcard, 01 CD và 01 giấy lyrics." },
@@ -207,14 +207,14 @@ const PRODUCTS = [
     name: "Mini Album BLUEPRINT - Kairo",
     price: 480000,
     category: "album",
-    image: "images/products/kairo-mini-album-01.png",
+    image: "images/products/Kairo-mini-album-01.png",
     artist: "Kairo",
     description: "First mini album \"BLUEPRINT\" phát hành năm 2025. Kèm photobook và 1 card, 1 photostrip, 1 giấy lyrics, 1 CD.",
     images: [
-      "images/products/kairo-mini-album-01.png",
-      "images/products/kairo-mini-album-02.png",
-      "images/products/kairo-mini-album-03.png",
-      "images/products/kairo-mini-album-04.png"
+      "images/products/Kairo-mini-album-01.png",
+      "images/products/Kairo-mini-album-02.png",
+      "images/products/Kairo-mini-album-03.png",
+      "images/products/Kairo-mini-album-04.png"
     ],
     specs: [
       { label: "Thành phần", value: "01 photobook, 01 photocard, 01 photostrip, 01 giấy lyrics và 01 CD." },
@@ -228,14 +228,14 @@ const PRODUCTS = [
     name: "Full Album Shiny Paradise - Kairo",
     price: 620000,
     category: "album",
-    image: "images/products/kairo-full-album-01.png",
+    image: "images/products/Kairo-full-album-01.png",
     artist: "Kairo",
     description: "First Full Album \"Shiny Paradise\" phát hành năm 2026. Bản vật lý cao cấp kèm đĩa CD, 2 card, sách ảnh 100 trang, 1 bookmark và 1 giấy lyrics.",
     images: [
-      "images/products/kairo-full-album-01.png",
-      "images/products/kairo-full-album-02.png",
-      "images/products/kairo-full-album-03.png",
-      "images/products/kairo-full-album-04.png"
+      "images/products/Kairo-full-album-01.png",
+      "images/products/Kairo-full-album-02.png",
+      "images/products/Kairo-full-album-03.png",
+      "images/products/Kairo-full-album-04.png"
     ],
     specs: [
       { label: "Thành phần", value: "01 CD, 02 photocard, 01 photobook 100 trang, 01 bookmark và 01 giấy lyrics." },
@@ -249,14 +249,14 @@ const PRODUCTS = [
     name: "Debut Single First Bloom - Mira",
     price: 350000,
     category: "album",
-    image: "images/products/mira-debut-album-01.png",
+    image: "images/products/Mira-debut-album-01.png",
     artist: "Mira",
     description: "Single ra mắt năm 2023 với title track \"First Bloom\", mang phong cách tươi mới, mộng mơ và tràn đầy năng lượng tuổi trẻ của MIRA. Gồm photobook, 2 card, 1 sticker, 1 giấy lyrics và 1 CD.",
     images: [
-      "images/products/mira-debut-album-01.png",
-      "images/products/mira-debut-album-02.png",
-      "images/products/mira-debut-album-03.png",
-      "images/products/mira-debut-album-04.png"
+      "images/products/Mira-debut-album-01.png",
+      "images/products/Mira-debut-album-02.png",
+      "images/products/Mira-debut-album-03.png",
+      "images/products/Mira-debut-album-04.png"
     ],
     specs: [
       { label: "Thành phần", value: "01 photobook, 02 photocard, 01 sticker, 01 giấy lyrics và 01 CD." },
@@ -270,14 +270,14 @@ const PRODUCTS = [
     name: "1st Mini Album Summer in My Pocket - Mira",
     price: 480000,
     category: "album",
-    image: "images/products/mira-mini-album-01.png",
+    image: "images/products/Mira-mini-album-01.png",
     artist: "Mira",
     description: "Mini album đầu tay phát hành năm 2024 với ca khúc chủ đề \"Summer Diary\". Concept mùa hè đầy màu sắc, rực rỡ và năng động. Gồm photobook, 1 card, 1 bookmark, 1 giấy lyrics và 1 CD.",
     images: [
-      "images/products/mira-mini-album-01.png",
-      "images/products/mira-mini-album-02.png",
-      "images/products/mira-mini-album-03.png",
-      "images/products/mira-mini-album-04.png"
+      "images/products/Mira-mini-album-01.png",
+      "images/products/Mira-mini-album-02.png",
+      "images/products/Mira-mini-album-03.png",
+      "images/products/Mira-mini-album-04.png"
     ],
     specs: [
       { label: "Thành phần", value: "01 photobook, 01 photocard, 01 bookmark, 01 giấy lyrics và 01 CD." },
