@@ -349,6 +349,237 @@ const PRODUCTS = [
     intro: "Chưa cóa, đang làm...",
     quote: "Khồng biết để gì..."
   },
+  {
+    id: 17,
+    name: "Lightstick Official Mira Star Wand",
+    price: 980000,
+    category: "lightstick",
+    image: "images/products/Mira-lightstick-01.png",
+    artist: "Mira",
+    description: "Lightstick hình ngôi sao phát sáng kết hợp hiệu ứng kim tuyến của Mira, kèm dây đeo cổ tay và hộp sang trọng.",
+    images: [
+      "images/products/Mira-lightstick-01.png",
+      "images/products/Mira-lightstick-02.png",
+      "images/products/Mira-lightstick-03.png",
+      "images/products/Mira-lightstick-04.png"
+    ],
+    specs: [
+      { label: "Thành phần", value: "01 lightstick, 01 photocard, 01 dây strap." },
+      { label: "Phiên bản", value: "Lightstick Official Mira Star Wand." }
+    ],
+    intro: "Chưa cóa, đang làm...",
+    quote: "Khồng biết để gì..."
+  },
+  {
+    id: 18,
+    name: "Lightstick Official Rhea Eclipse Torch",
+    price: 1020000,
+    category: "lightstick",
+    image: "images/products/Rhea-lightstick-01.png",
+    artist: "Rhea",
+    description: "Lightstick chính thức của Rhea mang hình tượng ngọn đuốc mờ ảo, đèn đổi màu cảm ứng và hỗ trợ kết nối không dây.",
+    images: [
+      "images/products/Rhea-lightstick-01.png",
+      "images/products/Rhea-lightstick-02.png",
+      "images/products/Rhea-lightstick-03.png",
+      "images/products/Rhea-lightstick-04.png"
+    ],
+    specs: [
+      { label: "Thành phần", value: "01 lightstick, 01 photocard, 01 dây strap." },
+      { label: "Phiên bản", value: "Lightstick Official Rhea Eclipse Torch." }
+    ],
+    intro: "Chưa cóa, đang làm...",
+    quote: "Khồng biết để gì..."
+  },
+  {
+    id: 19,
+    name: "Quần dài Jogger Kairo Streetwise",
+    price: 750000,
+    category: "quan-dai",
+    image: "images/products/Kairo-quan-dai-01.png",
+    artist: "Kairo",
+    description: "Quần jogger thun nỉ thêu chữ Signature bên hông, bo gấu thời trang, phù hợp phong cách street style năng động.",
+    images: [
+      "images/products/Kairo-quan-dai-01.png",
+      "images/products/Kairo-quan-dai-02.png",
+      "images/products/Kairo-quan-dai-03.png",
+      "images/products/Kairo-quan-dai-04.png"
+    ],
+    specs: [
+      { label: "Thành phần", value: "01 quần jogger" },
+      { label: "Phiên bản", value: "Quần dài Jogger Kairo Streetwise." }
+    ],
+    intro: "Chưa cóa, đang làm...",
+    quote: "Khồng biết để gì..."
+  },
+  {
+    id: 20,
+    name: "Quần short Unisex Rhea Vanta",
+    price:  450000,
+    category: "quan-short",
+    image: "images/products/Rhea-quan-short-01.png",
+    artist: "Rhea",
+    description: "Quần short chất liệu dù micro cao cấp, thoáng mát, cạp co giãn thoải mái thích hợp cho các hoạt động ngoài trời.",
+    images: [
+      "images/products/Rhea-quan-short-01.png",
+      "images/products/Rhea-quan-short-02.png",
+      "images/products/Rhea-quan-short-03.png",
+      "images/products/Rhea-quan-short-04.png"
+    ],
+    specs: [
+      { label: "Thành phần", value: "01 quần short" },
+      { label: "Phiên bản", value: "Quần short Unisex Rhea Vanta." }
+    ],
+    intro: "Chưa cóa, đang làm...",
+    quote: "Khồng biết để gì..."
+  },
+  {
+    id: 21,
+    name: "Dây đeo thẻ Lanyard Kairo Tour",
+    price:  120000,
+    category: "day-deo",
+    image: "images/products/Kairo-lanyard-01.png",
+    artist: "Kairo",
+    description: "Dây đeo cổ bằng vải polyester in chuyển nhiệt họa tiết Kairo Tour, kèm móc khóa kim loại xoay 360 độ tiện dùng.",
+    images: [
+      "images/products/Kairo-lanyard-01.png",
+      "images/products/Kairo-lanyard-02.png",
+      "images/products/Kairo-lanyard-03.png",
+      "images/products/Kairo-lanyard-04.png"
+    ],
+    specs: [
+      { label: "Thành phần", value: "01 dây đeo thẻ" },
+      { label: "Phiên bản", value: "Dây đeo thẻ Lanyard Kairo Tour." }
+    ],
+    intro: "Chưa cóa, đang làm...",
+    quote: "Khồng biết để gì..."
+  },
+  {
+    id: 22,
+    name: "Bộ Photocard Độc Quyền Rhea (5 tấm)",
+    price:  150000,
+    category: "photocard",
+    image: "images/products/Rhea-photocard-01.png",
+    artist: "Rhea",
+    description: "Bộ 5 card bo góc in ảnh selfie nét cao của Rhea, cán mờ hai mặt chống xước và có chữ ký in kim sang trọng.",
+    images: [
+      "images/products/Rhea-photocard-01.png",
+      "images/products/Rhea-photocard-02.png",
+      "images/products/Rhea-photocard-03.png",
+      "images/products/Rhea-photocard-04.png"
+    ],
+    specs: [
+      { label: "Thành phần", value: "01 bộ photocard" },
+      { label: "Phiên bản", value: "Bộ Photocard Độc Quyền Rhea (5 tấm)." }
+    ],
+    intro: "Chưa cóa, đang làm...",
+    quote: "Khồng biết để gì..."
+  },
+  {
+    id: 23,
+    name: "Bộ Photocard Độc Quyền Kairo (5 tấm)",
+    price:  150000,
+    category: "photocard",
+    image: "images/products/Kairo-photocard-01.png",
+    artist: "Kairo",
+    description: "Bộ 5 card bo góc in ảnh selfie nét cao của Kairo, cán mờ hai mặt chống xước và có chữ ký in kim sang trọng.",
+    images: [
+      "images/products/Kairo-photocard-01.png",
+      "images/products/Kairo-photocard-02.png",
+      "images/products/Kairo-photocard-03.png",
+      "images/products/Kairo-photocard-04.png"
+    ],
+    specs: [
+      { label: "Thành phần", value: "01 bộ photocard" },
+      { label: "Phiên bản", value: "Bộ Photocard Độc Quyền Kairo (5 tấm)." }
+    ],
+    intro: "Chưa cóa, đang làm...",
+    quote: "Khồng biết để gì..."
+  },
+  {
+    id: 24,
+    name: "Bộ Photocard Độc Quyền Mira (5 tấm)",
+    price:  150000,
+    category: "photocard",
+    image: "images/products/Mira-photocard-01.png",
+    artist: "Mira",
+    description: "Bộ 5 card bo góc in ảnh selfie nét cao của Mira, cán mờ hai mặt chống xước và có chữ ký in kim sang trọng.",
+    images: [
+      "images/products/Mira-photocard-01.png",
+      "images/products/Mira-photocard-02.png",
+      "images/products/Mira-photocard-03.png",
+      "images/products/Mira-photocard-04.png"
+    ],
+    specs: [
+      { label: "Thành phần", value: "01 bộ photocard" },
+      { label: "Phiên bản", value: "Bộ Photocard Độc Quyền Mira (5 tấm)." }
+    ],
+    intro: "Chưa cóa, đang làm...",
+    quote: "Khồng biết để gì..."
+  },
+  {
+    id: 25,
+    name: "Ốp lưng Phone Case Kairo Cyber",
+    price:  180000,
+    category: "phone-case",
+    image: "images/products/Kairo-phone-case-01.png",
+    artist: "Kairo",
+    description: "Ốp lưng silicone dẻo viền chống sốc, mặt lưng in nổi graphic Kairo Cyber sắc nét bảo vệ máy tối đa.",
+    images: [
+      "images/products/Kairo-phone-case-01.png",
+      "images/products/Kairo-phone-case-02.png",
+      "images/products/Kairo-phone-case-03.png",
+      "images/products/Kairo-phone-case-04.png"
+    ],
+    specs: [
+      { label: "Thành phần", value: "01 ốp lưng" },
+      { label: "Phiên bản", value: "Ốp lưng Phone Case Kairo Cyber." }
+    ],
+    intro: "Chưa cóa, đang làm...",
+    quote: "Khồng biết để gì..."
+  },
+  {
+    id: 26,
+    name: "Pin cài áo Kim Loại Mira Badge",
+    price:  90000,
+    category: "pin-cai",
+    image: "images/products/Mira-pin-cai-01.png",
+    artist: "Mira",
+    description: "Huy hiệu pin cài bằng kim loại đúc mạ niken, phủ keo bảo vệ bóng đẹp, dùng để cài balo, áo hoặc nón.",
+    images: [
+      "images/products/Mira-pin-cai-01.png",
+      "images/products/Mira-pin-cai-02.png",
+      "images/products/Mira-pin-cai-03.png",
+      "images/products/Mira-pin-cai-04.png"
+    ],
+    specs: [
+      { label: "Thành phần", value: "01 pin cài áo" },
+      { label: "Phiên bản", value: "Pin cài áo Kim Loại Mira Badge." }
+    ],
+    intro: "Chưa cóa, đang làm...",
+    quote: "Khồng biết để gì..."
+  },
+  {
+    id: 27,
+    name: "Túi đeo chéo Mini Crossbody Rhea",
+    price:  380000,
+    category: "tui-deo-cheo",
+    image: "images/products/Rhea-tui-deo-cheo-01.png",
+    artist: "Rhea",
+    description: "Túi đeo chéo nhỏ gọn chất liệu chống nước, nhiều ngăn khóa tiện lợi, thêu logo nổi Rhea ở mặt trước.",
+    images: [
+      "images/products/Rhea-tui-deo-cheo-01.png",
+      "images/products/Rhea-tui-deo-cheo-02.png",
+      "images/products/Rhea-tui-deo-cheo-03.png",
+      "images/products/Rhea-tui-deo-cheo-04.png"
+    ],
+    specs: [
+      { label: "Thành phần", value: "01 túi đeo chéo" },
+      { label: "Phiên bản", value: "Túi đeo chéo Mini Crossbody Rhea." }
+    ],
+    intro: "Chưa cóa, đang làm...",
+    quote: "Khồng biết để gì..."
+  },
 ];
 
 
