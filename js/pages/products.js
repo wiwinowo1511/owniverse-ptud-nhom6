@@ -430,7 +430,8 @@ function productMatchesPrice(product, selectedPrices) {
 }
 
 
-
+const PRODUCTS_PER_PAGE = 8;
+let currentPage = 1;
 
 // Lấy danh sách sản phẩm sau khi tìm kiếm, lọc và sắp xếp
 function getFilteredProducts() {
@@ -506,8 +507,43 @@ function getFilteredProducts() {
 
 // Cập nhật danh sách sản phẩm sau mỗi thao tác
 function updateProductList() {
-  const filteredProducts = getFilteredProducts();
-  renderProducts(filteredProducts);
+  currentPage = 1;
+  showCurrentPage();
+}
+
+// Cắt đúng 8 sản phẩm của trang hiện tại
+function showCurrentPage() {
+  const filtered = getFilteredProducts();
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PRODUCTS_PER_PAGE));
+  if (currentPage > totalPages) currentPage = totalPages;
+
+  const start = (currentPage - 1) * PRODUCTS_PER_PAGE;
+  renderProducts(filtered.slice(start, start + PRODUCTS_PER_PAGE), filtered.length);
+  renderPagination(totalPages);
+}
+
+// Vẽ nút phân trang
+function renderPagination(totalPages) {
+  const nav = document.querySelector(".products-pagination");
+  const list = document.querySelector(".products-pagination_list");
+  if (!nav || !list) return;
+
+  nav.style.display = totalPages <= 1 ? "none" : "";
+
+  const item = function (label, page, ariaLabel, extraClass, disabled) {
+    return `<li class="products-pagination_item">
+      <a class="products-pagination_link${extraClass || ""}" href="#" data-page="${page}"
+         aria-label="${ariaLabel}"${disabled ? ' aria-disabled="true"' : ""}${extraClass ? ' aria-current="page"' : ""}>${label}</a>
+    </li>`;
+  };
+
+  let html = item("&lt;", currentPage - 1, "Trang trước", "", currentPage === 1);
+  for (let i = 1; i <= totalPages; i++) {
+    html += item(i, i, "Trang " + i, i === currentPage ? " products-pagination_link--active" : "", false);
+  }
+  html += item("&gt;", currentPage + 1, "Trang sau", "", currentPage === totalPages);
+
+  list.innerHTML = html;
 }
 
 
@@ -560,7 +596,7 @@ document.addEventListener("cart:change", syncCartButtons);
 
 
 // Hiển thị danh sách sản phẩm vào .products-grid
-function renderProducts(list) {
+function renderProducts(list, totalCount) {
   const grid = document.querySelector(".products-grid");
   if (!grid) return;
 
@@ -574,7 +610,7 @@ function renderProducts(list) {
 
 
   if (countElement) {
-    countElement.textContent = "Hiển thị " + products.length + " sản phẩm";
+    countElement.textContent = "Hiển thị " + (typeof totalCount === "number" ? totalCount : products.length) + " sản phẩm";
   }
 
 
@@ -741,6 +777,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
   grid.addEventListener("error", handleProductImageError, true);
   initProductFilters();
+  const pagination = document.querySelector(".products-pagination_list");
+if (pagination) {
+  pagination.addEventListener("click", function (event) {
+    const link = event.target.closest("[data-page]");
+    if (!link) return;
+    event.preventDefault();
+    if (link.getAttribute("aria-disabled") === "true") return;
+
+    const page = Number(link.dataset.page);
+    if (!page || page === currentPage) return;
+
+    currentPage = page;
+    showCurrentPage(); // KHÔNG gọi updateProductList, vì hàm đó reset về trang 1
+
+    const toolbar = document.querySelector(".products-toolbar");
+    if (toolbar) toolbar.scrollIntoView({ block: "start" });
+  });
+}
   updateProductList(); // thay cho renderProducts(PRODUCTS)
 });
 
