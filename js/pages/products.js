@@ -328,6 +328,27 @@ const PRODUCTS = [
     intro: "Chưa cóa, đang làm...",
     quote: "Khồng biết để gì..."
   },
+   {
+    id: 16,
+    name: "Lightstick Official Kairo Ver 1",
+    price: 1050000,
+    category: "lightstick",
+    image: "images/products/Kairo-lightstick-01.png",
+    artist: "Kairo",
+    description: "Gậy cổ vũ chính thức của Kairo, đổi 16 màu đèn LED kết nối Bluetooth đồng bộ hiệu ứng theo nhạc tại concert.",
+    images: [
+      "images/products/Kairo-lightstick-01.png",
+      "images/products/Kairo-lightstick-02.png",
+      "images/products/Kairo-lightstick-03.png",
+      "images/products/Kairo-lightstick-04.png"
+    ],
+    specs: [
+      { label: "Thành phần", value: "01 lightstick, 01 photocard, 01 dây strap." },
+      { label: "Phiên bản", value: "Lightstick Official Kairo Ver 1." }
+    ],
+    intro: "Chưa cóa, đang làm...",
+    quote: "Khồng biết để gì..."
+  },
 ];
 
 
