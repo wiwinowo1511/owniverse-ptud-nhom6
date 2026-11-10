@@ -309,21 +309,21 @@ const PRODUCTS = [
   },
   {
     id: 15,
-    name: "1st Mini Album OUT OF FRAME - Rhea",
+    name: "Special Album ECLIPSE - Rhea",
     price: 520000,
     category: "album",
-    image: "images/products/Rhea-mini-album-01.png",
+    image: "images/products/Rhea-special-album-01.png",
     artist: "Rhea",
-    description: "Mini album thứ hai của Rhea phát hành tháng 05/2025, mang màu sắc âm nhạc đột phá và phong cách cá tính không giới hạn. Gồm photobook, 1 card và 1 CD.",
+    description: "Special album của Rhea tên ECLIPSE, mang màu sắc âm nhạc đột phá và phong cách cá tính không giới hạn. Gồm photobook, 1 card và 1 CD.",
     images: [
-      "images/products/Rhea-mini-album-01.png",
-      "images/products/Rhea-mini-album-02.png",
-      "images/products/Rhea-mini-album-03.png",
-      "images/products/Rhea-mini-album-04.png"
+      "images/products/Rhea-special-album-01.png",
+      "images/products/Rhea-special-album-02.png",
+      "images/products/Rhea-special-album-03.png",
+      "images/products/Rhea-special-album-04.png"
     ],
     specs: [
       { label: "Thành phần", value: "01 photobook, 01 photocard, và 01 CD." },
-      { label: "Phiên bản", value: "1st Mini Album - OUT OF FRAME (2025)." }
+      { label: "Phiên bản", value: "Special Album - ECLIPSE (2025)." }
     ],
     intro: "Chưa cóa, đang làm...",
     quote: "Khồng biết để gì..."
