@@ -263,3 +263,5 @@ Phạm Lê Bảo Ngọc.
 - **Link website:** https://wiwinowo1511.github.io/owniverse-ptud-nhom6/
 - **Mã đo lường Google Analytics:** `G-LKBR0QNT2E`
 - **Mã luồng dữ liệu:** `16305179184`
+### Người kiểm tra
+Nguyễn Thị Ánh Hằng
