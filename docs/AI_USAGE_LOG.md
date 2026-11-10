@@ -190,3 +190,76 @@ Phạm Lê Bảo Ngọc.
 - Carousel Hero banner (Claude): https://claude.ai/share/8f63063e-1e64-456a-8732-27c94160ae5e
 - Kiểm tra responsive (ChatGPT): https://chatgpt.com/share/6ae7428f-246c-83ec-b949-04ce6c6cead5
 - Nhật ký sửa carousel với Copilot: https://github.com/wiwinowo1511/owniverse-ptud-nhom6/blob/main/js/chat.json
+
+---
+# AI Usage Log - BTLMS3
+
+## 1. Công cụ AI đã sử dụng
+
+| Công cụ | Dùng cho |
+|---|---|
+| Claude | Hỗ trợ lập kế hoạch, chuẩn hóa dữ liệu sản phẩm, xây dựng chức năng tìm kiếm - lọc - sắp xếp, tích hợp trang chi tiết sản phẩm và giỏ hàng. |
+| ChatGPT | Hỗ trợ tạo hình ảnh merchandise, xây dựng và tích hợp trang chi tiết nghệ sĩ, thiết lập plugin Website Testcase Toolkit, lập kế hoạch kiểm thử và soạn README.md. |
+| Website Testcase Toolkit | Plugin được thiết lập thông qua ChatGPT nhằm hỗ trợ xây dựng và tổ chức bộ test case kiểm thử website. |
+
+## 2. AI hỗ trợ từng bước
+
+| Bước | Công việc | Công cụ AI | Nội dung hỗ trợ |
+|---|---|---|---|
+| Bước 1 | Lập kế hoạch và phân công | Claude | Hỗ trợ xây dựng kế hoạch triển khai, xác định các công việc và phân chia nhiệm vụ. |
+| Bước 2 | Chuẩn hóa dữ liệu và hiển thị danh sách sản phẩm | Claude | Hỗ trợ tổ chức dữ liệu sản phẩm tập trung, xây dựng cấu trúc dữ liệu và cách hiển thị danh sách sản phẩm. |
+| Bước 3 - Mục 3.2 | Tìm kiếm, lọc và sắp xếp sản phẩm | Claude | Hỗ trợ xây dựng logic tìm kiếm, lọc theo nghệ sĩ, danh mục, khoảng giá và sắp xếp sản phẩm. |
+| Bước 4 - Mục 4.1 | Tích hợp trang chi tiết sản phẩm | Claude | Hỗ trợ xác định sản phẩm theo ID trên URL và tích hợp dữ liệu vào giao diện chi tiết sản phẩm. |
+| Bước 4 - Mục 4.2 | Tạo hình ảnh merchandise cho Kairo, Rhea và Mira | ChatGPT | Hỗ trợ xây dựng hình ảnh merchandise cho ba nghệ sĩ, với 11 loại sản phẩm mỗi nghệ sĩ. |
+| Bước 5 | Xây dựng giỏ hàng | Claude | Hỗ trợ xây dựng chức năng thêm, cập nhật, xóa sản phẩm, tính tổng tiền và lưu trữ giỏ hàng bằng localStorage. |
+| Bước 5 | Hoàn thiện chức năng giỏ hàng | Claude | Hỗ trợ kiểm tra, điều chỉnh và hoàn thiện các chức năng liên quan đến giỏ hàng. |
+| Bước 6 | Xây dựng trang chi tiết nghệ sĩ | ChatGPT | Hỗ trợ xây dựng nội dung và giao diện trang chi tiết nghệ sĩ. |
+| Bước 6 | Tích hợp trang chi tiết nghệ sĩ | ChatGPT | Hỗ trợ tích hợp dữ liệu, điều hướng và các thành phần chức năng của trang chi tiết nghệ sĩ. |
+| Bước 7 | Cài đặt plugin Website Testcase Toolkit | ChatGPT | Hỗ trợ thiết lập plugin phục vụ quá trình xây dựng và kiểm thử website. |
+| Bước 7 | Xây dựng kế hoạch và bộ test case | ChatGPT và Website Testcase Toolkit | Hỗ trợ phân tích yêu cầu, xây dựng kế hoạch kiểm thử và đề xuất các trường hợp kiểm thử chức năng. |
+| Bước 8 - Mục 8.1 | Soạn README.md | ChatGPT | Hỗ trợ soạn thảo tài liệu README.md, trình bày thông tin và hướng dẫn sử dụng dự án. |
+
+## 3. Đánh giá nội dung AI tạo ra 
+
+| Thành viên | Cách kiểm tra và xác nhận code do AI đề xuất |
+|---|---|
+| Phương Vy | Đọc và đối chiếu mã AI với cấu trúc HTML/CSS hiện tại để kiểm tra tính tương thích. Sau đó, chạy thử bằng Live Preview hoặc trình duyệt, quan sát kết quả ở nhiều trường hợp và điều chỉnh mã trước khi sử dụng. |
+| Bảo Ngọc | Kiểm tra mã AI có phù hợp với cấu trúc HTML/CSS hiện có hay không. Tiếp theo, chạy thử bằng Live Preview hoặc trình duyệt, quan sát kết quả thực tế và điều chỉnh những phần chưa phù hợp trước khi tích hợp. |
+| Mỹ Dung | Không sử dụng ngay toàn bộ mã AI đề xuất mà kiểm tra tính phù hợp với cấu trúc website trước. Sau đó, chạy thử trên trình duyệt, kiểm tra nhiều trường hợp và sử dụng Console trong Developer Tools để phát hiện lỗi. Mã nguồn được điều chỉnh và kiểm tra lại trước khi tích hợp vào dự án chung. |
+| Muội Nhiên | Kiểm tra mã theo yêu cầu chức năng và cấu trúc HTML, CSS, JavaScript hiện có; chú ý tránh trùng lặp hàm. Sau khi tích hợp, chạy website bằng Live Server trên Visual Studio Code, kiểm thử cả trường hợp bình thường và ngoại lệ. Đồng thời sử dụng Developer Tools để kiểm tra Console, Local Storage và giao diện, sau đó sửa lỗi và chạy thử lại. |
+| Huy | Đọc hiểu và đối chiếu mã AI với yêu cầu trước khi đưa vào website. Đối với phần việc phụ trách, xây dựng 24 test case, thực hiện Manual Testing và sử dụng Chrome DevTools để kiểm tra lỗi JavaScript, tài nguyên và localStorage. Qua kiểm thử TC21, phát hiện lỗi CSS 404 và khai báo trùng CART_STORAGE_KEY. |
+| Ánh Hằng | Đọc kỹ mã AI và kiểm tra tính tương thích với cấu trúc website hiện tại, đồng thời xem xét phần giải thích về những thay đổi được đề xuất. Sau đó, chạy thử từng phần trên Live Preview, kiểm tra chức năng ở nhiều trường hợp và sử dụng Console trong Developer Tools để phát hiện, điều chỉnh lỗi kịp thời. |
+
+**Đánh giá chung:** Nhóm không sử dụng trực tiếp toàn bộ mã nguồn do AI đề xuất mà chủ động đọc hiểu, đối chiếu với cấu trúc dự án và chạy thử trên website thực tế. Các thành viên sử dụng Live Preview, Live Server, trình duyệt và Developer Tools để quan sát giao diện, kiểm tra chức năng, Console và Local Storage. Đặc biệt, nhóm có thực hiện kiểm thử thủ công bằng test case để phát hiện lỗi và điều chỉnh trước khi tích hợp mã vào dự án chung. Vì vậy, AI đóng vai trò công cụ hỗ trợ, còn việc xác nhận tính chính xác và quyết định sử dụng mã thuộc trách nhiệm của các thành viên.
+
+## 4. Nguyên tắc nhóm áp dụng khi dùng AI
+
+- Sử dụng AI như công cụ hỗ trợ tham khảo, không phụ thuộc hoàn toàn vào kết quả do AI tạo ra.
+- Đối chiếu mã nguồn được đề xuất với cấu trúc HTML, CSS, JavaScript và dữ liệu hiện có của dự án.
+- Không tự ý thay đổi các thành phần dùng chung hoặc cấu trúc mã nguồn khi chưa đánh giá ảnh hưởng đến những trang khác.
+- Chủ động chạy thử, kiểm tra chức năng và xử lý lỗi trước khi tích hợp vào mã nguồn chung.
+- Kiểm tra lại các chức năng liên quan sau khi chỉnh sửa để hạn chế phát sinh lỗi mới.
+- Các thành viên chịu trách nhiệm về nội dung, mã nguồn và kết quả cuối cùng được đưa vào sản phẩm.
+
+## 5. Liên kết cuộc trò chuyện với AI
+
+| STT | Bước | Nội dung | Công cụ | Liên kết |
+|---:|---|---|---|---|
+| 1 | Bước 1 | Lập kế hoạch và phân công | Claude | https://claude.ai/share/9013b2ea-f4dd-4e7b-a5e4-c29704ffc801 |
+| 2 | Bước 2 | Chuẩn hóa dữ liệu và hiển thị danh sách sản phẩm | Claude | https://claude.ai/share/fc9b8729-034b-4c99-b6d2-f6c0076b0dd9 |
+| 3 | Bước 3 - Mục 3.2 | Tìm kiếm, lọc và sắp xếp sản phẩm | Claude | https://claude.ai/share/bbf3e385-45d9-4fed-8f83-47ecac408da3 |
+| 4 | Bước 4 - Mục 4.1 | Tích hợp trang chi tiết sản phẩm | Claude | https://claude.ai/share/472bb051-0b0a-48ed-bfc4-2d71df4af37d |
+| 5 | Bước 4 - Mục 4.2 | Tạo hình ảnh merchandise cho Kairo, Rhea và Mira | ChatGPT | https://chatgpt.com/s/t_6af17e14227081918fa686b12646b85d |
+| 6 | Bước 5 | Xây dựng giỏ hàng | Claude | https://claude.ai/share/beb3972e-d7a3-4688-8c24-e3c0b75b3288 |
+| 7 | Bước 5 | Trao đổi bổ sung về chức năng giỏ hàng | Claude | https://claude.ai/share/70565b51-58b5-44c5-acad-9b1bdfdfa821 |
+| 8 | Bước 6 | Xây dựng trang chi tiết nghệ sĩ | ChatGPT | https://chatgpt.com/share/6af04187-f8bc-83ec-b007-485c06ed92cb |
+| 9 | Bước 6 | Tích hợp trang chi tiết nghệ sĩ | ChatGPT | https://chatgpt.com/s/t_6af17fe6ebb48191855e773910cf5fd3 |
+| 10 | Bước 7 | Cài đặt plugin Website Testcase Toolkit | ChatGPT | https://chatgpt.com/share/e/6af19fe4-d2ec-83ec-9a1b-6e3b22a906d2 |
+| 11 | Bước 7 | Xây dựng kế hoạch và bộ test case | ChatGPT và Website Testcase Toolkit | https://chatgpt.com/share/6af1a3ae-e3e4-83ec-9e19-cb132f49d4b6 |
+| 12 | Bước 8 - Mục 8.1 | Soạn README.md | ChatGPT | https://chatgpt.com/share/6af23bd8-59bc-83ec-81d9-f3bd9040e902 |
+
+## 6. Thông tin website và Google Analytics
+
+- **Link website:** https://wiwinowo1511.github.io/owniverse-ptud-nhom6/
+- **Mã đo lường Google Analytics:** `G-LKBR0QNT2E`
+- **Mã luồng dữ liệu:** `16305179184`
