@@ -208,7 +208,7 @@
 }
 
 
-/* ---------- 3. Thư viện ảnh (thuần CSS, không JS) ---------- */
+/* ---------- 3. Thư viện ảnh ---------- */
 .gallery {
   position: relative;
   display: grid;
@@ -227,18 +227,9 @@
 }
 
 
-/* Radio ẩn bằng cách thu nhỏ, KHÔNG dùng display:none
-   để người dùng bàn phím vẫn Tab + phím mũi tên được */
-.gallery-radio {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-  pointer-events: none;
-}
-
-
 .gallery-main {
+  display: grid;
+  place-items: center;
   aspect-ratio: 4 / 5;
   background: var(--pd-black);
   border-radius: var(--pd-radius);
@@ -258,16 +249,18 @@
   display: none;
   width: 100%;
   height: 100%;
-  object-fit: contain;                 /* giữ nguyên toàn bộ ảnh, không cắt */
+  object-fit: cover;
+  object-position: center;
 }
 
 
-/* Radio thứ n được chọn -> hiện ảnh thứ n */
-.gallery-radio:nth-of-type(1):checked ~ .gallery-main .gallery-slide:nth-child(1),
-.gallery-radio:nth-of-type(2):checked ~ .gallery-main .gallery-slide:nth-child(2),
-.gallery-radio:nth-of-type(3):checked ~ .gallery-main .gallery-slide:nth-child(3),
-.gallery-radio:nth-of-type(4):checked ~ .gallery-main .gallery-slide:nth-child(4) {
+.gallery-slide.is-active {
   display: block;
+}
+
+
+.gallery-slide[hidden] {
+  display: none;
 }
 
 
@@ -279,7 +272,10 @@
 
 
 .gallery-thumb {
+  display: block;
+  width: 100%;
   aspect-ratio: 1;
+  padding: 0;
   overflow: hidden;
   cursor: pointer;
   background: var(--pd-black);
@@ -287,6 +283,12 @@
   border-radius: 10px;
   opacity: 0.6;
   transition: opacity var(--pd-ease), border-color var(--pd-ease);
+}
+
+
+.gallery-thumb.is-active {
+  opacity: 1;
+  border-color: var(--pd-purple);
 }
 
 
@@ -298,21 +300,7 @@
 }
 
 
-/* Thumbnail đang chọn */
-.gallery-radio:nth-of-type(1):checked ~ .gallery-thumbs .gallery-thumb:nth-child(1),
-.gallery-radio:nth-of-type(2):checked ~ .gallery-thumbs .gallery-thumb:nth-child(2),
-.gallery-radio:nth-of-type(3):checked ~ .gallery-thumbs .gallery-thumb:nth-child(3),
-.gallery-radio:nth-of-type(4):checked ~ .gallery-thumbs .gallery-thumb:nth-child(4) {
-  opacity: 1;
-  border-color: var(--pd-purple);
-}
-
-
-/* Viền focus khi điều hướng bằng bàn phím */
-.gallery-radio:nth-of-type(1):focus-visible ~ .gallery-thumbs .gallery-thumb:nth-child(1),
-.gallery-radio:nth-of-type(2):focus-visible ~ .gallery-thumbs .gallery-thumb:nth-child(2),
-.gallery-radio:nth-of-type(3):focus-visible ~ .gallery-thumbs .gallery-thumb:nth-child(3),
-.gallery-radio:nth-of-type(4):focus-visible ~ .gallery-thumbs .gallery-thumb:nth-child(4) {
+.gallery-thumb:focus-visible {
   outline: 3px solid var(--pd-black);
   outline-offset: 2px;
 }
@@ -806,4 +794,3 @@
 .detail-box--single {
   grid-template-columns: minmax(0, 1fr);
 }
-

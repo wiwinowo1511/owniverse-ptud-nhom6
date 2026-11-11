@@ -1,4 +1,5 @@
 <link rel="stylesheet" href="css/chuanHeader.css">
+<link rel="stylesheet" href="css/pages/notifications.css">
 <header class="site-header">
     <div class="container header-inner">
       
@@ -43,13 +44,29 @@
           </svg>
           Tìm kiếm
         </a>
+        <div class="notification-menu">
+          <button class="notification-trigger" type="button" aria-label="Thông báo"
+                  aria-expanded="false" aria-controls="notification-dropdown">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path>
+              <path d="M10 21h4"></path>
+            </svg>
+            <span class="notification-indicator" hidden></span>
+          </button>
+          <section class="notification-dropdown" id="notification-dropdown"
+                   aria-label="Thông báo gần đây" hidden>
+            <div class="notification-dropdown_heading"><h2>Thông báo</h2></div>
+            <ul class="notification-list" data-recent-notifications></ul>
+            <a class="notification-view-all" href="noti.html">Xem tất cả</a>
+          </section>
+        </div>
         <a href="cart.html" class="action-link">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="9" cy="21" r="1"></circle>
             <circle cx="20" cy="21" r="1"></circle>
             <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
           </svg>
-          Giỏ hàng
         </a>
         <a href="account.html" class="account-circle" aria-label="Tài khoản">
           Tài<br>khoản
@@ -58,4 +75,5 @@
 
     </div>
   </header>
-
+<script src="js/cart/cart-store.js"></script>
+<script src="js/common/notifications.js"></script>
