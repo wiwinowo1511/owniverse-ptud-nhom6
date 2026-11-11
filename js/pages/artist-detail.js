@@ -92,7 +92,7 @@ const artists = {
 
         avatar: "images/artists/Kairo-01.png",
 
-        communityLink: "community.html?artist=kairo",
+        communityLink: "artist-community.html?id=1",
 
         social: {
             youtube: "https://www.youtube.com/channel/UCZMYvSPulDSUdx7bdtTFdrg",
@@ -206,7 +206,7 @@ const artists = {
 
         avatar: "images/artists/Mira-01.png",
 
-        communityLink: "community.html?artist=mira",
+        communityLink: "artist-community.html?id=2",
 
         social: {
             youtube: "",
@@ -321,7 +321,7 @@ const artists = {
 
         avatar: "images/artists/Rhea-01.png",
 
-        communityLink: "community.html?artist=rhea",
+        communityLink: "artist-community.html?id=3",
 
         social: {
             youtube: "https://www.youtube.com/channel/UCOmHUn--16B90oW2L6FRR3A",
