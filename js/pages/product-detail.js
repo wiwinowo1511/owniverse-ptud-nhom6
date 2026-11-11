@@ -49,6 +49,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const productId = product.id;
   fillProductInfo(product);
   renderRelatedProducts(product);
+  setupProductTabs(product);
   document.addEventListener("error", handleDetailImageError, true);
 
 
@@ -84,6 +85,264 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 });
+
+
+function setupProductTabs(product) {
+  const tabs = Array.from(document.querySelectorAll(".product-tab[role='tab']"));
+  const panels = tabs.map(function (tab) {
+    return document.getElementById(tab.getAttribute("aria-controls"));
+  });
+
+  if (tabs.length !== 2 || panels.some(function (panel) { return !panel; })) {
+    console.error("Product tabs could not initialize: tab buttons or panels are missing.");
+    return;
+  }
+
+  function activateTab(selectedTab, moveFocus) {
+    tabs.forEach(function (tab, index) {
+      const selected = tab === selectedTab;
+      tab.classList.toggle("is-active", selected);
+      tab.setAttribute("aria-selected", String(selected));
+      tab.tabIndex = selected ? 0 : -1;
+      panels[index].hidden = !selected;
+    });
+
+    if (moveFocus) selectedTab.focus();
+  }
+
+  tabs.forEach(function (tab, index) {
+    tab.addEventListener("click", function () {
+      activateTab(tab, false);
+    });
+
+    tab.addEventListener("keydown", function (event) {
+      let nextIndex = index;
+      if (event.key === "ArrowRight") nextIndex = (index + 1) % tabs.length;
+      else if (event.key === "ArrowLeft") nextIndex = (index - 1 + tabs.length) % tabs.length;
+      else if (event.key === "Home") nextIndex = 0;
+      else if (event.key === "End") nextIndex = tabs.length - 1;
+      else return;
+
+      event.preventDefault();
+      activateTab(tabs[nextIndex], true);
+    });
+  });
+
+  setupProductReviews(product);
+}
+
+
+const DEMO_PRODUCT_REVIEWS = [
+  {
+    name: "Minh Anh",
+    rating: 5,
+    text: "Sản phẩm đẹp và chỉn chu, đóng gói cẩn thận. Mình rất hài lòng với trải nghiệm lần này.",
+    date: "Đánh giá mẫu"
+  },
+  {
+    name: "Ngọc Hà",
+    rating: 5,
+    text: "Chất lượng tốt, đúng như phần giới thiệu. Sẽ tiếp tục ủng hộ Owniverse.",
+    date: "Đánh giá mẫu"
+  },
+  {
+    name: "Thanh Vy",
+    rating: 4,
+    text: "Thiết kế rất đẹp, sản phẩm được bảo vệ kỹ khi giao. Trải nghiệm mua hàng khá tốt.",
+    date: "Đánh giá mẫu"
+  }
+];
+
+
+function setupProductReviews(product) {
+  const summary = document.querySelector(".reviews-summary");
+  const reviewList = document.getElementById("review-list");
+  const filter = document.getElementById("reviews-filter");
+  const formWrap = document.getElementById("review-form-wrap");
+  const form = document.getElementById("review-form");
+  const writeButton = document.getElementById("reviews-write-button");
+  const cancelButton = document.getElementById("review-cancel-button");
+  const status = document.getElementById("review-form-status");
+  const ratingFieldset = document.querySelector(".review-rating-fieldset");
+
+  if (
+    !summary || !reviewList || !filter || !formWrap ||
+    !(form instanceof HTMLFormElement) || !writeButton || !cancelButton || !status ||
+    !(ratingFieldset instanceof HTMLFieldSetElement)
+  ) {
+    console.error("Product reviews could not initialize: required review elements are missing.");
+    return;
+  }
+
+  const storageKey = "owniverse.product.reviews." + String(product.id);
+  const userReviews = readUserReviews(storageKey);
+
+  function allReviews() {
+    return userReviews.concat(DEMO_PRODUCT_REVIEWS);
+  }
+
+  function renderSummary(reviews) {
+    const total = reviews.length;
+    const average = total
+      ? reviews.reduce(function (sum, review) { return sum + review.rating; }, 0) / total
+      : 0;
+    const ratingRows = [5, 4, 3, 2, 1].map(function (rating) {
+      const count = reviews.filter(function (review) { return review.rating === rating; }).length;
+      const percent = total ? Math.round((count / total) * 100) : 0;
+      return `
+        <div class="rating-breakdown-row">
+          <span>${rating} sao</span>
+          <span class="rating-breakdown-track" aria-hidden="true"><span style="width:${percent}%"></span></span>
+          <span>${count}</span>
+        </div>`;
+    }).join("");
+
+    summary.innerHTML = `
+      <div class="reviews-score">
+        <strong>${average.toFixed(1)}</strong>
+        <span class="review-stars" aria-label="Trung bình ${average.toFixed(1)} trên 5 sao">${renderStars(Math.round(average))}</span>
+        <span>${total} đánh giá</span>
+      </div>
+      <div class="rating-breakdown" aria-label="Phân bố số sao">${ratingRows}</div>`;
+  }
+
+  function renderList() {
+    const reviews = allReviews();
+    const selectedRating = filter.value;
+    const visibleReviews = selectedRating === "all"
+      ? reviews
+      : reviews.filter(function (review) {
+        return review.rating === Number(selectedRating);
+      });
+
+    renderSummary(reviews);
+
+    if (!visibleReviews.length) {
+      reviewList.innerHTML = '<p class="reviews-empty">Chưa có đánh giá ở mức sao này.</p>';
+      return;
+    }
+
+    reviewList.innerHTML = visibleReviews.map(function (review) {
+      return `
+        <article class="review-card">
+          <div class="review-card-heading">
+            <div class="review-author">
+              <span class="review-avatar" aria-hidden="true">${escapeHtml(getReviewInitials(review.name))}</span>
+              <div><h3>${escapeHtml(review.name)}</h3><span>${escapeHtml(review.date)}</span></div>
+            </div>
+            <span class="review-card-stars" aria-label="${review.rating} trên 5 sao">${renderStars(review.rating)}</span>
+          </div>
+          <p>${escapeHtml(review.text)}</p>
+        </article>`;
+    }).join("");
+  }
+
+  writeButton.addEventListener("click", function () {
+    const opening = formWrap.hidden;
+    formWrap.hidden = !opening;
+    writeButton.setAttribute("aria-expanded", String(opening));
+    if (opening) form.querySelector("#reviewer-name").focus();
+    else status.hidden = true;
+  });
+
+  cancelButton.addEventListener("click", function () {
+    form.reset();
+    ratingFieldset.removeAttribute("data-rating");
+    formWrap.hidden = true;
+    writeButton.setAttribute("aria-expanded", "false");
+    status.hidden = true;
+    writeButton.focus();
+  });
+
+  ratingFieldset.addEventListener("change", function (event) {
+    if (event.target instanceof HTMLInputElement && event.target.name === "rating") {
+      ratingFieldset.dataset.rating = event.target.value;
+    }
+  });
+
+  filter.addEventListener("change", renderList);
+
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+    if (!form.reportValidity()) return;
+
+    const formData = new FormData(form);
+    const name = String(formData.get("name") || "").trim();
+    const text = String(formData.get("review") || "").trim();
+    const rating = Number(formData.get("rating"));
+    if (!name || !text || rating < 1 || rating > 5) {
+      status.textContent = "Vui lòng nhập tên, nội dung và chọn số sao hợp lệ.";
+      status.hidden = false;
+      return;
+    }
+
+    const review = {
+      name: name,
+      text: text,
+      rating: rating,
+      date: new Intl.DateTimeFormat("vi-VN", { dateStyle: "medium" }).format(new Date())
+    };
+
+    try {
+      userReviews.unshift(review);
+      localStorage.setItem(storageKey, JSON.stringify(userReviews));
+    } catch (error) {
+      userReviews.shift();
+      console.error("Unable to save the product review to local storage.", error);
+      status.textContent = "Không thể lưu đánh giá trên trình duyệt này. Vui lòng thử lại.";
+      status.hidden = false;
+      return;
+    }
+
+    form.reset();
+    ratingFieldset.removeAttribute("data-rating");
+    formWrap.hidden = true;
+    writeButton.setAttribute("aria-expanded", "false");
+    filter.value = "all";
+    renderList();
+    reviewList.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  renderList();
+}
+
+
+function readUserReviews(storageKey) {
+  try {
+    const savedReviews = localStorage.getItem(storageKey);
+    if (!savedReviews) return [];
+
+    const parsedReviews = JSON.parse(savedReviews);
+    if (!Array.isArray(parsedReviews) || parsedReviews.some(function (review) {
+      return !review ||
+        typeof review.name !== "string" ||
+        typeof review.text !== "string" ||
+        typeof review.date !== "string" ||
+        !Number.isInteger(review.rating) ||
+        review.rating < 1 ||
+        review.rating > 5;
+    })) {
+      throw new TypeError("Saved product reviews have an invalid format.");
+    }
+
+    return parsedReviews;
+  } catch (error) {
+    console.error("Unable to load saved product reviews.", error);
+    return [];
+  }
+}
+
+
+function getReviewInitials(name) {
+  return name.trim().split(/\s+/).filter(Boolean).slice(0, 2)
+    .map(function (part) { return part[0]; }).join("").toLocaleUpperCase("vi");
+}
+
+
+function renderStars(rating) {
+  return "★".repeat(Math.max(0, Math.min(5, rating))) +
+    "☆".repeat(Math.max(0, 5 - rating));
+}
 
 
 // Mã sản phẩm sai: ẩn nội dung, hiện thông báo + nút quay lại danh sách

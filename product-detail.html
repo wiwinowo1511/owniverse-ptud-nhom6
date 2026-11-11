@@ -220,10 +220,22 @@
       </ul>
 
 
-      <!-- Mô tả sản phẩm -->
-      <section aria-labelledby="desc-title">
-        <h2 class="section-title" id="desc-title">Mô tả sản phẩm</h2>
-        <div class="detail-box">
+      <!-- Mô tả và đánh giá dùng chung một tab panel: chỉ hiển thị một nội dung tại một thời điểm. -->
+      <section class="product-details-tabs" aria-label="Thông tin chi tiết sản phẩm">
+        <div class="product-tabs" role="tablist" aria-label="Nội dung sản phẩm">
+          <button class="product-tab is-active" id="description-tab" type="button" role="tab"
+                  aria-selected="true" aria-controls="description-panel" tabindex="0">
+            Mô tả sản phẩm
+          </button>
+          <button class="product-tab" id="reviews-tab" type="button" role="tab"
+                  aria-selected="false" aria-controls="reviews-panel" tabindex="-1">
+            Đánh giá
+          </button>
+        </div>
+
+        <div class="product-tab-panel" id="description-panel" role="tabpanel"
+             aria-labelledby="description-tab" tabindex="0">
+          <div class="detail-box">
 
 
           <div class="detail-specs">
@@ -257,6 +269,57 @@
           </div>
 
 
+          </div>
+        </div>
+
+        <div class="product-tab-panel reviews-panel" id="reviews-panel" role="tabpanel"
+             aria-labelledby="reviews-tab" tabindex="0" hidden>
+          <h2 class="section-title">Đánh giá sản phẩm</h2>
+          <p class="reviews-demo-note">Đánh giá minh họa. Nội dung bạn gửi được lưu trên trình duyệt này.</p>
+          <div class="reviews-summary" aria-label="Tổng quan đánh giá"></div>
+          <div class="reviews-toolbar">
+            <label class="reviews-filter" for="reviews-filter">
+              Lọc đánh giá
+              <select id="reviews-filter">
+                <option value="all">Tất cả đánh giá</option>
+                <option value="5">5 sao</option>
+                <option value="4">4 sao</option>
+                <option value="3">3 sao</option>
+                <option value="2">2 sao</option>
+                <option value="1">1 sao</option>
+              </select>
+            </label>
+            <button class="btn btn-primary reviews-write-button" id="reviews-write-button"
+                    type="button" aria-expanded="false" aria-controls="review-form-wrap">
+              Viết đánh giá
+            </button>
+          </div>
+          <div class="review-form-wrap" id="review-form-wrap" hidden>
+            <form class="review-form" id="review-form">
+              <h3>Chia sẻ cảm nhận của bạn</h3>
+              <fieldset class="review-rating-fieldset">
+                <legend>Đánh giá của bạn</legend>
+                <div class="review-rating-options">
+                  <label><input type="radio" name="rating" value="5" required><span aria-hidden="true">★</span><span class="visually-hidden">5 sao</span></label>
+                  <label><input type="radio" name="rating" value="4"><span aria-hidden="true">★</span><span class="visually-hidden">4 sao</span></label>
+                  <label><input type="radio" name="rating" value="3"><span aria-hidden="true">★</span><span class="visually-hidden">3 sao</span></label>
+                  <label><input type="radio" name="rating" value="2"><span aria-hidden="true">★</span><span class="visually-hidden">2 sao</span></label>
+                  <label><input type="radio" name="rating" value="1"><span aria-hidden="true">★</span><span class="visually-hidden">1 sao</span></label>
+                </div>
+              </fieldset>
+              <label for="reviewer-name">Tên hiển thị</label>
+              <input id="reviewer-name" name="name" type="text" maxlength="60" autocomplete="name" required>
+              <label for="review-text">Nội dung đánh giá</label>
+              <textarea id="review-text" name="review" rows="4" minlength="10" maxlength="1000"
+                        placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm..." required></textarea>
+              <p class="review-form-status" id="review-form-status" role="status" aria-live="polite" hidden></p>
+              <div class="review-form-actions">
+                <button class="btn btn-secondary" id="review-cancel-button" type="button">Hủy</button>
+                <button class="btn btn-primary" type="submit">Gửi đánh giá</button>
+              </div>
+            </form>
+          </div>
+          <div class="review-list" id="review-list" aria-live="polite"></div>
         </div>
       </section>
 
