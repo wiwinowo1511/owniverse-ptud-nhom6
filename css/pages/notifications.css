@@ -1,0 +1,57 @@
+.notifications-page {
+  width: min(100% - 32px, 900px);
+  min-height: 55vh;
+  margin: clamp(32px, 6vw, 64px) auto;
+}
+
+.notifications-title {
+  margin-bottom: 24px;
+  font-family: var(--font-heading, "Montserrat", sans-serif);
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  line-height: 1.2;
+}
+
+.notifications-page .notification-list {
+  overflow: hidden;
+  border: 1px solid var(--border-gray, #E5E7EB);
+  border-radius: 12px;
+  background: var(--pure-white, #FFFFFF);
+}
+
+.notifications-page .notification-item,
+.notifications-page .notification-empty {
+  padding: 20px 24px;
+}
+
+.notifications-page .notification-item + .notification-item {
+  border-top: 1px solid var(--border-gray, #E5E7EB);
+}
+
+.notifications-page .notification-item_title {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.notifications-page .notification-item_message {
+  color: #5F5F6B;
+}
+
+.notifications-page .notification-item_time {
+  display: block;
+  margin-top: 8px;
+  color: #777783;
+  font-size: 0.82rem;
+}
+
+.notifications-page .notification-empty {
+  padding-block: 48px;
+  color: #5F5F6B;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .notifications-page .notification-item,
+  .notifications-page .notification-empty {
+    padding: 16px;
+  }
+}

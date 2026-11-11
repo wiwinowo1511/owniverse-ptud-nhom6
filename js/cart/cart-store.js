@@ -166,20 +166,43 @@ function showToast(message) {
 // -> trang nào chỉ cần nạp cart-common.css + cart-store.js là có số lượng giỏ hàng.
 function ensureCartBadge() {
   document.querySelectorAll('.action-link[href="' + CART_PAGE + '"]').forEach(function (link) {
-    const svg = link.querySelector("svg");
-    if (!svg || link.querySelector("[data-cart-count]")) return;
+    link.setAttribute("aria-label", "Giỏ hàng");
+    link.title = "Giỏ hàng";
+    Array.from(link.childNodes).forEach(function (node) {
+      if (node.nodeType === Node.TEXT_NODE) node.remove();
+    });
 
-    const icon = document.createElement("span");
-    icon.className = "cart-icon";
-    const badge = document.createElement("span");
-    badge.className = "cart-badge";
-    badge.setAttribute("data-cart-count", "");
-    badge.hidden = true;
-    badge.textContent = "0";
+    let icon = link.querySelector(".cart-icon");
+    let svg = link.querySelector("svg");
+    if (!svg) {
+      svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("viewBox", "0 0 24 24");
+      svg.setAttribute("fill", "none");
+      svg.setAttribute("stroke", "currentColor");
+      svg.setAttribute("stroke-width", "2");
+      svg.setAttribute("stroke-linecap", "round");
+      svg.setAttribute("stroke-linejoin", "round");
+      svg.setAttribute("aria-hidden", "true");
+      svg.innerHTML = '<circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle>' +
+        '<path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>';
+    }
 
-    svg.parentNode.insertBefore(icon, svg);
-    icon.appendChild(svg);
-    icon.appendChild(badge);
+    if (!icon) {
+      icon = document.createElement("span");
+      icon.className = "cart-icon";
+      link.insertBefore(icon, link.firstChild);
+    }
+    if (svg.parentNode !== icon) icon.appendChild(svg);
+
+    let badge = icon.querySelector("[data-cart-count]") || link.querySelector("[data-cart-count]");
+    if (!badge) {
+      badge = document.createElement("span");
+      badge.className = "cart-badge";
+      badge.setAttribute("data-cart-count", "");
+      badge.hidden = true;
+      badge.textContent = "0";
+    }
+    if (badge.parentNode !== icon) icon.appendChild(badge);
   });
 }
 
