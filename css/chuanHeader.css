@@ -166,6 +166,39 @@
     transition: transform 0.25s ease;
 }
 
+.site-header .cart-icon {
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+}
+
+.site-header .cart-badge {
+    position: absolute;
+    top: -8px;
+    right: -9px;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 4px;
+    border: 2px solid var(--pure-white, #FFFFFF);
+    border-radius: 9999px;
+    box-sizing: border-box;
+    background-color: var(--brand-purple, #A78BFA);
+    font-family: var(--font-body, "Inter", sans-serif);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--bg-black, #0B0B0F);
+    pointer-events: none;
+}
+
+.site-header .cart-badge[hidden] {
+    display: none;
+}
+
 .action-link:hover {
     color: var(--brand-purple);
 }

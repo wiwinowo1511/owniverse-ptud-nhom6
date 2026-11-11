@@ -146,26 +146,38 @@ function renderGallery(product) {
   const src = function (path) { return escapeHtml(encodeURI(path)); };
 
 
-  const radios = images.map(function (_, i) {
-    return '<input class="gallery-radio" type="radio" name="gallery" id="g' + (i + 1) + '"' +
-      (i === 0 ? " checked" : "") + ' aria-label="Xem ảnh ' + (i + 1) + '">';
-  }).join("");
-
-
   const slides = images.map(function (path, i) {
-    return '<img class="gallery-slide" src="' + src(path) + '" alt="' + name + " - ảnh " + (i + 1) + '">';
+    return '<img class="gallery-slide' + (i === 0 ? " is-active" : "") + '" src="' + src(path) +
+      '" alt="' + name + " - ảnh " + (i + 1) + '"' + (i === 0 ? "" : " hidden") + '>';
   }).join("");
 
 
   // Chỉ 1 ảnh thì không cần thumbnail
   const thumbs = images.length < 2 ? "" :
-    '<div class="gallery-thumbs">' + images.map(function (path, i) {
-      return '<label class="gallery-thumb" for="g' + (i + 1) + '">' +
-        '<img src="' + src(path) + '" alt="Ảnh ' + (i + 1) + '" loading="lazy"></label>';
+    '<div class="gallery-thumbs" role="group" aria-label="Ảnh sản phẩm">' + images.map(function (path, i) {
+      return '<button class="gallery-thumb' + (i === 0 ? " is-active" : "") +
+        '" type="button" data-gallery-index="' + i + '" aria-label="Xem ảnh ' + (i + 1) +
+        '" aria-pressed="' + (i === 0 ? "true" : "false") + '">' +
+        '<img src="' + src(path) + '" alt="" loading="lazy"></button>';
     }).join("") + "</div>";
 
 
-  gallery.innerHTML = radios + '<div class="gallery-main">' + slides + "</div>" + thumbs;
+  gallery.innerHTML = '<div class="gallery-main">' + slides + "</div>" + thumbs;
+  gallery.addEventListener("click", function (event) {
+    const thumb = event.target.closest(".gallery-thumb");
+    if (!thumb || !gallery.contains(thumb)) return;
+
+    const selectedIndex = Number(thumb.dataset.galleryIndex);
+    gallery.querySelectorAll(".gallery-slide").forEach(function (slide, i) {
+      slide.hidden = i !== selectedIndex;
+      slide.classList.toggle("is-active", i === selectedIndex);
+    });
+    gallery.querySelectorAll(".gallery-thumb").forEach(function (button, i) {
+      const selected = i === selectedIndex;
+      button.classList.toggle("is-active", selected);
+      button.setAttribute("aria-pressed", String(selected));
+    });
+  });
 }
 
 
@@ -242,4 +254,3 @@ function handleDetailImageError(event) {
     img.src = PLACEHOLDER_IMAGE;
   }
 }
-

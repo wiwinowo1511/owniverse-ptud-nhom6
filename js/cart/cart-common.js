@@ -39,38 +39,6 @@
       transform: translate(-50%, 0);
     }
 
-    /* ---------- Huy hiệu số lượng trên icon giỏ hàng ---------- */
-    .cart-icon {
-      position: relative;
-      display: inline-flex;
-      flex-shrink: 0;
-    }
-
-    .cart-badge {
-      position: absolute;
-      top: -9px;
-      left: -9px;
-      z-index: 1;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 18px;
-      height: 18px;
-      padding: 0 5px;
-      border: 2px solid #FFFFFF;
-      border-radius: 11px;
-      box-sizing: content-box;
-      background-color: #A78BFA;
-      font-family: "Inter", "Segoe UI", sans-serif;
-      font-size: 11px;
-      font-weight: 700;
-      line-height: 18px;
-      color: #0B0B0F;
-      pointer-events: none;
-    }
-
-    .cart-badge[hidden] { display: none; }
-
     @media (max-width: 480px) {
       .cart-toast { bottom: max(16px, env(safe-area-inset-bottom)); }
     }

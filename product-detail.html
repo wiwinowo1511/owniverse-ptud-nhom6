@@ -136,40 +136,38 @@
       <section class="product-layout" aria-labelledby="product-title">
 
 
-        <!-- CỘT ẢNH: thư viện ảnh thuần CSS (radio + label), không dùng JavaScript -->
+        <!-- CỘT ẢNH: thumbnail là nút để chọn ảnh mà không làm trang tự cuộn -->
         <div class="gallery">
-          <input class="gallery-radio" type="radio" name="gallery" id="g1" checked aria-label="Xem ảnh 1">
-          <input class="gallery-radio" type="radio" name="gallery" id="g2" aria-label="Xem ảnh 2">
-          <input class="gallery-radio" type="radio" name="gallery" id="g3" aria-label="Xem ảnh 3">
-          <input class="gallery-radio" type="radio" name="gallery" id="g4" aria-label="Xem ảnh 4">
-
-
           <!-- Ảnh lớn: thứ tự phải khớp với thứ tự thumbnail bên dưới -->
           <div class="gallery-main">
-            <img class="gallery-slide" src="images/products/rhea-album-01.png"
+            <img class="gallery-slide is-active" src="images/products/rhea-album-01.png"
                  alt="Toàn bộ nội dung trọn bộ album AFTERDARK Vol.01 của Rhea">
-            <img class="gallery-slide" src="images/products/rhea-album-02.png"
+            <img class="gallery-slide" src="images/products/rhea-album-02.png" hidden
                  alt="Photobook AFTERDARK Vol.01: bìa sách và các trang bên trong">
-            <img class="gallery-slide" src="images/products/rhea-album-03.png"
+            <img class="gallery-slide" src="images/products/rhea-album-03.png" hidden
                  alt="Đĩa CD-R kèm phong bì đen và Lyric Book">
-            <img class="gallery-slide" src="images/products/rhea-album-04.png"
+            <img class="gallery-slide" src="images/products/rhea-album-04.png" hidden
                  alt="Postcard, sticker pack, photo card và film strip">
           </div>
 
 
-          <div class="gallery-thumbs">
-            <label class="gallery-thumb" for="g1">
-              <img src="images/products/rhea-album-01.png" alt="Ảnh 1" loading="lazy">
-            </label>
-            <label class="gallery-thumb" for="g2">
-              <img src="images/products/rhea-album-02.png" alt="Ảnh 2" loading="lazy">
-            </label>
-            <label class="gallery-thumb" for="g3">
-              <img src="images/products/rhea-album-03.png" alt="Ảnh 3" loading="lazy">
-            </label>
-            <label class="gallery-thumb" for="g4">
-              <img src="images/products/rhea-album-04.png" alt="Ảnh 4" loading="lazy">
-            </label>
+          <div class="gallery-thumbs" role="group" aria-label="Ảnh sản phẩm">
+            <button class="gallery-thumb is-active" type="button" data-gallery-index="0"
+                    aria-label="Xem ảnh 1" aria-pressed="true">
+              <img src="images/products/rhea-album-01.png" alt="" loading="lazy">
+            </button>
+            <button class="gallery-thumb" type="button" data-gallery-index="1"
+                    aria-label="Xem ảnh 2" aria-pressed="false">
+              <img src="images/products/rhea-album-02.png" alt="" loading="lazy">
+            </button>
+            <button class="gallery-thumb" type="button" data-gallery-index="2"
+                    aria-label="Xem ảnh 3" aria-pressed="false">
+              <img src="images/products/rhea-album-03.png" alt="" loading="lazy">
+            </button>
+            <button class="gallery-thumb" type="button" data-gallery-index="3"
+                    aria-label="Xem ảnh 4" aria-pressed="false">
+              <img src="images/products/rhea-album-04.png" alt="" loading="lazy">
+            </button>
           </div>
         </div>
 
@@ -429,4 +427,3 @@
 </footer>
 </body>
 </html>
-
