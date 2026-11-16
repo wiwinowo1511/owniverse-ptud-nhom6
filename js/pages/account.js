@@ -1,24 +1,40 @@
 document.addEventListener("DOMContentLoaded", function () {
   const profileDialog = document.getElementById("profile-dialog");
+  const passwordDialog = document.getElementById("password-dialog");
   const logoutDialog = document.getElementById("logout-dialog");
   const profileForm = document.getElementById("profile-form");
+  const passwordForm = document.getElementById("change-password-form");
   const saveStatus = document.getElementById("profile-save-status");
-  const passwordInfoButton = document.getElementById("password-info-button");
-  const passwordInfo = document.getElementById("password-info");
+  const passwordSaveStatus = document.getElementById("password-save-status");
+  const passwordChangeStatus = document.getElementById("password-change-status");
+  const passwordChangeButton = document.getElementById("password-change-open");
+  const confirmLogoutButton = document.getElementById("confirm-logout");
   const navigationLinks = Array.from(
     document.querySelectorAll(".account-navigation-link[href^='#']")
   );
 
   if (
     !(profileDialog instanceof HTMLDialogElement) ||
+    !(passwordDialog instanceof HTMLDialogElement) ||
     !(logoutDialog instanceof HTMLDialogElement) ||
     !(profileForm instanceof HTMLFormElement) ||
-    !(saveStatus instanceof HTMLElement)
+    !(passwordForm instanceof HTMLFormElement) ||
+    !(saveStatus instanceof HTMLElement) ||
+    !(passwordSaveStatus instanceof HTMLElement) ||
+    !(passwordChangeStatus instanceof HTMLElement) ||
+    !(passwordChangeButton instanceof HTMLButtonElement) ||
+    !(confirmLogoutButton instanceof HTMLButtonElement)
   ) {
     console.error("Account page initialization failed: required account elements are missing.");
     return;
   }
 
+  if (!isLoggedIn()) {
+    goToLogin("account.html");
+    return;
+  }
+
+  const currentUser = getCurrentUser();
   const profileFields = {
     name: document.getElementById("edit-name"),
     email: document.getElementById("edit-email"),
@@ -34,17 +50,20 @@ document.addEventListener("DOMContentLoaded", function () {
     addressPhone: document.getElementById("address-phone"),
     avatar: document.getElementById("account-avatar")
   };
-  const storageKey = "owniverse.account.profile";
-  const defaultProfile = {
-    name: "Nguyễn Văn A",
-    email: "email@example.com",
-    phone: "09xx xxx xxx"
+  let profile = {
+    name: currentUser.fullName || "",
+    email: currentUser.email || "",
+    phone: currentUser.phone || ""
   };
-  let profile = { ...defaultProfile };
 
   function showSaveStatus(message) {
     saveStatus.textContent = message;
     saveStatus.hidden = false;
+  }
+
+  function showPasswordSaveStatus(message) {
+    passwordSaveStatus.textContent = message;
+    passwordSaveStatus.hidden = false;
   }
 
   function getInitials(name) {
@@ -63,34 +82,6 @@ document.addEventListener("DOMContentLoaded", function () {
     profileElements.addressPhone.textContent = profile.phone || "Chưa cập nhật";
     profileElements.avatar.textContent = getInitials(profile.name);
     profileElements.avatar.setAttribute("aria-label", `Ảnh đại diện chữ cái ${getInitials(profile.name)}`);
-  }
-
-  function readStoredProfile() {
-    try {
-      const savedProfile = localStorage.getItem(storageKey);
-      if (!savedProfile) return;
-
-      const parsedProfile = JSON.parse(savedProfile);
-      if (
-        !parsedProfile ||
-        typeof parsedProfile.name !== "string" ||
-        typeof parsedProfile.email !== "string" ||
-        typeof parsedProfile.phone !== "string" ||
-        !parsedProfile.name.trim() ||
-        !parsedProfile.email.trim()
-      ) {
-        throw new TypeError("Saved account profile has an invalid shape.");
-      }
-
-      profile = {
-        name: parsedProfile.name.trim(),
-        email: parsedProfile.email.trim(),
-        phone: parsedProfile.phone.trim()
-      };
-    } catch (error) {
-      console.error("Unable to load the saved account profile.", error);
-      showSaveStatus("Không thể đọc hồ sơ đã lưu. Bạn có thể nhập và lưu lại thông tin.");
-    }
   }
 
   function openProfileDialog() {
@@ -131,15 +122,22 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    profile = nextProfile;
-    renderProfile();
-
     try {
-      localStorage.setItem(storageKey, JSON.stringify(profile));
+      const updatedUser = updateProfile({
+        fullName: nextProfile.name,
+        email: nextProfile.email,
+        phone: nextProfile.phone
+      });
+      profile = {
+        name: updatedUser.fullName,
+        email: updatedUser.email,
+        phone: updatedUser.phone
+      };
+      renderProfile();
       profileDialog.close();
+      saveStatus.hidden = true;
     } catch (error) {
-      console.error("Unable to save the account profile to local storage.", error);
-      showSaveStatus("Không thể lưu vào trình duyệt. Thông tin chỉ được cập nhật tạm thời trên trang này.");
+      showSaveStatus(error.message);
     }
   });
 
@@ -153,13 +151,51 @@ document.addEventListener("DOMContentLoaded", function () {
     if (event.target === logoutDialog) logoutDialog.close();
   });
 
-  if (passwordInfoButton && passwordInfo) {
-    passwordInfoButton.addEventListener("click", function () {
-      const isExpanded = passwordInfoButton.getAttribute("aria-expanded") === "true";
-      passwordInfoButton.setAttribute("aria-expanded", String(!isExpanded));
-      passwordInfo.hidden = isExpanded;
+  passwordChangeButton.addEventListener("click", function () {
+    passwordForm.reset();
+    passwordSaveStatus.hidden = true;
+    passwordDialog.showModal();
+    document.getElementById("current-password").focus();
+  });
+
+  document.querySelectorAll("[data-close-password]").forEach(function (button) {
+    button.addEventListener("click", function () {
+      passwordDialog.close();
     });
-  }
+  });
+
+  passwordDialog.addEventListener("click", function (event) {
+    if (event.target === passwordDialog) passwordDialog.close();
+  });
+
+  passwordForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+    if (!passwordForm.reportValidity()) return;
+
+    const oldPassword = document.getElementById("current-password").value;
+    const newPassword = document.getElementById("new-password").value;
+    const confirmPassword = document.getElementById("confirm-password").value;
+
+    if (newPassword !== confirmPassword) {
+      showPasswordSaveStatus("Mật khẩu xác nhận không khớp.");
+      return;
+    }
+
+    try {
+      changePassword(oldPassword, newPassword);
+      passwordForm.reset();
+      passwordDialog.close();
+      passwordChangeStatus.textContent = "Đổi mật khẩu thành công.";
+      passwordChangeStatus.hidden = false;
+    } catch (error) {
+      showPasswordSaveStatus(error.message);
+    }
+  });
+
+  confirmLogoutButton.addEventListener("click", function () {
+    logout();
+    window.location.href = HOME_PAGE;
+  });
 
   navigationLinks.forEach(function (link) {
     link.addEventListener("click", function (event) {
@@ -220,6 +256,5 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  readStoredProfile();
   renderProfile();
 });

@@ -55,10 +55,24 @@ function getCartQuantity(id) {
   return item ? item.quantity : 0;
 }
 
+function requireCartLogin() {
+  if (typeof isLoggedIn === "function" && isLoggedIn()) return true;
+
+  if (typeof goToLogin === "function") {
+    const page = window.location.pathname.split("/").pop() || "index.html";
+    goToLogin(page + window.location.search);
+  } else {
+    console.error("Authentication is required before changing the cart.");
+  }
+  return false;
+}
+
 /* ---------- 2. THAO TÁC ---------- */
 
 // Thêm sản phẩm: đã có -> tăng số lượng, chưa có -> thêm dòng mới
 function addToCart(id, quantity) {
+  if (!requireCartLogin()) return false;
+
   const product = typeof getProductById === "function" ? getProductById(id) : null;
   if (!product) {
     console.warn("Không tìm thấy sản phẩm có id =", id);
@@ -79,6 +93,8 @@ function addToCart(id, quantity) {
 
 // Đặt số lượng cụ thể (giới hạn 1..CART_MAX_QTY; giá trị không hợp lệ -> giữ nguyên)
 function updateQuantity(id, quantity) {
+  if (!requireCartLogin()) return;
+
   const cart = getCart();
   const item = findCartItem(cart, id);
   if (!item) return;
@@ -96,6 +112,8 @@ function changeQuantity(id, delta) {
 }
 
 function removeFromCart(id) {
+  if (!requireCartLogin()) return;
+
   saveCart(getCart().filter(function (item) {
     return String(item.id) !== String(id);
   }));
@@ -163,7 +181,7 @@ function showToast(message) {
 
 /* ---------- 5. KHỞI TẠO ---------- */
 // Tự gắn huy hiệu vào link "Giỏ hàng" ở header nếu trang chưa có sẵn
-// -> trang nào chỉ cần nạp cart-common.css + cart-store.js là có số lượng giỏ hàng.
+// -> trang nào chỉ cần nạp cart-common.js + cart-store.js là có số lượng giỏ hàng.
 function ensureCartBadge() {
   document.querySelectorAll('.action-link[href="' + CART_PAGE + '"]').forEach(function (link) {
     link.setAttribute("aria-label", "Giỏ hàng");
