@@ -1,12 +1,16 @@
 /* =========================================================
-   OWNIVERSE – auth.js (lõi xác thực, dùng localStorage)
-   Khóa lưu trữ:
-   - owniverse_users         : danh sách tài khoản đã đăng ký
-   - owniverse_current_user  : phiên đăng nhập hiện tại
+   OWNIVERSE – auth.js (lõi xác thực, GỌI API BACKEND .NET)
+   Khóa lưu trữ trong trình duyệt:
+   - owniverse_current_user : thông tin người dùng đang đăng nhập
+   - owniverse_token        : token do backend cấp khi đăng nhập
+
+   Lưu ý: register / login / updateProfile / changePassword
+   giờ là hàm BẤT ĐỒNG BỘ (async) nên khi gọi phải có "await".
    ========================================================= */
-   
-const USER_KEY = "owniverse_users";
+
+const API_BASE = "http://localhost:3000";
 const CURRENT_USER_KEY = "owniverse_current_user";
+const TOKEN_KEY = "owniverse_token";
 const HOME_PAGE = "index.html";
 const LOGIN_PAGE = "login.html";
 
@@ -24,14 +28,45 @@ function normalizeEmail(email) {
     return String(email || "").trim().toLowerCase();
 }
 
-/* ---------- Users ---------- */
-function getUsers() {
-    const users = readJSON(USER_KEY, []);
-    return Array.isArray(users) ? users : [];
-}
+/* ---------- Gọi API (dùng chung cho cả web, kể cả các trang khác) ----------
+   apiRequest("/api/products")                          -> GET, không cần đăng nhập
+   apiRequest("/api/users/me", { auth: true })          -> GET, có gửi token
+   apiRequest("/api/x", { method: "POST", body: {...}, auth: true })
+   Lỗi sẽ được throw ra với đúng thông báo từ backend (error.message). */
+async function apiRequest(path, { method = "GET", body, auth = false } = {}) {
+    const headers = { "Content-Type": "application/json" };
+    if (auth) {
+        const token = localStorage.getItem(TOKEN_KEY);
+        if (token) headers.Authorization = "Bearer " + token;
+    }
 
-function saveUsers(users) {
-    localStorage.setItem(USER_KEY, JSON.stringify(users));
+    let res;
+    try {
+        res = await fetch(API_BASE + path, {
+            method,
+            headers,
+            body: body !== undefined ? JSON.stringify(body) : undefined
+        });
+    } catch (e) {
+        throw new Error("Không kết nối được máy chủ. Hãy kiểm tra backend đã chạy chưa.");
+    }
+
+    let data = null;
+    try {
+        data = await res.json();
+    } catch (e) {
+        /* phản hồi không có nội dung JSON */
+    }
+
+    if (!res.ok) {
+        // Token hết hạn / server đã khởi động lại -> xóa phiên cũ
+        if (res.status === 401 && auth) {
+            clearSession();
+            throw new Error("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại");
+        }
+        throw new Error((data && data.message) || "Có lỗi xảy ra, vui lòng thử lại");
+    }
+    return data;
 }
 
 /* ---------- Phiên đăng nhập ---------- */
@@ -39,107 +74,93 @@ function getCurrentUser() {
     return readJSON(CURRENT_USER_KEY, null);
 }
 
-// Không lưu mật khẩu vào phiên đăng nhập
+// Backend không bao giờ trả mật khẩu, nhưng vẫn loại bỏ cho chắc
 function setCurrentUser(user) {
     const { password, ...safeUser } = user;
     localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(safeUser));
 }
 
-// Đã đăng nhập hợp lệ? (tài khoản còn tồn tại và đang active)
-function isLoggedIn() {
-    const current = getCurrentUser();
-    if (!current) return false;
-
-    const stored = getUsers().find(u => u.id === current.id);
-    if (!stored || stored.status !== "active") {
-        localStorage.removeItem(CURRENT_USER_KEY);
-        return false;
-    }
-    return true;
+function clearSession() {
+    localStorage.removeItem(CURRENT_USER_KEY);
+    localStorage.removeItem(TOKEN_KEY);
 }
 
+// Đã đăng nhập? (có người dùng và có token)
+function isLoggedIn() {
+    const hasUser = !!getCurrentUser();
+    const hasToken = !!localStorage.getItem(TOKEN_KEY);
+    if (hasUser !== hasToken) {
+        clearSession(); // dữ liệu lệch nhau -> dọn sạch
+        return false;
+    }
+    return hasUser;
+}
+
+// Giữ nguyên là hàm thường (không async) để các nơi gọi logout() không phải sửa
 function logout() {
-    localStorage.removeItem(CURRENT_USER_KEY);
+    const token = localStorage.getItem(TOKEN_KEY);
+    clearSession();
+    if (token) {
+        // Báo cho backend hủy token (không cần chờ kết quả)
+        fetch(API_BASE + "/api/auth/logout", {
+            method: "POST",
+            headers: { Authorization: "Bearer " + token }
+        }).catch(() => {});
+    }
 }
 
 /* ---------- Đăng ký ---------- */
-function register(userData) {
-    const users = getUsers();
-    const email = normalizeEmail(userData.email);
-
-    if (users.some(u => normalizeEmail(u.email) === email)) {
-        throw new Error("Email đã tồn tại");
-    }
-
-    let id = Date.now();
-    while (users.some(u => u.id === id)) id += 1;
-
-    const newUser = {
-        id,
-        role: "customer",
-        status: "active",
-        createdAt: new Date().toISOString(),
-        ...userData,
-        email
-    };
-
-    users.push(newUser);
-    saveUsers(users);
-    return newUser;
+async function register(userData) {
+    const data = await apiRequest("/api/auth/register", {
+        method: "POST",
+        body: {
+            fullName: userData.fullName,
+            email: normalizeEmail(userData.email),
+            phone: userData.phone,
+            password: userData.password
+        }
+    });
+    return data.user;
 }
 
 /* ---------- Đăng nhập ---------- */
-function login(email, password) {
-    const users = getUsers();
-    const user = users.find(
-        u => normalizeEmail(u.email) === normalizeEmail(email) &&
-             u.password === password
-    );
+async function login(email, password) {
+    const data = await apiRequest("/api/auth/login", {
+        method: "POST",
+        body: { email: normalizeEmail(email), password }
+    });
 
-    if (!user) throw new Error("Sai email hoặc mật khẩu");
-    if (user.status !== "active") throw new Error("Tài khoản bị khóa");
-
-    setCurrentUser(user);
-    return user;
+    localStorage.setItem(TOKEN_KEY, data.token);
+    setCurrentUser(data.user);
+    return data.user;
 }
 
 /* ---------- Cập nhật hồ sơ ---------- */
-function updateProfile({ fullName, email, phone }) {
+async function updateProfile({ fullName, email, phone }) {
     const current = getCurrentUser();
     if (!current) throw new Error("Bạn chưa đăng nhập");
 
-    const users = getUsers();
-    const index = users.findIndex(u => u.id === current.id);
-    if (index === -1) throw new Error("Không tìm thấy tài khoản");
-
-    const normalizedEmail = normalizeEmail(email);
+    const normalizedEmail = normalizeEmail(email ?? current.email);
     if (!normalizedEmail) throw new Error("Email không hợp lệ");
-    if (users.some((user, userIndex) =>
-        userIndex !== index && normalizeEmail(user.email) === normalizedEmail
-    )) {
-        throw new Error("Email đã tồn tại");
-    }
 
-    users[index].fullName = String(fullName || "").trim();
-    users[index].email = normalizedEmail;
-    users[index].phone = String(phone || "").trim();
-    saveUsers(users);
-    setCurrentUser(users[index]);
-    return users[index];
+    const data = await apiRequest("/api/users/me", {
+        method: "PUT",
+        auth: true,
+        body: {
+            fullName: String(fullName || "").trim(),
+            email: normalizedEmail,
+            phone: String(phone || "").trim()
+        }
+    });
+
+    setCurrentUser(data.user);
+    return data.user;
 }
 
 /* ---------- Đổi mật khẩu ---------- */
-function changePassword(oldPassword, newPassword) {
-    const current = getCurrentUser();
-    if (!current) throw new Error("Bạn chưa đăng nhập");
+async function changePassword(oldPassword, newPassword) {
+    if (!getCurrentUser()) throw new Error("Bạn chưa đăng nhập");
 
-    const users = getUsers();
-    const index = users.findIndex(u => u.id === current.id);
-    if (index === -1) throw new Error("Không tìm thấy tài khoản");
-
-    if (users[index].password !== oldPassword) {
-        throw new Error("Mật khẩu hiện tại không đúng");
-    }
     if (newPassword.length < 8) {
         throw new Error("Mật khẩu mới tối thiểu 8 ký tự");
     }
@@ -147,8 +168,11 @@ function changePassword(oldPassword, newPassword) {
         throw new Error("Mật khẩu mới phải khác mật khẩu cũ");
     }
 
-    users[index].password = newPassword;
-    saveUsers(users);
+    await apiRequest("/api/users/me/password", {
+        method: "PUT",
+        auth: true,
+        body: { oldPassword, newPassword }
+    });
 }
 
 /* ---------- Chuyển hướng ---------- */
@@ -173,63 +197,3 @@ function requireLogin() {
     goToLogin(page + window.location.search);
     return false;
 }
-
-/* ---------- Tài khoản demo ---------- */
-(function initCustomer() {
-    const users = getUsers();
-    const demoEmail = "customer@owniverse.com";
-
-    if (users.some(u => normalizeEmail(u.email) === demoEmail)) return;
-
-    let demoId = Date.now();
-    while (users.some(u => u.id === demoId)) demoId += 1;
-
-    users.push({
-        id: demoId,
-        fullName: "Khách hàng",
-        email: demoEmail,
-        phone: "0900000000",
-        password: "Customer123",
-        role: "customer",
-        status: "active",
-        createdAt: new Date().toISOString()
-    });
-    saveUsers(users);
-})();
-
-
-
-/* =========================================================
-   OWNIVERSE – header-auth.js
-   Cập nhật nút "Tài khoản" trên header theo trạng thái đăng nhập.
-   ========================================================= */
-
-(function () {
-    function updateAccountLink() {
-        const circle = document.querySelector(".account-circle");
-        if (!circle) return;
-
-        if (isLoggedIn()) {
-            const user = getCurrentUser();
-            const name = (user.fullName || "").trim();
-            const lastWord = name.split(/\s+/).pop() || "Tài khoản";
-
-            circle.href = "account.html";
-            circle.title = name || user.email;
-            circle.setAttribute("aria-label", "Tài khoản của " + (name || user.email));
-            circle.textContent = lastWord.length > 6
-                ? lastWord.slice(0, 5) + "…"
-                : lastWord;
-        } else {
-            circle.href = "login.html";
-            circle.setAttribute("aria-label", "Đăng nhập");
-            circle.innerHTML = "Đăng<br>nhập";
-        }
-    }
-
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", updateAccountLink);
-    } else {
-        updateAccountLink();
-    }
-})();
