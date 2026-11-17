@@ -107,7 +107,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (event.target === profileDialog) profileDialog.close();
   });
 
-  profileForm.addEventListener("submit", function (event) {
+   profileForm.addEventListener("submit", async function (event) {
     event.preventDefault();
     if (!profileForm.reportValidity()) return;
 
@@ -123,7 +123,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     try {
-      const updatedUser = updateProfile({
+      const updatedUser = await updateProfile({
         fullName: nextProfile.name,
         email: nextProfile.email,
         phone: nextProfile.phone
@@ -168,7 +168,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (event.target === passwordDialog) passwordDialog.close();
   });
 
-  passwordForm.addEventListener("submit", function (event) {
+  passwordForm.addEventListener("submit", async function (event) {
     event.preventDefault();
     if (!passwordForm.reportValidity()) return;
 
@@ -182,7 +182,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     try {
-      changePassword(oldPassword, newPassword);
+       await changePassword(oldPassword, newPassword);
       passwordForm.reset();
       passwordDialog.close();
       passwordChangeStatus.textContent = "Đổi mật khẩu thành công.";

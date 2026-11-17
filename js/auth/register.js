@@ -1,7 +1,7 @@
 // js/auth/register.js
 const registerForm = document.querySelector("#registerForm");
 
-registerForm?.addEventListener("submit", function (e) {
+registerForm?.addEventListener("submit", async function (e) {
     e.preventDefault();
 
     const name = document.querySelector("#name").value.trim();
@@ -17,7 +17,7 @@ registerForm?.addEventListener("submit", function (e) {
     if (password !== confirmPassword) return alert("Mật khẩu xác nhận không khớp");
 
     try {
-        register({ fullName: name, email, phone, password });
+        await register({ fullName: name, email, phone, password });
         alert("Đăng ký thành công! Vui lòng đăng nhập.");
 
         // Giữ lại redirect (nếu khách bị chuyển tới từ trang cần đăng nhập)
