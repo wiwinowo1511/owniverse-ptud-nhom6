@@ -1,3 +1,4 @@
+
 const loginForm = document.querySelector("#loginForm");
 
 loginForm?.addEventListener(
@@ -6,7 +7,7 @@ loginForm?.addEventListener(
 
         e.preventDefault();
 
-    const email = document.querySelector("#email").value;
+    const email = document.querySelector("#email").value.trim();
     const password = document.querySelector("#password").value;
 
         try {

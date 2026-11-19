@@ -1,5 +1,5 @@
 // =====================================================
-// DỮ LIỆU MẪU CỦA NGHỆ SĨ (chuyển từ artist-detail.js sang backend)
+// DỮ LIỆU MẪU: nghệ sĩ, tài khoản, danh mục, sản phẩm
 //
 // TODO-DB: khi có database thật, các dữ liệu này sẽ nằm trong
 // các bảng (Artists, ArtistTimeline, ArtistActivities, ArtistMusicVideos...)
@@ -14,6 +14,7 @@ static class SeedData
         new Artist
         {
             Id = 1,
+            UserId = 4,
             Slug = "kairo",
             Name = "KAIRO",
             Handle = "",
@@ -89,6 +90,7 @@ static class SeedData
         new Artist
         {
             Id = 2,
+            UserId = 5,
             Slug = "mira",
             Name = "MIRA",
             Handle = "@mira.official",
@@ -159,6 +161,7 @@ static class SeedData
         new Artist
         {
             Id = 3,
+            UserId = 6,
             Slug = "rhea",
             Name = "RHEA",
             Handle = "@rhea.official",
@@ -229,5 +232,78 @@ static class SeedData
                 new MusicVideo { Title = "OUT OF FRAME", Type = "Official Music Video", YoutubeId = "IHNzOHi8sJs" },
             },
         },
+    };
+
+    // =====================================================
+    // TÀI KHOẢN MẪU
+    // TODO-DB: thay bằng bảng Users (đúng tên cột theo ERD)
+    // =====================================================
+    public static List<User> CreateUsers() => new()
+    {
+        new User { Id = 1, FullName = "Admin Owniverse", Email = "admin@owniverse.com", Password = "admin123", Role = Roles.Admin },
+        new User { Id = 2, FullName = "Fan Mẫu", Email = "fan@gmail.com", Password = "123456", Phone = "0900000000", Address = "TP.HCM", Role = Roles.Customer },
+        new User { Id = 3, FullName = "Khách hàng", Email = "customer@owniverse.com", Password = "Customer123", Phone = "0900000000", Role = Roles.Customer },
+
+        // Tài khoản đăng nhập của nghệ sĩ (liên kết với hồ sơ nghệ sĩ qua Artist.UserId ở trên)
+        new User { Id = 4, FullName = "KAIRO", Email = "kairo@owniverse.com", Password = "Artist123", Role = Roles.Artist },
+        new User { Id = 5, FullName = "MIRA", Email = "mira@owniverse.com", Password = "Artist123", Role = Roles.Artist },
+        new User { Id = 6, FullName = "RHEA", Email = "rhea@owniverse.com", Password = "Artist123", Role = Roles.Artist },
+    };
+
+    // =====================================================
+    // DANH MỤC SẢN PHẨM MẪU
+    // TODO-DB: thay bằng bảng Categories
+    // =====================================================
+    public static List<Category> CreateCategories() => new()
+    {
+        new Category { Id = 1, Slug = "ao", Name = "Áo" },
+        new Category { Id = 2, Slug = "phu-kien", Name = "Phụ kiện" },
+        new Category { Id = 3, Slug = "album", Name = "Album" },
+    };
+
+    // =====================================================
+    // SẢN PHẨM MẪU
+    // Lấy từ danh sách sản phẩm trong trang cộng đồng (artist-community.js),
+    // nên chỉ có 18 sản phẩm. Muốn đủ toàn bộ kho, gửi mình file products.js để thêm vào.
+    // Giá và tên là thật; tồn kho (50) và mô tả (để trống) chỉ là dữ liệu giả.
+    // TODO-DB: thay bằng các bảng Products, ProductVariants, ProductImages
+    // =====================================================
+    private static Product MakeProduct(int id, string name, int price, int artistId, int categoryId, string image) => new()
+    {
+        Id = id,
+        Name = name,
+        Price = price,
+        ArtistId = artistId,
+        CategoryId = categoryId,
+        Image = image,
+        Images = new() { image },
+        Variants = new() { new ProductVariant { Id = id, Sku = "SKU-" + id, Name = "Mặc định", Stock = 50 } },
+    };
+
+    public static List<Product> CreateProducts() => new()
+    {
+        // KAIRO (artistId = 1)
+        MakeProduct(1, "Áo thun Signature - Kairo", 450000, 1, 1, "images/products/Kairo-ao-thun-01.jpg"),
+        MakeProduct(4, "Hoodie Signature - Kairo", 900000, 1, 1, "images/products/Kairo-Hoodie-01.jpg"),
+        MakeProduct(7, "Túi tote Signature - Kairo", 250000, 1, 2, "images/products/Kairo-tui-tote-01.png"),
+        MakeProduct(9, "Single Album First Light - Kairo", 350000, 1, 3, "images/products/Kairo-debut-album-01.png"),
+        MakeProduct(16, "Lightstick Official Kairo Ver 1", 1050000, 1, 2, "images/products/Kairo-lightstick-01.png"),
+        MakeProduct(21, "Dây đeo thẻ Lanyard Kairo Tour", 120000, 1, 2, "images/products/Kairo-lanyard-01.png"),
+
+        // MIRA (artistId = 2)
+        MakeProduct(3, "Sticker họa tiết - Mira", 80000, 2, 2, "images/products/Mira-Sticker-01.jpg"),
+        MakeProduct(6, "Móc khóa Acrylic - Mira", 100000, 2, 2, "images/products/Mira-moc-khoa-01.jpg"),
+        MakeProduct(8, "Album Beyond the Star - Mira", 499000, 2, 3, "images/products/mira-album-01.png"),
+        MakeProduct(12, "Debut Single First Bloom - Mira", 350000, 2, 3, "images/products/Mira-debut-album-01.png"),
+        MakeProduct(17, "Lightstick Official Mira Star Wand", 980000, 2, 2, "images/products/Mira-lightstick-01.png"),
+        MakeProduct(26, "Pin cài áo Kim Loại Mira Badge", 90000, 2, 2, "images/products/Mira-pin-cai-01.png"),
+
+        // RHEA (artistId = 3)
+        MakeProduct(2, "Album After Dark - Rhea", 549000, 3, 3, "images/products/rhea-album-01.png"),
+        MakeProduct(5, "Áo thun Vanta Club", 600000, 3, 1, "images/products/rhea-ao-thun-01.png"),
+        MakeProduct(14, "1st Mini Album OUT OF FRAME - Rhea", 520000, 3, 3, "images/products/Rhea-mini-album-01.png"),
+        MakeProduct(15, "Special Album ECLIPSE - Rhea", 520000, 3, 3, "images/products/Rhea-special-album-01.png"),
+        MakeProduct(18, "Lightstick Official Rhea Eclipse Torch", 1020000, 3, 2, "images/products/Rhea-lightstick-01.png"),
+        MakeProduct(27, "Túi đeo chéo Mini Crossbody Rhea", 380000, 3, 2, "images/products/Rhea-tui-deo-cheo-01.png"),
     };
 }
