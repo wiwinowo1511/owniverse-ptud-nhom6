@@ -13,7 +13,7 @@ registerForm?.querySelectorAll("input").forEach((input) => {
     input.addEventListener("input", () => setRegisterError(input.id));
 });
 
-registerForm?.addEventListener("submit", function (e) {
+registerForm?.addEventListener("submit", async function (e) {
     e.preventDefault();
 
     const name = document.querySelector("#name").value.trim();
@@ -40,7 +40,7 @@ registerForm?.addEventListener("submit", function (e) {
     }
 
     try {
-        register({ fullName: name, email, phone, password });
+        await register({ fullName: name, email, phone, password });
         // Giữ lại redirect (nếu khách bị chuyển tới từ trang cần đăng nhập)
         const redirect = new URLSearchParams(window.location.search).get("redirect");
         window.location.href = safeRedirectTarget(redirect)
