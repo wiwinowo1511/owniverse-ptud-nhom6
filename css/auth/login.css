@@ -1,5 +1,5 @@
 .auth-page{
-    min-height:100vh;
+    min-height: min(72vh, 760px);
     display:flex;
     justify-content:center;
     align-items:center;
@@ -15,7 +15,7 @@
 
     background:#fff;
 
-    padding:40px;
+    padding:34px;
 
     border-radius:16px;
 
@@ -25,7 +25,8 @@
 
 .auth-card h1{
     text-align:center;
-    margin-bottom:30px;
+    margin-bottom:24px;
+    font-size:clamp(1.45rem, 3vw, 1.8rem);
 }
 
 .form-group{
@@ -38,6 +39,7 @@
     margin-bottom:8px;
 
     font-weight:600;
+    font-size:0.92rem;
 }
 
 .form-group input{
@@ -48,6 +50,73 @@
     border:1px solid #ddd;
 
     border-radius:8px;
+    box-sizing:border-box;
+    font:inherit;
+    font-size:0.95rem;
+}
+
+.password-field {
+    position:relative;
+}
+
+.password-field input {
+    padding-right:48px;
+}
+
+/* Ẩn nút hiện mật khẩu mặc định của Microsoft Edge để chỉ còn nút của giao diện. */
+.password-field input::-ms-reveal,
+.password-field input::-ms-clear {
+    display:none;
+}
+
+.password-toggle {
+    position:absolute;
+    top:50%;
+    right:7px;
+    display:grid;
+    width:36px;
+    height:36px;
+    place-items:center;
+    padding:7px;
+    transform:translateY(-50%);
+    border:0;
+    border-radius:6px;
+    background:transparent;
+    color:#626273;
+    cursor:pointer;
+    transition:color 0.18s ease, background-color 0.18s ease;
+}
+
+.password-toggle:hover {
+    background:#f1eff6;
+    color:#24212d;
+}
+
+.password-toggle[aria-pressed="true"] {
+    color:#7C3AED;
+    background-color:#E9DBFF;
+}
+
+.password-toggle svg {
+    width:20px;
+    height:20px;
+}
+
+.field-error {
+    display:block;
+    min-height:0;
+    margin-top:5px;
+    color:#b42318;
+    font-size:0.8rem;
+    line-height:1.4;
+}
+
+.field-error:not(:empty) {
+    min-height:1.1em;
+}
+
+.form-group input[aria-invalid="true"] {
+    border-color:#b42318;
 }
 
 button{
@@ -64,6 +133,9 @@ button{
     border-radius:8px;
 
     cursor:pointer;
+    font-family:inherit;
+    font-size:0.95rem;
+    font-weight:600;
 }
 
 button:hover{
@@ -80,4 +152,32 @@ button:hover{
 
 .auth-links a{
     color:#111;
+    font-size:0.88rem;
+}
+
+.auth-card .brand-logo {
+    display:flex;
+    width:max-content;
+    margin:0 auto 22px;
+}
+
+.auth-page + .site-footer { margin-top:auto; }
+.site-footer { margin-top:auto; }
+body.auth-layout { min-height:100vh; display:flex; flex-direction:column; }
+.auth-page { flex:1 0 auto; }
+.auth-card input:focus-visible, .auth-card button:focus-visible, .auth-card a:focus-visible {
+    outline:3px solid #A78BFA;
+    outline-offset:3px;
+}
+
+@media (max-width:600px) {
+    .auth-page { min-height:0; padding:32px 16px; }
+    .auth-card { max-width:460px; padding:28px 22px; border-radius:13px; }
+    .auth-links { gap:12px; flex-wrap:wrap; }
+    .auth-links a { font-size:0.84rem; }
+}
+
+@media (max-width:360px) {
+    .auth-card { padding:24px 17px; }
+    .auth-links { flex-direction:column; }
 }

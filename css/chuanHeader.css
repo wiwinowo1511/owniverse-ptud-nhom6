@@ -797,6 +797,19 @@
     font-size: 0.6rem;
   }
 } 
+
+/* Avatar mặc định dùng chung trên mọi header; nội dung tên vẫn được JS giữ để hỗ trợ truy cập. */
+.site-header .account-circle {
+    overflow: hidden;
+    border: 0;
+    background-image: url("../images/avatar/default.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    color: transparent;
+    font-size: 0;
+    text-indent: -9999px;
+}
 /* =========================
    11. THANH TÌM KIẾM TRÊN HEADER
 ========================= */
