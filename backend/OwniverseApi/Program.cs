@@ -25,6 +25,7 @@ using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("Owniverse")
@@ -39,6 +40,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
 var app = builder.Build();
 var passwordHasher = app.Services.GetRequiredService<IPasswordHasher<User>>();
+var userRepository = new UserRepository(connectionString);
 app.UseCors();
 
 // =====================================================
@@ -46,7 +48,16 @@ app.UseCors();
 // =====================================================
 
 var users = SeedData.CreateUsers();
-var nextUserId = users.Max(u => u.Id) + 1;
+if (app.Environment.IsDevelopment())
+{
+    var developmentAdmin = await AdminBootstrap.EnsureDevelopmentAdminAsync(
+        app.Configuration,
+        passwordHasher,
+        app.Lifetime.ApplicationStopping);
+    if (developmentAdmin is not null)
+        users.Add(developmentAdmin);
+}
+var nextUserId = await userRepository.GetNextUserIdAsync(app.Lifetime.ApplicationStopping);
 
 var artists = SeedData.CreateArtists();
 var nextArtistId = artists.Max(a => a.Id) + 1;
@@ -86,49 +97,6 @@ nextProductId = products.Select(product => product.Id).DefaultIfEmpty(0).Max() +
 nextVariantId = products.SelectMany(product => product.Variants).Select(variant => variant.Id).DefaultIfEmpty(0).Max() + 1;
 nextCommunityId = communities.Select(community => community.Id).DefaultIfEmpty(0).Max() + 1;
 nextOrderId = orders.Select(order => order.Id).DefaultIfEmpty(0).Max() + 1;
-
-// Tạo tài khoản demo chỉ trong Development; mật khẩu luôn được hash trước khi ghi DB.
-if (app.Environment.IsDevelopment())
-{
-    foreach (var seedUser in SeedData.CreateUsers())
-    {
-        var existing = users.FirstOrDefault(user =>
-            user.Email.Equals(seedUser.Email, StringComparison.OrdinalIgnoreCase));
-        if (seedUser.Role == Roles.Artist)
-        {
-            var artist = artists.FirstOrDefault(item =>
-                item.Slug.Equals(seedUser.Email.Split('@')[0], StringComparison.OrdinalIgnoreCase));
-            if (artist?.UserId is int linkedUserId)
-                existing = users.FirstOrDefault(user => user.Id == linkedUserId);
-
-            if (existing is not null && existing.Status == "locked")
-            {
-                existing.Email = seedUser.Email;
-                existing.Password = passwordHasher.HashPassword(existing, seedUser.Password);
-                existing.Status = "active";
-            }
-            continue;
-        }
-
-        if (existing is not null) continue;
-        var demoUser = new User
-        {
-            Id = nextUserId++,
-            FullName = seedUser.FullName,
-            Email = NormalizeEmail(seedUser.Email),
-            Phone = seedUser.Phone,
-            Address = seedUser.Address,
-            Role = seedUser.Role,
-            Status = "active",
-        };
-        demoUser.Password = passwordHasher.HashPassword(demoUser, seedUser.Password);
-        users.Add(demoUser);
-    }
-
-    await database.SaveAsync(
-        users, artists, categories, products, communities, communityMembers,
-        passwordResetTokens, carts, orders);
-}
 
 // Database luôn chứa PasswordHash, không bao giờ trả mật khẩu ra ngoài.
 foreach (var u in users)
@@ -194,6 +162,16 @@ Community? CommunityForArtist(int artistId) => communities.FirstOrDefault(c => c
 // Khóa cùng lúc các thay đổi đối với các collection dùng bởi API handlers.
 var dataLock = new object();
 
+void CacheUser(User user)
+{
+    lock (dataLock)
+    {
+        var index = users.FindIndex(existing => existing.Id == user.Id);
+        if (index < 0) users.Add(user);
+        else users[index] = user;
+    }
+}
+
 // Lấy người dùng đang đăng nhập (null nếu chưa đăng nhập hoặc tài khoản đã bị khóa/xóa)
 User? GetCurrentUser(HttpContext ctx)
 {
@@ -206,6 +184,22 @@ User? GetCurrentUser(HttpContext ctx)
         sessions.TryRemove(token, out _);
         return null;
     }
+    return user;
+}
+
+async Task<User?> GetCurrentUserFromDatabaseAsync(HttpContext ctx)
+{
+    var token = GetToken(ctx);
+    if (!sessions.TryGetValue(token, out var userId)) return null;
+
+    var user = await userRepository.FindByIdAsync(userId, ctx.RequestAborted);
+    if (user is null || user.Status != "active")
+    {
+        sessions.TryRemove(token, out _);
+        return null;
+    }
+
+    CacheUser(user);
     return user;
 }
 
@@ -427,51 +421,71 @@ IResult? AddVariant(Product p, VariantRequest vr)
 // =====================================================
 
 // Đăng ký (luôn tạo tài khoản khách hàng)
-app.MapPost("/api/auth/register", IResult (RegisterRequest req) =>
+app.MapPost("/api/auth/register", async (RegisterRequest req) =>
 {
     var email = NormalizeEmail(req.Email);
+    var fullName = req.FullName?.Trim() ?? "";
+    var phone = req.Phone?.Trim() ?? "";
 
-    if (string.IsNullOrWhiteSpace(req.FullName) || email == "" || string.IsNullOrEmpty(req.Password))
+    if (string.IsNullOrWhiteSpace(fullName) || email == "" || string.IsNullOrEmpty(req.Password))
         return Msg(400, "Vui lòng nhập đầy đủ họ tên, email và mật khẩu");
     if (!IsValidEmail(email))
         return Msg(400, "Email không hợp lệ");
     if (req.Password.Length < 8)
         return Msg(400, "Mật khẩu tối thiểu 8 ký tự");
+    if (email.Length > 255 || fullName.Length > 100 || phone.Length > 20)
+        return Msg(400, "Email, họ tên hoặc số điện thoại vượt quá độ dài cho phép");
 
-    // TODO-DB: SELECT * FROM Users WHERE Email = @email
-    if (users.Any(u => u.Email == email))
-        return Msg(409, "Email đã được sử dụng");
-
-    // TODO-DB: mã hóa mật khẩu (hash) trước khi lưu
-    // TODO-DB: INSERT INTO Users (...) VALUES (...)
     var newUser = new User
     {
-        Id = nextUserId++,
-        FullName = req.FullName.Trim(),
+        FullName = fullName,
         Email = email,
-        Password = passwordHasher.HashPassword(new User(), req.Password),
-        Phone = req.Phone ?? "",
+        Phone = phone,
         Role = Roles.Customer,
+        Status = "active",
     };
-    users.Add(newUser);
+    newUser.Password = passwordHasher.HashPassword(newUser, req.Password);
+
+    try
+    {
+        await userRepository.CreateCustomerAsync(newUser, app.Lifetime.ApplicationStopping);
+    }
+    catch (SqlException ex) when (ex.Number is 2601 or 2627)
+    {
+        return Msg(409, "Email đã được sử dụng");
+    }
+
+    nextUserId = Math.Max(nextUserId, newUser.Id + 1);
+    CacheUser(newUser);
 
     return Results.Json(new { message = "Đăng ký thành công", user = PublicUser(newUser) }, statusCode: 201);
 });
 
 // Đăng nhập (khách hàng, nghệ sĩ và admin dùng chung API này; xem user.role trong kết quả)
-app.MapPost("/api/auth/login", IResult (LoginRequest req) =>
+app.MapPost("/api/auth/login", async (LoginRequest req) =>
 {
     var email = NormalizeEmail(req.Email);
 
-    // TODO-DB: SELECT * FROM Users WHERE Email = @email rồi so sánh mật khẩu đã mã hóa
-    var user = users.FirstOrDefault(u => u.Email == email);
-    var verified = user is not null && req.Password is not null &&
-        passwordHasher.VerifyHashedPassword(user, user.Password, req.Password) != PasswordVerificationResult.Failed;
+    var user = await userRepository.FindByEmailAsync(email, app.Lifetime.ApplicationStopping);
+    var verified = false;
+    if (user is not null && req.Password is not null)
+    {
+        try
+        {
+            verified = passwordHasher.VerifyHashedPassword(user, user.Password, req.Password)
+                != PasswordVerificationResult.Failed;
+        }
+        catch (FormatException)
+        {
+            // Random locked-import markers are not ASP.NET Identity password hashes.
+        }
+    }
     if (!verified || user is null)
         return Msg(401, "Sai email hoặc mật khẩu");
     if (user.Status != "active")
         return Msg(403, "Tài khoản bị khóa");
 
+    CacheUser(user);
     var token = Guid.NewGuid().ToString();
     sessions[token] = user.Id;
 
@@ -527,58 +541,88 @@ app.MapPost("/api/auth/logout", IResult (HttpContext ctx) =>
     return Msg(200, "Đăng xuất thành công");
 });
 
-// Xem thông tin cá nhân
-app.MapGet("/api/users/me", IResult (HttpContext ctx) =>
+// Xem thông tin cá nhân. Giữ route cũ và thêm alias dưới auth.
+async Task<IResult> GetMe(HttpContext ctx)
 {
-    var user = GetCurrentUser(ctx);
+    var user = await GetCurrentUserFromDatabaseAsync(ctx);
     if (user is null) return Msg(401, "Bạn chưa đăng nhập");
     return Results.Ok(PublicUser(user));
+}
+app.MapGet("/api/auth/me", (Delegate)GetMe);
+app.MapGet("/api/users/me", (Delegate)GetMe);
+
+app.MapGet("/api/users/me/orders", async (HttpContext ctx) =>
+{
+    var user = await GetCurrentUserFromDatabaseAsync(ctx);
+    if (user is null) return Msg(401, "Bạn chưa đăng nhập");
+    return Results.Ok(await userRepository.GetAccountOrdersAsync(user.Id, ctx.RequestAborted));
 });
 
-// Cập nhật thông tin cá nhân
-app.MapPut("/api/users/me", IResult (HttpContext ctx, UpdateProfileRequest req) =>
+app.MapGet("/api/users/me/addresses", async (HttpContext ctx) =>
 {
-    var user = GetCurrentUser(ctx);
+    var user = await GetCurrentUserFromDatabaseAsync(ctx);
     if (user is null) return Msg(401, "Bạn chưa đăng nhập");
-
-    string? newEmail = null;
-    if (req.Email is not null)
-    {
-        newEmail = NormalizeEmail(req.Email);
-        if (!IsValidEmail(newEmail)) return Msg(400, "Email không hợp lệ");
-
-        // TODO-DB: kiểm tra email mới chưa ai dùng (SELECT ... WHERE Email = @email AND Id <> @id)
-        if (users.Any(u => u.Id != user.Id && u.Email == newEmail))
-            return Msg(409, "Email đã được sử dụng");
-    }
-
-    // TODO-DB: UPDATE Users SET FullName = @fullName, Email = @email, Phone = @phone, Address = @address WHERE Id = @id
-    if (newEmail is not null) user.Email = newEmail;
-    if (req.FullName is not null)
-    {
-        if (string.IsNullOrWhiteSpace(req.FullName)) return Msg(400, "Họ tên không được để trống");
-        user.FullName = req.FullName.Trim();
-    }
-    if (req.Phone is not null) user.Phone = req.Phone;
-    if (req.Address is not null) user.Address = req.Address;
-
-    return Results.Ok(new { message = "Cập nhật thành công", user = PublicUser(user) });
+    return Results.Ok(await userRepository.GetAccountAddressesAsync(user.Id, ctx.RequestAborted));
 });
 
-// Đổi mật khẩu
-app.MapPut("/api/users/me/password", IResult (HttpContext ctx, ChangePasswordRequest req) =>
+// Cập nhật thông tin cá nhân của User trong SQL.
+app.MapPut("/api/users/me", async (HttpContext ctx, UpdateProfileRequest req) =>
 {
-    var user = GetCurrentUser(ctx);
+    var user = await GetCurrentUserFromDatabaseAsync(ctx);
     if (user is null) return Msg(401, "Bạn chưa đăng nhập");
 
-    // TODO-DB: so sánh mật khẩu cũ đã mã hóa với dữ liệu trong bảng Users
-    if (req.OldPassword is null || passwordHasher.VerifyHashedPassword(user, user.Password, req.OldPassword) == PasswordVerificationResult.Failed)
+    var fullName = req.FullName?.Trim() ?? user.FullName;
+    var email = req.Email is null ? user.Email : NormalizeEmail(req.Email);
+    var phone = req.Phone?.Trim() ?? user.Phone;
+    if (string.IsNullOrWhiteSpace(fullName)) return Msg(400, "Họ tên không được để trống");
+    if (!IsValidEmail(email)) return Msg(400, "Email không hợp lệ");
+    if (email.Length > 255 || fullName.Length > 100 || phone.Length > 20)
+        return Msg(400, "Email, họ tên hoặc số điện thoại vượt quá độ dài cho phép");
+
+    try
+    {
+        var updatedUser = await userRepository.UpdateProfileAsync(
+            user.Id, fullName, email, phone, ctx.RequestAborted);
+        if (updatedUser is null) return Msg(401, "Bạn chưa đăng nhập");
+        CacheUser(updatedUser);
+        return Results.Ok(new { message = "Cập nhật thành công", user = PublicUser(updatedUser) });
+    }
+    catch (SqlException ex) when (ex.Number is 2601 or 2627)
+    {
+        return Msg(409, "Email đã được sử dụng");
+    }
+});
+
+// Đổi mật khẩu và lưu hash mới trong SQL.
+app.MapPut("/api/users/me/password", async (HttpContext ctx, ChangePasswordRequest req) =>
+{
+    var user = await GetCurrentUserFromDatabaseAsync(ctx);
+    if (user is null) return Msg(401, "Bạn chưa đăng nhập");
+
+    var oldPasswordValid = false;
+    if (req.OldPassword is not null)
+    {
+        try
+        {
+            oldPasswordValid = passwordHasher.VerifyHashedPassword(user, user.Password, req.OldPassword)
+                != PasswordVerificationResult.Failed;
+        }
+        catch (FormatException)
+        {
+            // Malformed random import markers can never verify as passwords.
+        }
+    }
+    if (!oldPasswordValid)
         return Msg(400, "Mật khẩu hiện tại không đúng");
     if (string.IsNullOrEmpty(req.NewPassword) || req.NewPassword.Length < 8)
         return Msg(400, "Mật khẩu mới tối thiểu 8 ký tự");
 
-    // TODO-DB: UPDATE Users SET Password = @hash WHERE Id = @id (nhớ mã hóa)
-    user.Password = passwordHasher.HashPassword(user, req.NewPassword);
+    var newPasswordHash = passwordHasher.HashPassword(user, req.NewPassword);
+    if (!await userRepository.UpdatePasswordHashAsync(user.Id, newPasswordHash, ctx.RequestAborted))
+        return Msg(401, "Bạn chưa đăng nhập");
+
+    user.Password = newPasswordHash;
+    CacheUser(user);
     InvalidateResetTokens(user.Id);
     RemoveSessionsOf(user.Id);
     return Msg(200, "Đổi mật khẩu thành công, vui lòng đăng nhập lại");
@@ -646,25 +690,23 @@ app.MapGet("/api/artists/{key}", IResult (string key) =>
 });
 
 // Tương thích frontend cũ: follow được hiểu là tham gia cộng đồng nghệ sĩ.
-app.MapPost("/api/artists/{id:int}/follow", IResult (int id, HttpContext ctx) =>
+app.MapPost("/api/artists/{id:int}/follow", async (int id, HttpContext ctx) =>
 {
-    var user = GetCurrentUser(ctx);
+    var user = await GetCurrentUserFromDatabaseAsync(ctx);
     if (user is null) return Msg(401, "Bạn chưa đăng nhập");
     if (user.Role != Roles.Customer) return Msg(403, "Chỉ tài khoản khách hàng được tham gia cộng đồng");
-    var community = CommunityForArtist(id);
-    if (community is null || artists.First(a => a.Id == id).Status != "active") return Msg(404, "Không tìm thấy cộng đồng");
-    lock (dataLock)
-        if (!communityMembers.Any(m => m.CommunityId == community.Id && m.UserId == user.Id))
-            communityMembers.Add(new CommunityMember(community.Id, user.Id));
+    var communityId = await userRepository.GetCommunityIdForArtistAsync(id, ctx.RequestAborted);
+    if (communityId is null) return Msg(404, "Không tìm thấy cộng đồng");
+    await userRepository.JoinCommunityAsync(communityId.Value, user.Id, ctx.RequestAborted);
     return Msg(200, "Đã tham gia cộng đồng nghệ sĩ");
 });
-app.MapDelete("/api/artists/{id:int}/follow", IResult (int id, HttpContext ctx) =>
+app.MapDelete("/api/artists/{id:int}/follow", async (int id, HttpContext ctx) =>
 {
-    var user = GetCurrentUser(ctx);
+    var user = await GetCurrentUserFromDatabaseAsync(ctx);
     if (user is null) return Msg(401, "Bạn chưa đăng nhập");
-    var community = CommunityForArtist(id);
-    if (community is null) return Msg(404, "Không tìm thấy cộng đồng");
-    lock (dataLock) communityMembers.RemoveAll(m => m.CommunityId == community.Id && m.UserId == user.Id);
+    var communityId = await userRepository.GetCommunityIdForArtistAsync(id, ctx.RequestAborted);
+    if (communityId is null) return Msg(404, "Không tìm thấy cộng đồng");
+    await userRepository.LeaveCommunityAsync(communityId.Value, user.Id, ctx.RequestAborted);
     return Msg(200, "Đã rời cộng đồng nghệ sĩ");
 });
 app.MapGet("/api/users/me/following", IResult (HttpContext ctx) =>
@@ -687,31 +729,28 @@ app.MapGet("/api/communities/{id:int}", IResult (int id) =>
     return Results.Ok(new { c.Id, c.ArtistId, c.Name, c.Description, c.Avatar, c.Cover,
         MemberCount = communityMembers.Count(m => m.CommunityId == c.Id) });
 });
-app.MapPost("/api/communities/{id:int}/join", IResult (int id, HttpContext ctx) =>
+app.MapPost("/api/communities/{id:int}/join", async (int id, HttpContext ctx) =>
 {
-    var user = GetCurrentUser(ctx);
+    var user = await GetCurrentUserFromDatabaseAsync(ctx);
     if (user is null) return Msg(401, "Bạn chưa đăng nhập");
     if (user.Role != Roles.Customer) return Msg(403, "Chỉ tài khoản khách hàng được tham gia cộng đồng");
-    var c = communities.FirstOrDefault(c => c.Id == id && artists.Any(a => a.Id == c.ArtistId && a.Status == "active"));
-    if (c is null) return Msg(404, "Không tìm thấy cộng đồng");
-    lock (dataLock)
-        if (!communityMembers.Any(m => m.UserId == user.Id && m.CommunityId == id))
-            communityMembers.Add(new CommunityMember(id, user.Id));
+    if (!await userRepository.JoinCommunityAsync(id, user.Id, ctx.RequestAborted))
+        return Msg(404, "Không tìm thấy cộng đồng");
     return Msg(200, "Đã tham gia cộng đồng");
 });
-app.MapDelete("/api/communities/{id:int}/leave", IResult (int id, HttpContext ctx) =>
+app.MapDelete("/api/communities/{id:int}/leave", async (int id, HttpContext ctx) =>
 {
-    var user = GetCurrentUser(ctx);
+    var user = await GetCurrentUserFromDatabaseAsync(ctx);
     if (user is null) return Msg(401, "Bạn chưa đăng nhập");
-    if (!communities.Any(c => c.Id == id)) return Msg(404, "Không tìm thấy cộng đồng");
-    lock (dataLock) communityMembers.RemoveAll(m => m.UserId == user.Id && m.CommunityId == id);
+    if (!await userRepository.LeaveCommunityAsync(id, user.Id, ctx.RequestAborted))
+        return Msg(404, "Không tìm thấy cộng đồng");
     return Msg(200, "Đã rời cộng đồng");
 });
-app.MapGet("/api/users/me/communities", IResult (HttpContext ctx) =>
+app.MapGet("/api/users/me/communities", async (HttpContext ctx) =>
 {
-    var user = GetCurrentUser(ctx);
+    var user = await GetCurrentUserFromDatabaseAsync(ctx);
     if (user is null) return Msg(401, "Bạn chưa đăng nhập");
-    return Results.Ok(communities.Where(c => communityMembers.Any(m => m.UserId == user.Id && m.CommunityId == c.Id)).ToList());
+    return Results.Ok(await userRepository.GetAccountCommunitiesAsync(user.Id, ctx.RequestAborted));
 });
 app.MapGet("/api/communities/{id:int}/members", IResult (int id, HttpContext ctx) =>
 {

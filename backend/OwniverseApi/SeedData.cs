@@ -240,14 +240,8 @@ static class SeedData
     // =====================================================
     public static List<User> CreateUsers() => new()
     {
-        new User { Id = 1, FullName = "Admin Owniverse", Email = "admin@owniverse.com", Password = "admin123", Role = Roles.Admin },
-        new User { Id = 2, FullName = "Fan Mẫu", Email = "fan@gmail.com", Password = "123456", Phone = "0900000000", Address = "TP.HCM", Role = Roles.Customer },
-        new User { Id = 3, FullName = "Khách hàng", Email = "customer@owniverse.com", Password = "Customer123", Phone = "0900000000", Role = Roles.Customer },
-
-        // Tài khoản đăng nhập của nghệ sĩ (liên kết với hồ sơ nghệ sĩ qua Artist.UserId ở trên)
-        new User { Id = 4, FullName = "KAIRO", Email = "kairo@owniverse.com", Password = "Artist123", Role = Roles.Artist },
-        new User { Id = 5, FullName = "MIRA", Email = "mira@owniverse.com", Password = "Artist123", Role = Roles.Artist },
-        new User { Id = 6, FullName = "RHEA", Email = "rhea@owniverse.com", Password = "Artist123", Role = Roles.Artist },
+        // No default admin or fabricated customer accounts.
+        // Artist credentials are not provisioned here; real SQL accounts remain locked.
     };
 
     // =====================================================

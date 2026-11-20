@@ -32,7 +32,7 @@ sealed class SqlDatabase(string connectionString)
         users.AddRange(await connection.QueryAsync<User>(
             """
             SELECT UserId AS Id, FullName, Email, PasswordHash AS Password,
-                   COALESCE(Phone, '') AS Phone, Address, LOWER(Role) AS Role,
+                   COALESCE(Phone, '') AS Phone, LOWER(Role) AS Role,
                    LOWER(Status) AS Status, CreatedAt
             FROM dbo.Users
             """));
@@ -42,7 +42,7 @@ sealed class SqlDatabase(string connectionString)
             "SELECT ArtistId, DataJson FROM dbo.ArtistApiData")).ToDictionary(row => row.ArtistId);
         var artistRows = await connection.QueryAsync<ArtistRow>(
             """
-            SELECT a.ArtistId AS Id, a.UserId, a.Slug, a.Name,
+            SELECT a.ArtistId AS Id, a.UserId, a.Slug, a.Name, a.ProfileDataJson,
                    COALESCE(a.Style, '') AS Genre, COALESCE(a.Bio, '') AS Description,
                    COALESCE(a.CoverUrl, '') AS Cover, COALESCE(a.AvatarUrl, '') AS Avatar,
                    LOWER(a.Status) AS Status, d.DataJson
@@ -56,6 +56,8 @@ sealed class SqlDatabase(string connectionString)
             Artist artist;
             if (row.DataJson is not null)
                 artist = JsonSerializer.Deserialize<Artist>(row.DataJson, jsonOptions) ?? new Artist();
+            else if (row.ProfileDataJson is not null)
+                artist = JsonSerializer.Deserialize<Artist>(row.ProfileDataJson, jsonOptions) ?? new Artist();
             else if (!fallbackArtists.TryGetValue(row.Slug, out artist!))
                 artist = new Artist();
 
@@ -565,6 +567,7 @@ sealed class SqlDatabase(string connectionString)
         public int? UserId { get; set; }
         public string Slug { get; set; } = "";
         public string Name { get; set; } = "";
+        public string? ProfileDataJson { get; set; }
         public string Genre { get; set; } = "";
         public string Description { get; set; } = "";
         public string Cover { get; set; } = "";

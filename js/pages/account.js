@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
   const profileDialog = document.getElementById("profile-dialog");
   const passwordDialog = document.getElementById("password-dialog");
   const logoutDialog = document.getElementById("logout-dialog");
@@ -34,7 +34,35 @@ document.addEventListener("DOMContentLoaded", function () {
     return;
   }
 
-  const currentUser = getCurrentUser();
+  let currentUser;
+  try {
+    currentUser = await refreshCurrentUser();
+  } catch (error) {
+    goToLogin("account.html");
+    return;
+  }
+
+  const accountDataError = document.getElementById("account-data-error");
+  let ordersData;
+  let addresses;
+  let joinedCommunities;
+  try {
+    [ordersData, addresses, joinedCommunities] = await Promise.all([
+      apiRequest("/api/users/me/orders", { auth: true }),
+      apiRequest("/api/users/me/addresses", { auth: true }),
+      apiRequest("/api/users/me/communities", { auth: true })
+    ]);
+  } catch (error) {
+    if (!isLoggedIn()) {
+      goToLogin("account.html");
+      return;
+    }
+    if (accountDataError) {
+      accountDataError.textContent = error.message || "Không thể tải dữ liệu tài khoản.";
+      accountDataError.hidden = false;
+    }
+    return;
+  }
   const profileFields = {
     name: document.getElementById("edit-name"),
     email: document.getElementById("edit-email"),
@@ -48,7 +76,8 @@ document.addEventListener("DOMContentLoaded", function () {
     personalPhone: document.getElementById("personal-phone"),
     addressName: document.getElementById("address-name"),
     addressPhone: document.getElementById("address-phone"),
-    avatar: document.getElementById("account-avatar")
+    avatar: document.getElementById("account-avatar"),
+    memberSince: document.getElementById("member-since")
   };
   let profile = {
     name: currentUser.fullName || "",
@@ -82,6 +111,140 @@ document.addEventListener("DOMContentLoaded", function () {
     profileElements.addressPhone.textContent = profile.phone || "Chưa cập nhật";
     profileElements.avatar.textContent = getInitials(profile.name);
     profileElements.avatar.setAttribute("aria-label", `Ảnh đại diện chữ cái ${getInitials(profile.name)}`);
+    profileElements.memberSince.textContent = formatDate(currentUser.createdAt);
+  }
+
+  function formatDate(value) {
+    if (!value) return "—";
+    const date = new Date(value);
+    return Number.isNaN(date.getTime())
+      ? "—"
+      : new Intl.DateTimeFormat("vi-VN").format(date);
+  }
+
+  function renderOrders(data) {
+    const orderCount = document.getElementById("account-order-count");
+    const processingCount = document.getElementById("account-processing-count");
+    const ordersBody = document.getElementById("account-orders-body");
+    const emptyState = document.getElementById("account-orders-empty");
+    orderCount.textContent = String(data.totalOrders || 0);
+    processingCount.textContent = String(data.processingOrders || 0);
+    ordersBody.replaceChildren();
+
+    const recentOrders = Array.isArray(data.recentOrders) ? data.recentOrders : [];
+    emptyState.hidden = recentOrders.length > 0;
+    if (!recentOrders.length) return;
+
+    const statusLabels = {
+      Pending: "Chờ xác nhận",
+      Confirmed: "Đã xác nhận",
+      Processing: "Đang xử lý",
+      Shipping: "Đang giao",
+      Delivered: "Đã giao",
+      Cancelled: "Đã hủy"
+    };
+    const money = new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+      maximumFractionDigits: 0
+    });
+
+    recentOrders.forEach(function (order) {
+      const row = document.createElement("tr");
+      const orderCode = document.createElement("td");
+      orderCode.dataset.label = "Mã đơn hàng";
+      orderCode.textContent = order.orderCode || `#${order.orderId}`;
+
+      const createdAt = document.createElement("td");
+      createdAt.dataset.label = "Ngày đặt";
+      createdAt.textContent = formatDate(order.createdAt);
+
+      const total = document.createElement("td");
+      total.dataset.label = "Tổng tiền";
+      total.textContent = money.format(Number(order.totalAmount) || 0);
+
+      const statusCell = document.createElement("td");
+      statusCell.dataset.label = "Trạng thái";
+      const status = document.createElement("span");
+      status.className = "order-status";
+      if (["Pending", "Confirmed", "Processing", "Shipping"].includes(order.orderStatus)) {
+        status.classList.add("order-status--processing");
+      }
+      status.textContent = statusLabels[order.orderStatus] || order.orderStatus || "Không rõ";
+      statusCell.appendChild(status);
+
+      const detailCell = document.createElement("td");
+      detailCell.dataset.label = "Chi tiết";
+      const detailLink = document.createElement("a");
+      detailLink.href = "cart.html";
+      detailLink.textContent = "Chi tiết →";
+      detailCell.appendChild(detailLink);
+
+      row.append(orderCode, createdAt, total, statusCell, detailCell);
+      ordersBody.appendChild(row);
+    });
+  }
+
+  function renderAddresses(items) {
+    const list = document.getElementById("account-address-list");
+    list.replaceChildren();
+    if (!Array.isArray(items) || !items.length) {
+      const empty = document.createElement("p");
+      empty.className = "account-empty-state";
+      empty.textContent = "Bạn chưa lưu địa chỉ giao hàng.";
+      list.appendChild(empty);
+      return;
+    }
+
+    items.forEach(function (item) {
+      const entry = document.createElement("div");
+      const contact = document.createElement("p");
+      contact.className = "account-address-name";
+      const receiver = document.createElement("span");
+      receiver.textContent = item.receiverName || "";
+      const separator = document.createElement("span");
+      separator.setAttribute("aria-hidden", "true");
+      separator.textContent = "·";
+      const phone = document.createElement("span");
+      phone.textContent = item.receiverPhone || "";
+      contact.append(receiver, separator, phone);
+
+      const address = document.createElement("address");
+      address.textContent = [item.addressLine, item.ward, item.district, item.city]
+        .filter(Boolean)
+        .join(", ");
+      entry.append(contact, address);
+
+      if (item.isDefault) {
+        const label = document.createElement("small");
+        label.textContent = "Địa chỉ mặc định";
+        entry.appendChild(label);
+      }
+      list.appendChild(entry);
+    });
+  }
+
+  function renderCommunities(items) {
+    const count = document.getElementById("account-community-count");
+    const summary = document.getElementById("account-community-summary");
+    const list = document.getElementById("account-community-list");
+    const emptyState = document.getElementById("account-communities-empty");
+    const communities = Array.isArray(items) ? items : [];
+    count.textContent = String(communities.length);
+    summary.textContent = `Cộng đồng đã tham gia: ${communities.length}.`;
+    emptyState.hidden = communities.length > 0;
+    list.replaceChildren();
+
+    communities.forEach(function (community) {
+      const link = document.createElement("a");
+      link.href = `artist-community.html?id=${encodeURIComponent(community.artistId)}`;
+      link.appendChild(document.createTextNode(community.artistName || community.name || "Cộng đồng"));
+      const arrow = document.createElement("span");
+      arrow.setAttribute("aria-hidden", "true");
+      arrow.textContent = " →";
+      link.appendChild(arrow);
+      list.appendChild(link);
+    });
   }
 
   function openProfileDialog() {
@@ -185,8 +348,11 @@ document.addEventListener("DOMContentLoaded", function () {
        await changePassword(oldPassword, newPassword);
       passwordForm.reset();
       passwordDialog.close();
-      passwordChangeStatus.textContent = "Đổi mật khẩu thành công.";
+      passwordChangeStatus.textContent = "Đổi mật khẩu thành công. Vui lòng đăng nhập lại.";
       passwordChangeStatus.hidden = false;
+      window.setTimeout(function () {
+        goToLogin();
+      }, 1000);
     } catch (error) {
       showPasswordSaveStatus(error.message);
     }
@@ -257,4 +423,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   renderProfile();
+  renderOrders(ordersData);
+  renderAddresses(addresses);
+  renderCommunities(joinedCommunities);
 });
