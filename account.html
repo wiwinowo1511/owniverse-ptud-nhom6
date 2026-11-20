@@ -97,15 +97,16 @@
         <h1>Tài khoản của tôi</h1>
         <p>Quản lý thông tin cá nhân, đơn hàng và hoạt động của bạn tại Owniverse.</p>
       </div>
-      <span class="account-demo-note">Thông tin tài khoản của bạn</span>
+      <span class="account-demo-note">Hồ sơ cá nhân</span>
     </header>
+    <p id="account-data-error" role="alert" aria-live="polite" hidden></p>
 
     <section class="account-profile-card" aria-label="Hồ sơ tài khoản">
       <div class="account-avatar" id="account-avatar" aria-hidden="true">NA</div>
       <div class="account-profile-info">
-        <h2 id="profile-name">Nguyễn Văn A</h2>
-        <p id="profile-email">email@example.com</p>
-        <span>Thành viên Owniverse từ: 01/2026</span>
+        <h2 id="profile-name"></h2>
+        <p id="profile-email"></p>
+        <span>Thành viên Owniverse từ: <time id="member-since">—</time></span>
       </div>
       <button class="account-button account-button--outline" id="edit-profile-open" type="button">Chỉnh sửa hồ sơ</button>
     </section>
@@ -132,17 +133,17 @@
           <div class="account-stat-grid">
             <article class="account-stat-card">
               <span>Đơn hàng</span>
-              <strong>05</strong>
+              <strong id="account-order-count">0</strong>
               <p>Tổng số đơn đã đặt</p>
             </article>
             <article class="account-stat-card">
               <span>Đang xử lý</span>
-              <strong>01</strong>
+              <strong id="account-processing-count">0</strong>
               <p>Đơn hàng đang chuẩn bị</p>
             </article>
             <article class="account-stat-card">
               <span>Cộng đồng</span>
-              <strong>02</strong>
+              <strong id="account-community-count">0</strong>
               <p>Fandom đã tham gia</p>
             </article>
           </div>
@@ -152,7 +153,7 @@
           <div class="account-card-heading">
             <div>
               <h2 id="orders-title">Đơn hàng gần đây</h2>
-              <p>Dữ liệu đơn hàng mẫu</p>
+              <p>Đơn hàng được đặt bằng tài khoản này</p>
             </div>
             <a href="cart.html">Xem tất cả <span aria-hidden="true">→</span></a>
           </div>
@@ -167,48 +168,28 @@
                   <th scope="col"><span class="visually-hidden">Chi tiết</span></th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td data-label="Mã đơn hàng">#OV260105</td>
-                  <td data-label="Ngày đặt">05/11/2026</td>
-                  <td data-label="Tổng tiền">850.000đ</td>
-                  <td data-label="Trạng thái"><span class="order-status order-status--processing">Đang xử lý</span></td>
-                  <td data-label="Chi tiết"><a href="cart.html">Chi tiết →</a></td>
-                </tr>
-                <tr>
-                  <td data-label="Mã đơn hàng">#OV260098</td>
-                  <td data-label="Ngày đặt">28/10/2026</td>
-                  <td data-label="Tổng tiền">420.000đ</td>
-                  <td data-label="Trạng thái"><span class="order-status">Đã giao</span></td>
-                  <td data-label="Chi tiết"><a href="cart.html">Chi tiết →</a></td>
-                </tr>
-                <tr>
-                  <td data-label="Mã đơn hàng">#OV260076</td>
-                  <td data-label="Ngày đặt">15/10/2026</td>
-                  <td data-label="Tổng tiền">350.000đ</td>
-                  <td data-label="Trạng thái"><span class="order-status">Đã giao</span></td>
-                  <td data-label="Chi tiết"><a href="cart.html">Chi tiết →</a></td>
-                </tr>
+              <tbody id="account-orders-body">
+                <tr><td colspan="5">Đang tải đơn hàng…</td></tr>
               </tbody>
             </table>
           </div>
+          <p class="account-empty-state" id="account-orders-empty" hidden>Bạn chưa có đơn hàng nào.</p>
         </section>
 
         <div class="account-detail-grid">
           <section class="account-card account-detail-card" id="personal-info" aria-labelledby="personal-title">
             <h2 id="personal-title">Thông tin cá nhân</h2>
             <dl class="account-info-list">
-              <div><dt>Họ và tên:</dt><dd id="personal-name">Nguyễn Văn A</dd></div>
-              <div><dt>Số điện thoại:</dt><dd id="personal-phone">09xx xxx xxx</dd></div>
-              <div><dt>Email:</dt><dd id="personal-email">email@example.com</dd></div>
+              <div><dt>Họ và tên:</dt><dd id="personal-name"></dd></div>
+              <div><dt>Số điện thoại:</dt><dd id="personal-phone"></dd></div>
+              <div><dt>Email:</dt><dd id="personal-email"></dd></div>
             </dl>
             <button class="account-text-link" type="button" data-open-profile>Chỉnh sửa thông tin <span aria-hidden="true">→</span></button>
           </section>
 
           <section class="account-card account-detail-card" id="addresses" aria-labelledby="address-title">
-            <h2 id="address-title">Địa chỉ giao hàng mặc định</h2>
-            <p class="account-address-name"><span id="address-name">Nguyễn Văn A</span><span aria-hidden="true">·</span><span id="address-phone">09xx xxx xxx</span></p>
-            <address>123 Đường ABC, Phường XYZ,<br>Quận ..., TP. Hồ Chí Minh</address>
+            <h2 id="address-title">Sổ địa chỉ</h2>
+            <div id="account-address-list"><p>Đang tải địa chỉ…</p></div>
             <a class="account-text-link" href="#addresses">Quản lý sổ địa chỉ <span aria-hidden="true">→</span></a>
           </section>
 
@@ -221,11 +202,10 @@
 
           <section class="account-card account-detail-card" id="communities" aria-labelledby="communities-title">
             <h2 id="communities-title">Cộng đồng của tôi</h2>
-            <p>Bạn đang tham gia 2 cộng đồng fandom.</p>
-            <div class="account-community-links">
-              <a href="artist-community.html?id=1">KALEO <span aria-hidden="true">→</span></a>
-              <a href="artist-community.html?id=2">MIEL <span aria-hidden="true">→</span></a>
+            <p id="account-community-summary">Đang tải cộng đồng…</p>
+            <div class="account-community-links" id="account-community-list">
             </div>
+            <p class="account-empty-state" id="account-communities-empty" hidden>Bạn chưa tham gia cộng đồng nào.</p>
             <a class="account-text-link" href="community.html">Xem cộng đồng đã tham gia <span aria-hidden="true">→</span></a>
           </section>
         </div>
@@ -247,8 +227,8 @@
       <label for="edit-email">Email</label>
       <input id="edit-email" name="email" type="email" maxlength="160" autocomplete="email" required>
       <label for="edit-phone">Số điện thoại</label>
-      <input id="edit-phone" name="phone" type="tel" maxlength="24" autocomplete="tel" placeholder="09xx xxx xxx">
-      <p class="account-dialog-note">Thông tin sẽ được cập nhật vào tài khoản này trên trình duyệt hiện tại.</p>
+      <input id="edit-phone" name="phone" type="tel" maxlength="20" autocomplete="tel" placeholder="Nhập số điện thoại">
+      <p class="account-dialog-note">Thông tin sẽ được lưu vào tài khoản của bạn.</p>
       <p class="account-dialog-note" id="profile-save-status" role="status" aria-live="polite" hidden></p>
       <div class="account-dialog-actions">
         <button class="account-button account-button--outline" type="button" data-close-profile>Hủy</button>

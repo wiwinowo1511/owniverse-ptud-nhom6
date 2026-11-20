@@ -3,7 +3,7 @@ const loginForm = document.querySelector("#loginForm");
 
 loginForm?.addEventListener(
     "submit",
-    function (e) {
+    async function (e) {
 
         e.preventDefault();
 
@@ -12,7 +12,7 @@ loginForm?.addEventListener(
 
         try {
 
-            login(email, password);
+            await login(email, password);
 
             const redirect = new URLSearchParams(window.location.search).get("redirect");
             window.location.href =

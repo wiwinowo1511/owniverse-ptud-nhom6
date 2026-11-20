@@ -135,6 +135,15 @@ async function login(email, password) {
     return data.user;
 }
 
+// Confirm the local token against SQL-backed user state before rendering account pages.
+async function refreshCurrentUser() {
+    const data = await apiRequest("/api/auth/me", { auth: true });
+    const user = data && data.user ? data.user : data;
+    if (!user || !user.id) throw new Error("Không đọc được thông tin tài khoản");
+    setCurrentUser(user);
+    return user;
+}
+
 /* ---------- Cập nhật hồ sơ ---------- */
 async function updateProfile({ fullName, email, phone }) {
     const current = getCurrentUser();
@@ -173,6 +182,8 @@ async function changePassword(oldPassword, newPassword) {
         auth: true,
         body: { oldPassword, newPassword }
     });
+    // Backend revokes active tokens after a password change.
+    clearSession();
 }
 
 /* ---------- Chuyển hướng ---------- */
