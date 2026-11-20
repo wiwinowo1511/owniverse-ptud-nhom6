@@ -1,10 +1,13 @@
 # Backend API: sản phẩm, giỏ hàng và đơn hàng
 
-Backend dùng ASP.NET Minimal API tại `http://localhost:3000`. Khởi chạy bằng:
+Backend dùng ASP.NET Minimal API và SQL Server tại `http://localhost:3000`. Trên máy phát triển, cấu hình mặc định trong `backend/OwniverseApi/appsettings.Development.json` kết nối Windows Authentication tới `.\SQLEXPRESS`, database `Owniverse`. Khởi chạy từ thư mục dự án:
 
 ```powershell
-dotnet run --project .\backend\OwniverseApi
+Set-Location .\backend\OwniverseApi
+dotnet run
 ```
+
+Database cần được tạo và nạp dữ liệu trước khi khởi chạy API: chạy `database/create-database.sql`, `database/seed-data.sql` và `database/upgrade-api-storage.sql` qua `sqlcmd -S .\SQLEXPRESS -E -C -I -f 65001 -i <file>`. Không chạy lại `create-database.sql` trên database đã tạo. Nếu dùng máy chủ khác, đặt biến môi trường `ConnectionStrings__Owniverse`; không đưa thông tin xác thực production vào file cấu hình. Mỗi request thay đổi dữ liệu được ghi xuống SQL trong transaction trước khi phản hồi thành công.
 
 Các API giỏ hàng và đơn hàng yêu cầu tài khoản khách hàng đã đăng nhập. Gửi token nhận được từ `POST /api/auth/login` trong header:
 
@@ -74,6 +77,6 @@ Khi backend đang chạy, thực thi:
 powershell -ExecutionPolicy Bypass -File .\backend\test-api.ps1
 ```
 
-## Giới hạn bản demo
+## Giới hạn hiện tại
 
-Dữ liệu tài khoản, sản phẩm, giỏ hàng và đơn hàng hiện lưu trong bộ nhớ; khởi động lại backend sẽ đặt lại dữ liệu. Phí vận chuyển đang bằng 0 và API chưa thực hiện thanh toán trực tuyến. Frontend hiện có vẫn dùng `localStorage` cho giỏ hàng; tài liệu này mô tả hợp đồng API để tích hợp giao diện.
+Ở môi trường Development, API tự tạo các tài khoản demo thiếu trong database; mật khẩu được hash và không ghi đè tài khoản đã tồn tại, trừ các tài khoản nghệ sĩ seed đang bị khóa. Có thể đăng nhập bằng `admin@owniverse.com` / `admin123` hoặc `customer@owniverse.com` / `Customer123`. Tồn kho seed ban đầu là 0 và cần được cập nhật trước khi đặt hàng. Phí vận chuyển hiện bằng 0 và API chưa thực hiện thanh toán trực tuyến. Frontend hiện có vẫn dùng `localStorage` cho giỏ hàng và chưa gọi API; phần tích hợp giao diện là công việc riêng.

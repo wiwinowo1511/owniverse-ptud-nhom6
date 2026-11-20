@@ -1,19 +1,16 @@
 // =====================================================
 // OWNIVERSE - BACKEND API (ASP.NET Minimal API, .NET 10)
-// Người A: Tài khoản + Nghệ sĩ + Quản trị (admin)
-// Đang dùng DỮ LIỆU GIẢ (lưu trong bộ nhớ, tắt server là mất).
-//
-// Chỗ nào ghi "TODO-DB" là chỗ sau này phải đổi sang
-// database thật khi nhóm CSDL có ERD xong.
-// Tìm nhanh: Ctrl + Shift + F rồi gõ  TODO-DB
+// SQL Server là nguồn dữ liệu chính; các collection được nạp khi khởi động
+// để giữ các handler hiện tại, rồi ghi đồng bộ trong transaction sau request ghi.
 //
 // Các file của backend:
 //   Program.cs   - các API (file này)
-//   Models.cs    - kiểu dữ liệu (User, Artist, Product...)
+//   Model.cs     - kiểu dữ liệu (User, Artist, Product...)
 //   SeedData.cs  - dữ liệu mẫu
+//   SqlDatabase.cs - nạp và lưu dữ liệu SQL Server
 //
 // Các phần trong file này (Ctrl + F tìm theo số):
-//   1. Dữ liệu giả
+//   1. Dữ liệu nạp từ SQL Server
 //   2. Hàm hỗ trợ
 //   3. Tài khoản (đăng ký, đăng nhập, hồ sơ, đổi mật khẩu)
 //   4. Nghệ sĩ (xem, theo dõi, nghệ sĩ tự sửa hồ sơ, admin thêm/sửa/xóa)
@@ -30,6 +27,9 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
+var connectionString = builder.Configuration.GetConnectionString("Owniverse")
+    ?? throw new InvalidOperationException("Thiếu cấu hình ConnectionStrings:Owniverse.");
+var database = new SqlDatabase(connectionString);
 
 // Cho phép trang HTML (chạy ở địa chỉ khác) gọi sang API này
 builder.Services.AddCors(options =>
@@ -42,34 +42,27 @@ var passwordHasher = app.Services.GetRequiredService<IPasswordHasher<User>>();
 app.UseCors();
 
 // =====================================================
-// 1. DỮ LIỆU GIẢ (dữ liệu mẫu nằm trong SeedData.cs)
+// 1. DỮ LIỆU NẠP TỪ SQL SERVER
 // =====================================================
 
-// TODO-DB: thay bằng bảng Users
 var users = SeedData.CreateUsers();
 var nextUserId = users.Max(u => u.Id) + 1;
 
-// TODO-DB: thay bằng bảng Artists (+ các bảng con: mốc sự nghiệp, hoạt động, MV)
 var artists = SeedData.CreateArtists();
 var nextArtistId = artists.Max(a => a.Id) + 1;
 
-// TODO-DB: thay bằng bảng Categories
 var categories = SeedData.CreateCategories();
 var nextCategoryId = categories.Max(c => c.Id) + 1;
 
-// TODO-DB: thay bằng các bảng Products, ProductVariants, ProductImages
 var products = SeedData.CreateProducts();
 var nextProductId = products.Max(p => p.Id) + 1;
 var nextVariantId = products.SelectMany(p => p.Variants).Max(v => v.Id) + 1;
 
-// TODO-DB: thay bằng các bảng Carts, CartItems, Orders, OrderItems.
 var carts = new Dictionary<int, List<CartItem>>();
 var orders = new List<Order>();
 var nextOrderId = 1;
 
-// TODO-DB: thay bằng bảng Follows (userId, artistId)
 // Theo DB: Artists 1:1 Communities; Users N:N Communities qua CommunityMembers.
-// TODO-DB: chuyển sang bảng Communities, CommunityMembers.
 var communities = artists.Select(a => new Community
 {
     Id = a.Id, ArtistId = a.Id, Name = $"Cộng đồng {a.Name}",
@@ -78,12 +71,69 @@ var communities = artists.Select(a => new Community
 var communityMembers = new List<CommunityMember>();
 var nextCommunityId = communities.Max(c => c.Id) + 1;
 
-// TODO-DB: bảng PasswordResetTokens (chỉ lưu hash token, không lưu token thô)
 var passwordResetTokens = new List<PasswordResetToken>();
 
-// Hash mật khẩu SeedData ngay khi khởi động (SeedData chỉ dùng để demo!)
+// Dữ liệu SQL là nguồn chuẩn; metadata không có cột tương ứng được giữ trong bảng ArtistApiData.
+await database.CheckConnectionAsync();
+await database.LoadAsync(
+    users, artists, categories, products, communities, communityMembers,
+    passwordResetTokens, carts, orders);
+
+nextUserId = users.Select(user => user.Id).DefaultIfEmpty(0).Max() + 1;
+nextArtistId = artists.Select(artist => artist.Id).DefaultIfEmpty(0).Max() + 1;
+nextCategoryId = categories.Select(category => category.Id).DefaultIfEmpty(0).Max() + 1;
+nextProductId = products.Select(product => product.Id).DefaultIfEmpty(0).Max() + 1;
+nextVariantId = products.SelectMany(product => product.Variants).Select(variant => variant.Id).DefaultIfEmpty(0).Max() + 1;
+nextCommunityId = communities.Select(community => community.Id).DefaultIfEmpty(0).Max() + 1;
+nextOrderId = orders.Select(order => order.Id).DefaultIfEmpty(0).Max() + 1;
+
+// Tạo tài khoản demo chỉ trong Development; mật khẩu luôn được hash trước khi ghi DB.
+if (app.Environment.IsDevelopment())
+{
+    foreach (var seedUser in SeedData.CreateUsers())
+    {
+        var existing = users.FirstOrDefault(user =>
+            user.Email.Equals(seedUser.Email, StringComparison.OrdinalIgnoreCase));
+        if (seedUser.Role == Roles.Artist)
+        {
+            var artist = artists.FirstOrDefault(item =>
+                item.Slug.Equals(seedUser.Email.Split('@')[0], StringComparison.OrdinalIgnoreCase));
+            if (artist?.UserId is int linkedUserId)
+                existing = users.FirstOrDefault(user => user.Id == linkedUserId);
+
+            if (existing is not null && existing.Status == "locked")
+            {
+                existing.Email = seedUser.Email;
+                existing.Password = passwordHasher.HashPassword(existing, seedUser.Password);
+                existing.Status = "active";
+            }
+            continue;
+        }
+
+        if (existing is not null) continue;
+        var demoUser = new User
+        {
+            Id = nextUserId++,
+            FullName = seedUser.FullName,
+            Email = NormalizeEmail(seedUser.Email),
+            Phone = seedUser.Phone,
+            Address = seedUser.Address,
+            Role = seedUser.Role,
+            Status = "active",
+        };
+        demoUser.Password = passwordHasher.HashPassword(demoUser, seedUser.Password);
+        users.Add(demoUser);
+    }
+
+    await database.SaveAsync(
+        users, artists, categories, products, communities, communityMembers,
+        passwordResetTokens, carts, orders);
+}
+
+// Database luôn chứa PasswordHash, không bao giờ trả mật khẩu ra ngoài.
 foreach (var u in users)
-    u.Password = passwordHasher.HashPassword(u, u.Password);
+    if (string.IsNullOrEmpty(u.Password))
+        throw new InvalidOperationException($"Tài khoản {u.Email} không có PasswordHash hợp lệ.");
 
 // TODO-DB: có thể giữ nguyên, hoặc đổi sang JWT / bảng Sessions
 var sessions = new ConcurrentDictionary<string, int>(); // token -> userId
@@ -132,7 +182,7 @@ string GetToken(HttpContext ctx)
 }
 string HashResetToken(string token) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
 
-// Không để reset-token trong response. Với SeedData, chỉ ghi token ra terminal khi chạy Development.
+// Không để reset-token trong response.
 void InvalidateResetTokens(int userId)
 {
     foreach (var t in passwordResetTokens.Where(t => t.UserId == userId && t.UsedAt is null))
@@ -141,7 +191,7 @@ void InvalidateResetTokens(int userId)
 
 Community? CommunityForArtist(int artistId) => communities.FirstOrDefault(c => c.ArtistId == artistId);
 
-// Khóa cùng lúc các thay đổi in-memory; khi chuyển sang DB thay bằng transaction/constraints.
+// Khóa cùng lúc các thay đổi đối với các collection dùng bởi API handlers.
 var dataLock = new object();
 
 // Lấy người dùng đang đăng nhập (null nếu chưa đăng nhập hoặc tài khoản đã bị khóa/xóa)
@@ -1226,7 +1276,7 @@ admin.MapDelete("/products/{id:int}/variants/{variantId:int}", IResult (int id, 
 
 // =====================================================
 // 9. PHẦN CỦA NGƯỜI B: Sản phẩm (công khai) + Giỏ hàng + Đơn hàng
-// Dữ liệu giỏ hàng và đơn hàng chỉ lưu trong bộ nhớ của tiến trình.
+// Các collection được nạp từ SQL Server và lưu trong transaction sau request ghi.
 // =====================================================
 
 // Danh sách sản phẩm công khai. Sản phẩm ẩn không được hiển thị hoặc đặt mua.
@@ -1458,6 +1508,53 @@ app.MapGet("/api/orders/{id:int}", IResult (int id, HttpContext ctx) =>
         var order = orders.FirstOrDefault(item => item.Id == id && item.UserId == user.Id);
         return order is null ? Msg(404, "Không tìm thấy đơn hàng") : Results.Ok(OrderView(order));
     }
+});
+
+// Ghi mọi thay đổi thành công vào SQL trước khi trả phản hồi thành công cho client.
+app.Use(async (ctx, next) =>
+{
+    if (HttpMethods.IsGet(ctx.Request.Method) ||
+        HttpMethods.IsHead(ctx.Request.Method) ||
+        HttpMethods.IsOptions(ctx.Request.Method))
+    {
+        await next();
+        return;
+    }
+
+    var originalBody = ctx.Response.Body;
+    await using var bufferedBody = new MemoryStream();
+    ctx.Response.Body = bufferedBody;
+    try
+    {
+        await next();
+        if (ctx.Response.StatusCode < StatusCodes.Status400BadRequest)
+        {
+            try
+            {
+                await database.SaveAsync(
+                    users, artists, categories, products, communities, communityMembers,
+                    passwordResetTokens, carts, orders);
+            }
+            catch (Exception ex)
+            {
+                app.Logger.LogError(ex, "Failed to commit API state to SQL Server.");
+                ctx.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                ctx.Response.ContentType = "application/json; charset=utf-8";
+                ctx.Response.Headers.ContentLength = null;
+                bufferedBody.SetLength(0);
+                await System.Text.Json.JsonSerializer.SerializeAsync(
+                    bufferedBody,
+                    new { message = "Không thể lưu dữ liệu vào database. Vui lòng thử lại." });
+            }
+        }
+    }
+    finally
+    {
+        ctx.Response.Body = originalBody;
+    }
+
+    bufferedBody.Position = 0;
+    await bufferedBody.CopyToAsync(originalBody);
 });
 
 // =====================================================

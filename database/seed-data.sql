@@ -75,6 +75,10 @@ BEGIN TRY
     WHERE NOT EXISTS (
         SELECT 1 FROM dbo.Users u
         WHERE u.Email = a.Email
+    )
+    AND NOT EXISTS (
+        SELECT 1 FROM dbo.Artists artist
+        WHERE artist.Slug = a.Slug
     );
 
     -- Cap nhat ho so nghe si da co

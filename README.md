@@ -13,7 +13,7 @@ Website sử dụng dữ liệu minh họa về ba nghệ sĩ **KAIRO, MIRA và 
 - Phát triển các tương tác phía trình duyệt: tìm kiếm, lọc, sắp xếp, xem chi tiết và quản lý giỏ hàng.
 - Rèn luyện quy trình làm việc nhóm: phân tích yêu cầu, thiết kế giao diện, lập trình, tích hợp, kiểm thử và quản lý mã nguồn.
 
-**Phạm vi hiện tại:** Website frontend được xây dựng bằng HTML, CSS và JavaScript; dữ liệu sản phẩm và giỏ hàng trên giao diện vẫn dùng JavaScript/`localStorage`. Backend ASP.NET Core có API demo riêng cho sản phẩm, giỏ hàng và đơn hàng; frontend hiện chưa tích hợp các API này. Dữ liệu backend lưu trong bộ nhớ và sẽ được đặt lại khi khởi động lại máy chủ.
+**Phạm vi hiện tại:** Website frontend được xây dựng bằng HTML, CSS và JavaScript; dữ liệu sản phẩm và giỏ hàng trên giao diện vẫn dùng JavaScript/`localStorage`. Backend ASP.NET Core cung cấp API cho tài khoản, nghệ sĩ, sản phẩm, giỏ hàng, đơn hàng và quản trị; các API sử dụng SQL Server `Owniverse`. Frontend hiện chưa tích hợp API nên dữ liệu giao diện chưa đồng bộ với database.
 
 ## 2. Thành viên và phân công công việc
 
@@ -34,7 +34,8 @@ Website sử dụng dữ liệu minh họa về ba nghệ sĩ **KAIRO, MIRA và 
 | **CSS3** | Thiết kế giao diện; sử dụng **Flexbox**, **CSS Grid** và **Media Queries** để bố trí, điều chỉnh responsive. |
 | **JavaScript (Vanilla JS)** | Quản lý dữ liệu sản phẩm, thao tác DOM, tìm kiếm/lọc/sắp xếp, điều hướng chi tiết và logic giỏ hàng. |
 | **Web Storage API (`localStorage`)** | Lưu trạng thái giỏ hàng trong trình duyệt với khóa `owniverse_cart`. |
-| **ASP.NET Core Minimal API (.NET 10)** | Cung cấp API demo sản phẩm, giỏ hàng theo tài khoản và tạo/xem đơn hàng. |
+| **ASP.NET Core Minimal API (.NET 10)** | Cung cấp API tài khoản, sản phẩm, giỏ hàng, đơn hàng và quản trị. |
+| **SQL Server Express** | Lưu dữ liệu backend trong database `Owniverse`. |
 | **Git và GitHub** | Lưu trữ mã nguồn, theo dõi thay đổi và phối hợp nhóm. |
 | **Visual Studio Code, Live Server, Chrome DevTools** | Phát triển, chạy website và kiểm thử giao diện, JavaScript, tài nguyên mạng, dữ liệu lưu trữ. |
 
@@ -82,7 +83,7 @@ owniverse-ptud-nhom6/
 | **Backend API** | Có API công khai để tìm/xem sản phẩm; API yêu cầu đăng nhập để quản lý giỏ hàng, tạo đơn, xem lịch sử và chi tiết đơn. |
 | **Responsive** | Giao diện đã được quan sát trên Desktop (1366px), Tablet (768px) và Mobile (390px); còn một số điểm cần tối ưu. |
 
-Frontend chưa gọi các API mới; giỏ hàng giao diện vẫn lưu trong trình duyệt. Backend chưa kết nối cơ sở dữ liệu, chưa tính phí vận chuyển và chưa thực hiện thanh toán trực tuyến.
+Frontend chưa gọi các API; giỏ hàng giao diện vẫn lưu trong trình duyệt. Backend đã kết nối SQL Server cho dữ liệu API, chưa tính phí vận chuyển và chưa thực hiện thanh toán trực tuyến.
 
 ## 6. Hướng dẫn cài đặt và chạy website
 
@@ -104,13 +105,24 @@ Hoặc chọn **Code → Download ZIP** trên GitHub, sau đó giải nén.
 
 Website frontend không yêu cầu cài đặt Node.js hay cơ sở dữ liệu để chạy các chức năng đã nêu. Cổng localhost có thể thay đổi tùy môi trường.
 
-**Chạy backend API (cần .NET 10 SDK):**
+**Khởi tạo SQL Server Express** (chỉ cần làm một lần trên database mới; `create-database.sql` không chạy lặp):
 
 ```powershell
-dotnet run --project .\backend\OwniverseApi
+sqlcmd -S .\SQLEXPRESS -E -C -I -f 65001 -i .\database\create-database.sql
+sqlcmd -S .\SQLEXPRESS -E -C -I -f 65001 -i .\database\seed-data.sql
+sqlcmd -S .\SQLEXPRESS -E -C -I -f 65001 -i .\database\upgrade-api-storage.sql
 ```
 
-Backend chạy tại `http://localhost:3000`. Endpoint, payload và lệnh kiểm thử được mô tả trong [docs/backend-api.md](docs/backend-api.md). Chạy test trong một terminal khác bằng:
+Tài khoản Windows đang chạy backend cần quyền truy cập database. Máy chủ/database khác có thể cấu hình qua biến môi trường `ConnectionStrings__Owniverse`.
+
+**Chạy backend API (cần .NET 10 SDK và SQL Server Express):**
+
+```powershell
+Set-Location .\backend\OwniverseApi
+dotnet run
+```
+
+Backend chạy tại `http://localhost:3000`. Trong Development, cấu hình kết nối mặc định dùng `.\SQLEXPRESS` và tự thêm tài khoản demo nếu chưa có. Endpoint, payload, lệnh khởi tạo database và kiểm thử được mô tả trong [docs/backend-api.md](docs/backend-api.md). Chạy test trong một terminal khác bằng:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\backend\test-api.ps1

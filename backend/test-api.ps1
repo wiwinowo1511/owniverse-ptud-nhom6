@@ -74,6 +74,9 @@ function Check {
 
 $rand = Get-Random -Minimum 1000 -Maximum 99999
 $email = "test$rand@gmail.com"
+$artistsAtStart = Invoke-Api GET "/api/artists"
+$kairoArtistId = (@($artistsAtStart.Data) | Where-Object { $_.slug -eq "kairo" } | Select-Object -First 1).id
+$rheaArtistId = (@($artistsAtStart.Data) | Where-Object { $_.slug -eq "rhea" } | Select-Object -First 1).id
 
 # =====================================================
 Write-Host ""
@@ -158,7 +161,7 @@ Check "Chi tiet theo slug (kairo) -> 200" ($r.Status -eq 200 -and $r.Data.name -
 Check "KAIRO co 5 dau an, 3 hoat dong, 2 MV" (@($r.Data.information).Count -eq 5 -and @($r.Data.activities).Count -eq 3 -and @($r.Data.musicVideos).Count -eq 2)
 Check "KAIRO co mang xa hoi va banner quang ba" ([bool]$r.Data.social.youtube -and [bool]$r.Data.promotion.title)
 
-$r = Invoke-Api GET "/api/artists/1"
+$r = Invoke-Api GET "/api/artists/$kairoArtistId"
 Check "Chi tiet theo id (1) -> 200, ra KAIRO" ($r.Status -eq 200 -and $r.Data.slug -eq "kairo")
 
 $r = Invoke-Api GET "/api/artists/MIRA"
@@ -167,25 +170,25 @@ Check "Slug viet hoa (MIRA) van tim duoc -> 200" ($r.Status -eq 200 -and $r.Data
 $r = Invoke-Api GET "/api/artists/khong-co"
 Check "Nghe si khong ton tai -> 404" ($r.Status -eq 404)
 
-$r = Invoke-Api POST "/api/artists/1/follow"
+$r = Invoke-Api POST "/api/artists/$kairoArtistId/follow"
 Check "Theo doi khi chua dang nhap -> 401" ($r.Status -eq 401)
 
 $login = Invoke-Api POST "/api/auth/login" @{ email = $email; password = "matkhaumoi123" }
 $token = $login.Data.token
 
-$r = Invoke-Api POST "/api/artists/1/follow" -Token $token
+$r = Invoke-Api POST "/api/artists/$kairoArtistId/follow" -Token $token
 Check "Theo doi nghe si 1 -> 200" ($r.Status -eq 200)
 
-$r = Invoke-Api POST "/api/artists/1/follow" -Token $token
+$r = Invoke-Api POST "/api/artists/$kairoArtistId/follow" -Token $token
 Check "Theo doi lan 2 van 200 (khong bi trung)" ($r.Status -eq 200)
 
 $r = Invoke-Api GET "/api/users/me/following" -Token $token
-Check "Danh sach dang theo doi co dung 1 nghe si (id 1)" (@($r.Data).Count -eq 1 -and @($r.Data)[0] -eq 1)
+Check "Danh sach dang theo doi co dung KAIRO" (@($r.Data).Count -eq 1 -and @($r.Data)[0] -eq $kairoArtistId)
 
 $r = Invoke-Api POST "/api/artists/999/follow" -Token $token
 Check "Theo doi nghe si khong ton tai -> 404" ($r.Status -eq 404)
 
-$r = Invoke-Api DELETE "/api/artists/1/follow" -Token $token
+$r = Invoke-Api DELETE "/api/artists/$kairoArtistId/follow" -Token $token
 Check "Bo theo doi -> 200" ($r.Status -eq 200)
 
 $r = Invoke-Api GET "/api/users/me/following" -Token $token
@@ -212,6 +215,9 @@ Check "Khach hang them nghe si -> 403" ($r.Status -eq 403)
 $admin = Invoke-Api POST "/api/auth/login" @{ email = "admin@owniverse.com"; password = "admin123" }
 Check "Dang nhap admin -> 200, vai tro admin" ($admin.Status -eq 200 -and $admin.Data.user.role -eq "admin")
 $adminToken = $admin.Data.token
+$usersAtStart = Invoke-Api GET "/api/admin/users" -Token $adminToken
+$customerUserId = (@($usersAtStart.Data) | Where-Object { $_.email -eq "customer@owniverse.com" } | Select-Object -First 1).id
+$kairoUserId = (@($usersAtStart.Data) | Where-Object { $_.email -eq "kairo@owniverse.com" } | Select-Object -First 1).id
 
 $r = Invoke-Api POST "/api/artists" $newArtist -Token $adminToken
 Check "Admin them nghe si -> 201, co id va slug tu dong" ($r.Status -eq 201 -and $r.Data.id -gt 0 -and $r.Data.slug -eq "test-artist-$rand")
@@ -257,7 +263,7 @@ Write-Host "=== DANG NHAP NGHE SI ===" -ForegroundColor Cyan
 
 $r = Invoke-Api POST "/api/auth/login" @{ email = "kairo@owniverse.com"; password = "Artist123" }
 Check "Nghe si KAIRO dang nhap -> 200, vai tro artist" ($r.Status -eq 200 -and $r.Data.user.role -eq "artist")
-Check "Tai khoan nghe si co artistId = 1 va artistSlug = kairo" ($r.Data.user.artistId -eq 1 -and $r.Data.user.artistSlug -eq "kairo")
+Check "Tai khoan nghe si co dung artistId va artistSlug KAIRO" ($r.Data.user.artistId -eq $kairoArtistId -and $r.Data.user.artistSlug -eq "kairo")
 $artistToken = $r.Data.token
 
 $r = Invoke-Api GET "/api/artists/me"
@@ -359,7 +365,7 @@ Check "Nghe si moi tao chua co tai khoan lien ket" ($linkArtist.Status -eq 201 -
 $r = Invoke-Api PUT "/api/admin/artists/$linkId/account" @{ userId = $newUserId } -Token $token
 Check "Khach hang gan tai khoan cho nghe si -> 403" ($r.Status -eq 403)
 
-$r = Invoke-Api PUT "/api/admin/artists/$linkId/account" @{ userId = 3 } -Token $adminToken
+$r = Invoke-Api PUT "/api/admin/artists/$linkId/account" @{ userId = $customerUserId } -Token $adminToken
 Check "Gan tai khoan khong phai artist -> 400" ($r.Status -eq 400)
 
 $r = Invoke-Api PUT "/api/admin/artists/$linkId/account" @{ userId = 99999 } -Token $adminToken
@@ -368,7 +374,7 @@ Check "Gan tai khoan khong ton tai -> 404" ($r.Status -eq 404)
 $r = Invoke-Api PUT "/api/admin/artists/99999/account" @{ userId = $newUserId } -Token $adminToken
 Check "Gan cho nghe si khong ton tai -> 404" ($r.Status -eq 404)
 
-$r = Invoke-Api PUT "/api/admin/artists/$linkId/account" @{ userId = 4 } -Token $adminToken
+$r = Invoke-Api PUT "/api/admin/artists/$linkId/account" @{ userId = $kairoUserId } -Token $adminToken
 Check "Gan tai khoan dang lien ket voi nghe si khac (KAIRO) -> 409" ($r.Status -eq 409)
 
 $r = Invoke-Api PUT "/api/admin/artists/$linkId/account" @{ userId = $newUserId } -Token $adminToken
@@ -465,6 +471,10 @@ Check "Khach hang xem danh muc quan tri -> 403" ($r.Status -eq 403)
 
 $r = Invoke-Api GET "/api/admin/categories" -Token $adminToken
 Check "Admin xem danh muc -> 200, it nhat 3 danh muc co productCount" ($r.Status -eq 200 -and @($r.Data).Count -ge 3 -and $null -ne @($r.Data)[0].productCount)
+$testCategory = @($r.Data | Select-Object -First 1)[0]
+$testCategoryId = $testCategory.id
+$testCategorySlug = $testCategory.slug
+$categoryInUseId = (@($r.Data | Where-Object { $_.productCount -gt 0 } | Select-Object -First 1)[0]).id
 
 $r = Invoke-Api POST "/api/admin/categories" @{ name = "Danh muc test $rand" } -Token $adminToken
 Check "Admin them danh muc -> 201, slug tu dong" ($r.Status -eq 201 -and $r.Data.slug -eq "danh-muc-test-$rand")
@@ -482,13 +492,13 @@ Check "Khach hang them danh muc -> 403" ($r.Status -eq 403)
 $r = Invoke-Api PUT "/api/admin/categories/$catId" @{ name = "Ten moi $rand" } -Token $adminToken
 Check "Admin sua ten danh muc -> 200, giu slug" ($r.Status -eq 200 -and $r.Data.name -eq "Ten moi $rand" -and $r.Data.slug -eq "danh-muc-test-$rand")
 
-$r = Invoke-Api PUT "/api/admin/categories/$catId" @{ slug = "ao" } -Token $adminToken
+$r = Invoke-Api PUT "/api/admin/categories/$catId" @{ slug = $testCategorySlug } -Token $adminToken
 Check "Doi slug trung danh muc khac -> 409" ($r.Status -eq 409)
 
 $r = Invoke-Api PUT "/api/admin/categories/99999" @{ name = "X" } -Token $adminToken
 Check "Sua danh muc khong ton tai -> 404" ($r.Status -eq 404)
 
-$r = Invoke-Api DELETE "/api/admin/categories/1" -Token $adminToken
+$r = Invoke-Api DELETE "/api/admin/categories/$categoryInUseId" -Token $adminToken
 Check "Xoa danh muc con san pham -> 409" ($r.Status -eq 409)
 
 $r = Invoke-Api DELETE "/api/admin/categories/$catId" -Token $adminToken
@@ -509,14 +519,14 @@ $r = Invoke-Api GET "/api/admin/products" -Token $token
 Check "Khach hang xem san pham quan tri -> 403" ($r.Status -eq 403)
 
 $r = Invoke-Api GET "/api/admin/products" -Token $adminToken
-Check "Admin xem san pham -> 200, it nhat 18 san pham" ($r.Status -eq 200 -and @($r.Data).Count -ge 18)
+Check "Admin xem san pham -> 200, co san pham trong database" ($r.Status -eq 200 -and @($r.Data).Count -ge 13)
 $baseCount = @($r.Data).Count
 $bad = @($r.Data | Where-Object { -not $_.artistName -or -not $_.categoryName -or $null -eq $_.totalStock })
 Check "Moi san pham co ten nghe si, ten danh muc, tong ton kho" ($bad.Count -eq 0)
 
-$r = Invoke-Api GET "/api/admin/products?artistId=1" -Token $adminToken
-$wrong = @($r.Data | Where-Object { $_.artistId -ne 1 })
-Check "Loc theo nghe si 1 -> 6 san pham, deu cua KAIRO" (@($r.Data).Count -eq 6 -and $wrong.Count -eq 0)
+$r = Invoke-Api GET "/api/admin/products?artistId=$kairoArtistId" -Token $adminToken
+$wrong = @($r.Data | Where-Object { $_.artistId -ne $kairoArtistId })
+Check "Loc theo nghe si KAIRO -> san pham deu thuoc dung nghe si" (@($r.Data).Count -ge 1 -and $wrong.Count -eq 0)
 
 $r = Invoke-Api GET "/api/admin/products?q=hoodie" -Token $adminToken
 Check "Tim 'hoodie' -> co ket qua" (@($r.Data).Count -ge 1)
@@ -531,24 +541,24 @@ $r = Invoke-Api GET "/api/admin/products/99999" -Token $adminToken
 Check "Xem san pham khong ton tai -> 404" ($r.Status -eq 404)
 
 # ----- Them san pham: kiem tra loi -----
-$goodProduct = @{ name = "Test SP $rand"; description = "San pham thu nghiem"; price = 123000; artistId = 1; categoryId = 2 }
+$goodProduct = @{ name = "Test SP $rand"; description = "San pham thu nghiem"; price = 123000; artistId = $kairoArtistId; categoryId = $testCategoryId }
 
 $r = Invoke-Api POST "/api/admin/products" $goodProduct -Token $token
 Check "Khach hang them san pham -> 403" ($r.Status -eq 403)
 
-$r = Invoke-Api POST "/api/admin/products" @{ price = 1000; artistId = 1; categoryId = 2 } -Token $adminToken
+$r = Invoke-Api POST "/api/admin/products" @{ price = 1000; artistId = $kairoArtistId; categoryId = $testCategoryId } -Token $adminToken
 Check "Them san pham thieu ten -> 400" ($r.Status -eq 400)
 
-$r = Invoke-Api POST "/api/admin/products" @{ name = "A"; price = 0; artistId = 1; categoryId = 2 } -Token $adminToken
+$r = Invoke-Api POST "/api/admin/products" @{ name = "A"; price = 0; artistId = $kairoArtistId; categoryId = $testCategoryId } -Token $adminToken
 Check "Them san pham gia = 0 -> 400" ($r.Status -eq 400)
 
-$r = Invoke-Api POST "/api/admin/products" @{ name = "A"; price = 1000; artistId = 999; categoryId = 2 } -Token $adminToken
+$r = Invoke-Api POST "/api/admin/products" @{ name = "A"; price = 1000; artistId = 999; categoryId = $testCategoryId } -Token $adminToken
 Check "Them san pham nghe si khong ton tai -> 400" ($r.Status -eq 400)
 
-$r = Invoke-Api POST "/api/admin/products" @{ name = "A"; price = 1000; artistId = 1; categoryId = 999 } -Token $adminToken
+$r = Invoke-Api POST "/api/admin/products" @{ name = "A"; price = 1000; artistId = $kairoArtistId; categoryId = 999 } -Token $adminToken
 Check "Them san pham danh muc khong ton tai -> 400" ($r.Status -eq 400)
 
-$r = Invoke-Api POST "/api/admin/products" @{ name = "A"; price = 1000; artistId = 1; categoryId = 2; status = "abc" } -Token $adminToken
+$r = Invoke-Api POST "/api/admin/products" @{ name = "A"; price = 1000; artistId = $kairoArtistId; categoryId = $testCategoryId; status = "abc" } -Token $adminToken
 Check "Them san pham trang thai sai -> 400" ($r.Status -eq 400)
 
 $r = Invoke-Api GET "/api/admin/products" -Token $adminToken
@@ -568,13 +578,13 @@ $prodId = $r.Data.id
 $variantM = @($r.Data.variants)[0].id
 $variantL = @($r.Data.variants)[1].id
 
-$r = Invoke-Api POST "/api/admin/products" @{ name = "Trung SKU $rand"; price = 1000; artistId = 1; categoryId = 2; variants = @(@{ sku = "TST-$rand-M"; name = "X"; stock = 1 }) } -Token $adminToken
+$r = Invoke-Api POST "/api/admin/products" @{ name = "Trung SKU $rand"; price = 1000; artistId = $kairoArtistId; categoryId = $testCategoryId; variants = @(@{ sku = "TST-$rand-M"; name = "X"; stock = 1 }) } -Token $adminToken
 Check "Them san pham trung SKU -> 409" ($r.Status -eq 409)
 
 $r = Invoke-Api GET "/api/admin/products?q=Trung SKU $rand" -Token $adminToken
 Check "San pham them loi (trung SKU) khong bi luu lai" (@($r.Data).Count -eq 0)
 
-$noVariant = Invoke-Api POST "/api/admin/products" @{ name = "Khong bien the $rand"; price = 50000; artistId = 2; categoryId = 1 } -Token $adminToken
+$noVariant = Invoke-Api POST "/api/admin/products" @{ name = "Khong bien the $rand"; price = 50000; artistId = $rheaArtistId; categoryId = $testCategoryId } -Token $adminToken
 Check "Them san pham khong gui bien the -> 201, tu tao 1 bien the" ($noVariant.Status -eq 201 -and @($noVariant.Data.variants).Count -eq 1 -and $noVariant.Data.totalStock -eq 0)
 $prod2Id = $noVariant.Data.id
 $prod2Variant = @($noVariant.Data.variants)[0].id
@@ -582,7 +592,7 @@ $prod2Variant = @($noVariant.Data.variants)[0].id
 # ----- Sua san pham -----
 $r = Invoke-Api PUT "/api/admin/products/$prodId" @{ price = 150000; status = "hidden" } -Token $adminToken
 Check "Admin sua gia va an san pham -> 200" ($r.Status -eq 200 -and $r.Data.price -eq 150000 -and $r.Data.status -eq "hidden")
-Check "Cac truong khong gui van giu nguyen (ten, nghe si)" ($r.Data.name -eq "Test SP $rand" -and $r.Data.artistId -eq 1)
+Check "Cac truong khong gui van giu nguyen (ten, nghe si)" ($r.Data.name -eq "Test SP $rand" -and $r.Data.artistId -eq $kairoArtistId)
 
 $r = Invoke-Api PUT "/api/admin/products/$prodId" @{ price = -5 } -Token $adminToken
 Check "Sua gia am -> 400" ($r.Status -eq 400)
@@ -641,10 +651,10 @@ $r = Invoke-Api DELETE "/api/admin/products/$prod2Id/variants/$prod2Variant" -To
 Check "Xoa bien the cuoi cung cua san pham -> 409" ($r.Status -eq 409)
 
 # ----- Rang buoc voi nghe si -----
-$r = Invoke-Api DELETE "/api/artists/1" -Token $adminToken
+$r = Invoke-Api DELETE "/api/artists/$kairoArtistId" -Token $adminToken
 Check "Xoa nghe si con san pham -> 409" ($r.Status -eq 409)
 
-$r = Invoke-Api GET "/api/artists/1"
+$r = Invoke-Api GET "/api/artists/$kairoArtistId"
 Check "KAIRO van con sau khi xoa that bai" ($r.Status -eq 200)
 
 # ----- Xoa san pham -----
@@ -671,15 +681,20 @@ Write-Host ""
 Write-Host "=== SAN PHAM, GIO HANG VA DON HANG ===" -ForegroundColor Cyan
 # =====================================================
 
+$hoodieAdmin = Invoke-Api GET "/api/admin/products/4" -Token $adminToken
+$hoodieVariantId = @($hoodieAdmin.Data.variants)[0].id
+$stockSetup = Invoke-Api PUT "/api/admin/products/4/variants/$hoodieVariantId" @{ stock = 50 } -Token $adminToken
+Check "Tao ton kho test cho hoodie trong database" ($stockSetup.Status -eq 200 -and $stockSetup.Data.totalStock -eq 50)
+
 $r = Invoke-Api GET "/api/products"
-Check "Danh sach san pham cong khai -> 200, co san pham" ($r.Status -eq 200 -and @($r.Data).Count -ge 18)
+Check "Danh sach san pham cong khai -> 200, co san pham" ($r.Status -eq 200 -and @($r.Data).Count -ge 13)
 $hoodie = @($r.Data | Where-Object { $_.id -eq 4 })[0]
 Check "San pham cong khai co gia, nghe si, anh, bien the va ton kho" (
     $null -ne $hoodie -and $hoodie.price -eq 900000 -and $hoodie.artist -eq "KAIRO" -and
     [bool]$hoodie.image -and @($hoodie.variants).Count -ge 1 -and $hoodie.stock -gt 0
 )
 
-$r = Invoke-Api GET "/api/products?q=hoodie&artistId=1"
+$r = Invoke-Api GET "/api/products?q=hoodie&artistId=$kairoArtistId"
 Check "Tim kiem va loc san pham theo nghe si -> 200, dung san pham" (
     @($r.Data).Count -eq 1 -and @($r.Data)[0].id -eq 4
 )
@@ -738,7 +753,8 @@ Check "Dat hang thanh cong -> 201, tong tien tinh tu backend" (
 $orderId = $r.Data.id
 
 $r = Invoke-Api GET "/api/orders" -Token $shopperToken
-Check "Xem danh sach don hang cua minh -> co don vua tao" (@($r.Data).Count -eq 1 -and @($r.Data)[0].id -eq $orderId)
+$foundOrder = @($r.Data | Where-Object { $_.id -eq $orderId })
+Check "Xem danh sach don hang cua minh -> co don vua tao" ($foundOrder.Count -eq 1)
 
 $r = Invoke-Api GET "/api/orders/$orderId" -Token $shopperToken
 Check "Xem chi tiet don -> co thong tin nguoi nhan va san pham" (
