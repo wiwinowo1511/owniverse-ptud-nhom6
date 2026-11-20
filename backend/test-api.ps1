@@ -668,6 +668,102 @@ Check "Sau khi don dep, so san pham tro ve nhu ban dau" (@($r.Data).Count -eq $b
 
 # =====================================================
 Write-Host ""
+Write-Host "=== SAN PHAM, GIO HANG VA DON HANG ===" -ForegroundColor Cyan
+# =====================================================
+
+$r = Invoke-Api GET "/api/products"
+Check "Danh sach san pham cong khai -> 200, co san pham" ($r.Status -eq 200 -and @($r.Data).Count -ge 18)
+$hoodie = @($r.Data | Where-Object { $_.id -eq 4 })[0]
+Check "San pham cong khai co gia, nghe si, anh, bien the va ton kho" (
+    $null -ne $hoodie -and $hoodie.price -eq 900000 -and $hoodie.artist -eq "KAIRO" -and
+    [bool]$hoodie.image -and @($hoodie.variants).Count -ge 1 -and $hoodie.stock -gt 0
+)
+
+$r = Invoke-Api GET "/api/products?q=hoodie&artistId=1"
+Check "Tim kiem va loc san pham theo nghe si -> 200, dung san pham" (
+    @($r.Data).Count -eq 1 -and @($r.Data)[0].id -eq 4
+)
+
+$r = Invoke-Api GET "/api/products?minPrice=500000&maxPrice=1000000&sort=price-asc"
+$wrong = @($r.Data | Where-Object { $_.price -lt 500000 -or $_.price -gt 1000000 })
+Check "Loc khoang gia va sap xep -> chi tra san pham hop le" ($r.Status -eq 200 -and $wrong.Count -eq 0)
+
+$r = Invoke-Api GET "/api/products?minPrice=1000000&maxPrice=500000"
+Check "Khoang gia khong hop le -> 400" ($r.Status -eq 400)
+
+$r = Invoke-Api GET "/api/products/99999"
+Check "Chi tiet san pham khong ton tai -> 404" ($r.Status -eq 404)
+
+$r = Invoke-Api GET "/api/cart"
+Check "Xem gio hang khi chua dang nhap -> 401" ($r.Status -eq 401)
+
+$shopperLogin = Invoke-Api POST "/api/auth/login" @{ email = "customer@owniverse.com"; password = "Customer123" }
+$shopperToken = $shopperLogin.Data.token
+Check "Dang nhap khach hang de thu nghiem gio hang" ($shopperLogin.Status -eq 200 -and [bool]$shopperToken)
+
+$r = Invoke-Api POST "/api/cart/items" @{ productId = 4; quantity = 60 } -Token $shopperToken
+Check "Them so luong vuot ton kho -> 409" ($r.Status -eq 409)
+
+$r = Invoke-Api POST "/api/cart/items" @{ productId = 4; quantity = 2 } -Token $shopperToken
+Check "Them hoodie vao gio -> 201, dung so luong va tam tinh" (
+    $r.Status -eq 201 -and @($r.Data.items).Count -eq 1 -and
+    @($r.Data.items)[0].quantity -eq 2 -and $r.Data.subtotal -eq 1800000
+)
+$hoodieVariantId = @($r.Data.items)[0].variantId
+
+$r = Invoke-Api GET "/api/cart" -Token $shopperToken
+Check "Doc lai gio hang -> co hoodie da them" (@($r.Data.items).Count -eq 1 -and $r.Data.totalQuantity -eq 2)
+
+$r = Invoke-Api PUT "/api/cart/items/$hoodieVariantId" @{ quantity = 0 } -Token $shopperToken
+Check "Cap nhat gio voi so luong khong hop le -> 400" ($r.Status -eq 400)
+
+$r = Invoke-Api PUT "/api/cart/items/$hoodieVariantId" @{ quantity = 3 } -Token $shopperToken
+Check "Cap nhat so luong gio -> 200, tinh lai tam tinh" (
+    $r.Status -eq 200 -and @($r.Data.items)[0].quantity -eq 3 -and $r.Data.subtotal -eq 2700000
+)
+
+$r = Invoke-Api POST "/api/orders" @{ receiverName = ""; receiverPhone = ""; shippingAddress = "" } -Token $shopperToken
+Check "Tao don thieu thong tin nguoi nhan -> 400, giu gio hang" ($r.Status -eq 400)
+
+$r = Invoke-Api POST "/api/orders" @{
+    receiverName = "Khach Owniverse"
+    receiverPhone = "0901234567"
+    shippingAddress = "12 Nguyen Hue, Quan 1, TP.HCM"
+    note = "Giao gio hanh chinh"
+} -Token $shopperToken
+Check "Dat hang thanh cong -> 201, tong tien tinh tu backend" (
+    $r.Status -eq 201 -and [bool]$r.Data.code -and $r.Data.totalAmount -eq 2700000 -and
+    $r.Data.status -eq "Pending"
+)
+$orderId = $r.Data.id
+
+$r = Invoke-Api GET "/api/orders" -Token $shopperToken
+Check "Xem danh sach don hang cua minh -> co don vua tao" (@($r.Data).Count -eq 1 -and @($r.Data)[0].id -eq $orderId)
+
+$r = Invoke-Api GET "/api/orders/$orderId" -Token $shopperToken
+Check "Xem chi tiet don -> co thong tin nguoi nhan va san pham" (
+    $r.Status -eq 200 -and $r.Data.receiverName -eq "Khach Owniverse" -and
+    @($r.Data.items).Count -eq 1 -and @($r.Data.items)[0].quantity -eq 3
+)
+
+$r = Invoke-Api GET "/api/orders/$orderId" -Token $token
+Check "Tai khoan khac khong xem duoc don -> 404" ($r.Status -eq 404)
+
+$r = Invoke-Api GET "/api/cart" -Token $shopperToken
+Check "Tao don thanh cong lam trong gio hang" ($r.Status -eq 200 -and @($r.Data.items).Count -eq 0 -and $r.Data.subtotal -eq 0)
+
+$r = Invoke-Api POST "/api/orders" @{
+    receiverName = "Khach Owniverse"
+    receiverPhone = "0901234567"
+    shippingAddress = "12 Nguyen Hue, Quan 1, TP.HCM"
+} -Token $shopperToken
+Check "Khong tao duoc don khi gio trong -> 409" ($r.Status -eq 409)
+
+$r = Invoke-Api GET "/api/products/4"
+Check "Dat hang tru ton kho -> ton kho giam chinh xac" ($r.Status -eq 200 -and $r.Data.stock -eq ($hoodie.stock - 3))
+
+# =====================================================
+Write-Host ""
 $total = $script:pass + $script:fail
 if ($script:fail -eq 0) {
     Write-Host "KET QUA: $($script:pass)/$total dat. API hoat dong day du." -ForegroundColor Green

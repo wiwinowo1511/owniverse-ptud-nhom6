@@ -13,7 +13,7 @@ Website sử dụng dữ liệu minh họa về ba nghệ sĩ **KAIRO, MIRA và 
 - Phát triển các tương tác phía trình duyệt: tìm kiếm, lọc, sắp xếp, xem chi tiết và quản lý giỏ hàng.
 - Rèn luyện quy trình làm việc nhóm: phân tích yêu cầu, thiết kế giao diện, lập trình, tích hợp, kiểm thử và quản lý mã nguồn.
 
-**Phạm vi hiện tại:** Website **frontend mô phỏng** được xây dựng bằng HTML, CSS và JavaScript. Dữ liệu sản phẩm đang được quản lý trong mã JavaScript; giỏ hàng lưu bằng `localStorage`. 
+**Phạm vi hiện tại:** Website frontend được xây dựng bằng HTML, CSS và JavaScript; dữ liệu sản phẩm và giỏ hàng trên giao diện vẫn dùng JavaScript/`localStorage`. Backend ASP.NET Core có API demo riêng cho sản phẩm, giỏ hàng và đơn hàng; frontend hiện chưa tích hợp các API này. Dữ liệu backend lưu trong bộ nhớ và sẽ được đặt lại khi khởi động lại máy chủ.
 
 ## 2. Thành viên và phân công công việc
 
@@ -34,6 +34,7 @@ Website sử dụng dữ liệu minh họa về ba nghệ sĩ **KAIRO, MIRA và 
 | **CSS3** | Thiết kế giao diện; sử dụng **Flexbox**, **CSS Grid** và **Media Queries** để bố trí, điều chỉnh responsive. |
 | **JavaScript (Vanilla JS)** | Quản lý dữ liệu sản phẩm, thao tác DOM, tìm kiếm/lọc/sắp xếp, điều hướng chi tiết và logic giỏ hàng. |
 | **Web Storage API (`localStorage`)** | Lưu trạng thái giỏ hàng trong trình duyệt với khóa `owniverse_cart`. |
+| **ASP.NET Core Minimal API (.NET 10)** | Cung cấp API demo sản phẩm, giỏ hàng theo tài khoản và tạo/xem đơn hàng. |
 | **Git và GitHub** | Lưu trữ mã nguồn, theo dõi thay đổi và phối hợp nhóm. |
 | **Visual Studio Code, Live Server, Chrome DevTools** | Phát triển, chạy website và kiểm thử giao diện, JavaScript, tài nguyên mạng, dữ liệu lưu trữ. |
 
@@ -73,14 +74,15 @@ owniverse-ptud-nhom6/
 |---|---|
 | **Trang chủ** | Giới thiệu thương hiệu, banner/carousel, nội dung và liên kết khám phá sản phẩm, nghệ sĩ. |
 | **Giới thiệu** | Thông tin thương hiệu và định hướng kết nối nghệ sĩ với người hâm mộ. |
-| **Danh sách sản phẩm** | Hiển thị **13 sản phẩm** từ dữ liệu JavaScript; tìm kiếm, lọc theo danh mục/nghệ sĩ/giá, sắp xếp theo giá và kết hợp nhiều điều kiện. |
+| **Danh sách sản phẩm** | Hiển thị sản phẩm từ dữ liệu JavaScript; tìm kiếm, lọc theo danh mục/nghệ sĩ/giá và sắp xếp. |
 | **Chi tiết sản phẩm** | Hiển thị thông tin sản phẩm theo tham số `id` trên URL, lựa chọn số lượng và thêm vào giỏ; có thông báo khi ID không tồn tại. |
 | **Nghệ sĩ** | Danh sách ba nghệ sĩ KAIRO, MIRA, RHEA; tìm kiếm nghệ sĩ và xem trang chi tiết theo tham số URL. |
 | **Giỏ hàng** | Thêm sản phẩm, cộng dồn sản phẩm trùng ID, tăng/giảm số lượng, xóa sản phẩm, cập nhật tổng tiền và số lượng trên header. |
 | **Lưu trữ giỏ hàng** | Duy trì dữ liệu sau khi tải lại trang và đồng bộ giữa các trang thông qua `localStorage`. |
+| **Backend API** | Có API công khai để tìm/xem sản phẩm; API yêu cầu đăng nhập để quản lý giỏ hàng, tạo đơn, xem lịch sử và chi tiết đơn. |
 | **Responsive** | Giao diện đã được quan sát trên Desktop (1366px), Tablet (768px) và Mobile (390px); còn một số điểm cần tối ưu. |
 
-Danh sách trên tổng hợp các phần đã có trong mã nguồn và các luồng chức năng chính được ghi nhận khi kiểm thử. Một số thao tác trên màn hình nhỏ và tình huống biên vẫn cần xác minh bổ sung. Website hiện chưa có chức năng đăng nhập, checkout/thanh toán thực tế hoặc quản trị đơn hàng.
+Frontend chưa gọi các API mới; giỏ hàng giao diện vẫn lưu trong trình duyệt. Backend chưa kết nối cơ sở dữ liệu, chưa tính phí vận chuyển và chưa thực hiện thanh toán trực tuyến.
 
 ## 6. Hướng dẫn cài đặt và chạy website
 
@@ -102,6 +104,18 @@ Hoặc chọn **Code → Download ZIP** trên GitHub, sau đó giải nén.
 
 Website frontend không yêu cầu cài đặt Node.js hay cơ sở dữ liệu để chạy các chức năng đã nêu. Cổng localhost có thể thay đổi tùy môi trường.
 
+**Chạy backend API (cần .NET 10 SDK):**
+
+```powershell
+dotnet run --project .\backend\OwniverseApi
+```
+
+Backend chạy tại `http://localhost:3000`. Endpoint, payload và lệnh kiểm thử được mô tả trong [docs/backend-api.md](docs/backend-api.md). Chạy test trong một terminal khác bằng:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\backend\test-api.ps1
+```
+
 ## 7. Vấn đề đã gặp và hướng khắc phục
 
 Trong quá trình tích hợp và kiểm thử, nhóm ghi nhận các vấn đề chính:
@@ -117,6 +131,7 @@ Trong quá trình tích hợp và kiểm thử, nhóm ghi nhận các vấn đ�
 
 - **GitHub:** https://github.com/wiwinowo1511/owniverse-ptud-nhom6
 - **Tài liệu yêu cầu:** [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md)
+- **Backend API:** [`docs/backend-api.md`](docs/backend-api.md)
 - **Kế hoạch dự án:** [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md)
 - **Nhật ký sử dụng AI:** [`docs/AI_USAGE_LOG.md`](docs/AI_USAGE_LOG.md)
 
