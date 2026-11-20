@@ -134,6 +134,37 @@ class ProductVariant
     public int Stock { get; set; }                  // tồn kho
 }
 
+class CartItem
+{
+    public int VariantId { get; set; }
+    public int Quantity { get; set; }
+}
+
+class Order
+{
+    public int Id { get; set; }
+    public string Code { get; set; } = "";
+    public int UserId { get; set; }
+    public string ReceiverName { get; set; } = "";
+    public string ReceiverPhone { get; set; } = "";
+    public string ShippingAddress { get; set; } = "";
+    public string Note { get; set; } = "";
+    public decimal ShippingFee { get; set; }
+    public decimal TotalAmount { get; set; }
+    public string Status { get; set; } = "Pending";
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public List<OrderItem> Items { get; set; } = new();
+}
+
+class OrderItem
+{
+    public int VariantId { get; set; }
+    public string ProductName { get; set; } = "";
+    public string Sku { get; set; } = "";
+    public int UnitPrice { get; set; }
+    public int Quantity { get; set; }
+}
+
 // =====================================================
 // DỮ LIỆU FRONTEND GỬI LÊN
 // Trường để trống (null) nghĩa là "không gửi" -> giữ nguyên giá trị cũ khi sửa.
@@ -163,6 +194,9 @@ record ProductRequest(
     string? Name, string? Description, int? Price, int? ArtistId, int? CategoryId,
     string? Image, List<string>? Images, string? Status, List<VariantRequest>? Variants);
 record VariantRequest(string? Sku, string? Name, int? Stock);
+record AddCartItemRequest(int? ProductId, int? VariantId, int? Quantity);
+record UpdateCartItemRequest(int? Quantity);
+record CreateOrderRequest(string? ReceiverName, string? ReceiverPhone, string? ShippingAddress, string? Note);
 // Thêm các kiểu này vào dự án cùng Models.cs. Không tạo trùng tên class.
 record ForgotPasswordRequest(string? Email);
 record ResetPasswordRequest(string? Token, string? NewPassword);

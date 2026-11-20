@@ -1,19 +1,16 @@
 // =====================================================
 // OWNIVERSE - BACKEND API (ASP.NET Minimal API, .NET 10)
-// Người A: Tài khoản + Nghệ sĩ + Quản trị (admin)
-// Đang dùng DỮ LIỆU GIẢ (lưu trong bộ nhớ, tắt server là mất).
-//
-// Chỗ nào ghi "TODO-DB" là chỗ sau này phải đổi sang
-// database thật khi nhóm CSDL có ERD xong.
-// Tìm nhanh: Ctrl + Shift + F rồi gõ  TODO-DB
+// SQL Server là nguồn dữ liệu chính; các collection được nạp khi khởi động
+// để giữ các handler hiện tại, rồi ghi đồng bộ trong transaction sau request ghi.
 //
 // Các file của backend:
 //   Program.cs   - các API (file này)
-//   Models.cs    - kiểu dữ liệu (User, Artist, Product...)
+//   Model.cs     - kiểu dữ liệu (User, Artist, Product...)
 //   SeedData.cs  - dữ liệu mẫu
+//   SqlDatabase.cs - nạp và lưu dữ liệu SQL Server
 //
 // Các phần trong file này (Ctrl + F tìm theo số):
-//   1. Dữ liệu giả
+//   1. Dữ liệu nạp từ SQL Server
 //   2. Hàm hỗ trợ
 //   3. Tài khoản (đăng ký, đăng nhập, hồ sơ, đổi mật khẩu)
 //   4. Nghệ sĩ (xem, theo dõi, nghệ sĩ tự sửa hồ sơ, admin thêm/sửa/xóa)
@@ -31,6 +28,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
+var connectionString = builder.Configuration.GetConnectionString("Owniverse")
+    ?? throw new InvalidOperationException("Thiếu cấu hình ConnectionStrings:Owniverse.");
+var database = new SqlDatabase(connectionString);
 
 // Cho phép trang HTML (chạy ở địa chỉ khác) gọi sang API này
 builder.Services.AddCors(options =>
@@ -40,17 +40,13 @@ builder.Services.AddCors(options =>
 builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
 var app = builder.Build();
 var passwordHasher = app.Services.GetRequiredService<IPasswordHasher<User>>();
-var connectionString = app.Configuration.GetConnectionString("Owniverse");
-if (string.IsNullOrWhiteSpace(connectionString))
-    throw new InvalidOperationException("ConnectionStrings:Owniverse is required for user authentication.");
 var userRepository = new UserRepository(connectionString);
 app.UseCors();
 
 // =====================================================
-// 1. DỮ LIỆU GIẢ (dữ liệu mẫu nằm trong SeedData.cs)
+// 1. DỮ LIỆU NẠP TỪ SQL SERVER
 // =====================================================
 
-// TODO-DB: thay bằng bảng Users
 var users = SeedData.CreateUsers();
 if (app.Environment.IsDevelopment())
 {
@@ -63,22 +59,21 @@ if (app.Environment.IsDevelopment())
 }
 var nextUserId = await userRepository.GetNextUserIdAsync(app.Lifetime.ApplicationStopping);
 
-// TODO-DB: thay bằng bảng Artists (+ các bảng con: mốc sự nghiệp, hoạt động, MV)
 var artists = SeedData.CreateArtists();
 var nextArtistId = artists.Max(a => a.Id) + 1;
 
-// TODO-DB: thay bằng bảng Categories
 var categories = SeedData.CreateCategories();
 var nextCategoryId = categories.Max(c => c.Id) + 1;
 
-// TODO-DB: thay bằng các bảng Products, ProductVariants, ProductImages
 var products = SeedData.CreateProducts();
 var nextProductId = products.Max(p => p.Id) + 1;
 var nextVariantId = products.SelectMany(p => p.Variants).Max(v => v.Id) + 1;
 
-// TODO-DB: thay bằng bảng Follows (userId, artistId)
+var carts = new Dictionary<int, List<CartItem>>();
+var orders = new List<Order>();
+var nextOrderId = 1;
+
 // Theo DB: Artists 1:1 Communities; Users N:N Communities qua CommunityMembers.
-// TODO-DB: chuyển sang bảng Communities, CommunityMembers.
 var communities = artists.Select(a => new Community
 {
     Id = a.Id, ArtistId = a.Id, Name = $"Cộng đồng {a.Name}",
@@ -87,8 +82,26 @@ var communities = artists.Select(a => new Community
 var communityMembers = new List<CommunityMember>();
 var nextCommunityId = communities.Max(c => c.Id) + 1;
 
-// TODO-DB: bảng PasswordResetTokens (chỉ lưu hash token, không lưu token thô)
 var passwordResetTokens = new List<PasswordResetToken>();
+
+// Dữ liệu SQL là nguồn chuẩn; metadata không có cột tương ứng được giữ trong bảng ArtistApiData.
+await database.CheckConnectionAsync();
+await database.LoadAsync(
+    users, artists, categories, products, communities, communityMembers,
+    passwordResetTokens, carts, orders);
+
+nextUserId = users.Select(user => user.Id).DefaultIfEmpty(0).Max() + 1;
+nextArtistId = artists.Select(artist => artist.Id).DefaultIfEmpty(0).Max() + 1;
+nextCategoryId = categories.Select(category => category.Id).DefaultIfEmpty(0).Max() + 1;
+nextProductId = products.Select(product => product.Id).DefaultIfEmpty(0).Max() + 1;
+nextVariantId = products.SelectMany(product => product.Variants).Select(variant => variant.Id).DefaultIfEmpty(0).Max() + 1;
+nextCommunityId = communities.Select(community => community.Id).DefaultIfEmpty(0).Max() + 1;
+nextOrderId = orders.Select(order => order.Id).DefaultIfEmpty(0).Max() + 1;
+
+// Database luôn chứa PasswordHash, không bao giờ trả mật khẩu ra ngoài.
+foreach (var u in users)
+    if (string.IsNullOrEmpty(u.Password))
+        throw new InvalidOperationException($"Tài khoản {u.Email} không có PasswordHash hợp lệ.");
 
 // TODO-DB: có thể giữ nguyên, hoặc đổi sang JWT / bảng Sessions
 var sessions = new ConcurrentDictionary<string, int>(); // token -> userId
@@ -137,7 +150,7 @@ string GetToken(HttpContext ctx)
 }
 string HashResetToken(string token) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
 
-// Không để reset-token trong response. Với SeedData, chỉ ghi token ra terminal khi chạy Development.
+// Không để reset-token trong response.
 void InvalidateResetTokens(int userId)
 {
     foreach (var t in passwordResetTokens.Where(t => t.UserId == userId && t.UsedAt is null))
@@ -146,7 +159,7 @@ void InvalidateResetTokens(int userId)
 
 Community? CommunityForArtist(int artistId) => communities.FirstOrDefault(c => c.ArtistId == artistId);
 
-// Khóa cùng lúc các thay đổi in-memory; khi chuyển sang DB thay bằng transaction/constraints.
+// Khóa cùng lúc các thay đổi đối với các collection dùng bởi API handlers.
 var dataLock = new object();
 
 void CacheUser(User user)
@@ -265,6 +278,88 @@ object ProductView(Product p)
         p.Variants,
     };
 }
+
+object PublicProductView(Product p) => new
+{
+    p.Id,
+    p.Name,
+    p.Description,
+    p.Price,
+    p.ArtistId,
+    Artist = artists.FirstOrDefault(a => a.Id == p.ArtistId)?.Name ?? "",
+    p.CategoryId,
+    Category = categories.FirstOrDefault(c => c.Id == p.CategoryId)?.Slug ?? "",
+    p.Image,
+    p.Images,
+    Stock = p.Variants.Sum(v => v.Stock),
+    Variants = p.Variants.Select(v => new { v.Id, v.Sku, v.Name, v.Stock }),
+};
+
+string OrderStatusLabel(string status) => status switch
+{
+    "Pending" => "Chờ xác nhận",
+    "Confirmed" => "Đã xác nhận",
+    "Processing" => "Đang chuẩn bị",
+    "Shipping" => "Đang giao",
+    "Delivered" => "Đã giao",
+    "Cancelled" => "Đã hủy",
+    _ => status,
+};
+
+object CartView(List<CartItem> cart)
+{
+    var items = cart.Select(item =>
+    {
+        var product = products.First(p => p.Variants.Any(v => v.Id == item.VariantId));
+        var variant = product.Variants.First(v => v.Id == item.VariantId);
+        return new
+        {
+            productId = product.Id,
+            variantId = variant.Id,
+            productName = product.Name,
+            artist = artists.FirstOrDefault(a => a.Id == product.ArtistId)?.Name ?? "",
+            category = categories.FirstOrDefault(c => c.Id == product.CategoryId)?.Slug ?? "",
+            image = product.Image,
+            sku = variant.Sku,
+            variantName = variant.Name,
+            unitPrice = product.Price,
+            quantity = item.Quantity,
+            stock = variant.Stock,
+            lineTotal = (decimal)product.Price * item.Quantity,
+        };
+    }).ToList();
+
+    return new
+    {
+        items,
+        totalQuantity = items.Sum(item => item.quantity),
+        subtotal = items.Sum(item => item.lineTotal),
+    };
+}
+
+object OrderView(Order order) => new
+{
+    order.Id,
+    order.Code,
+    order.ReceiverName,
+    order.ReceiverPhone,
+    order.ShippingAddress,
+    order.Note,
+    order.ShippingFee,
+    order.TotalAmount,
+    order.Status,
+    StatusLabel = OrderStatusLabel(order.Status),
+    order.CreatedAt,
+    Items = order.Items.Select(item => new
+    {
+        item.VariantId,
+        item.ProductName,
+        item.Sku,
+        item.UnitPrice,
+        item.Quantity,
+        LineTotal = (decimal)item.UnitPrice * item.Quantity,
+    }),
+};
 
 // Kiểm tra rồi áp dụng dữ liệu sản phẩm (dùng cho cả thêm và sửa).
 // Khi thêm (isCreate = true): bắt buộc có tên, giá, nghệ sĩ, danh mục.
@@ -1138,9 +1233,15 @@ admin.MapDelete("/products/{id:int}", IResult (int id, HttpContext ctx) =>
     var product = products.FirstOrDefault(p => p.Id == id);
     if (product is null) return Msg(404, "Không tìm thấy sản phẩm");
 
-    // TODO-DB: sản phẩm đã có trong đơn hàng (OrderItems) thì không nên xóa cứng;
-    // hãy đổi Status sang "hidden" (ẩn) thay vì xóa.
-    products.Remove(product);
+    lock (dataLock)
+    {
+        var variantIds = product.Variants.Select(v => v.Id).ToHashSet();
+        if (carts.Values.Any(cart => cart.Any(item => variantIds.Contains(item.VariantId))) ||
+            orders.Any(order => order.Items.Any(item => variantIds.Contains(item.VariantId))))
+            return Msg(409, "Sản phẩm đang nằm trong giỏ hàng hoặc đơn hàng; hãy ẩn sản phẩm thay vì xóa");
+
+        products.Remove(product);
+    }
     return Msg(200, "Đã xóa sản phẩm");
 });
 
@@ -1181,9 +1282,12 @@ admin.MapPut("/products/{id:int}/variants/{variantId:int}", IResult (int id, int
 
     // ----- Áp dụng -----
     // TODO-DB: UPDATE ProductVariants SET ... WHERE Id = @variantId
-    if (newSku is not null) variant.Sku = newSku;
-    if (!string.IsNullOrWhiteSpace(req.Name)) variant.Name = req.Name.Trim();
-    if (req.Stock is not null) variant.Stock = req.Stock.Value;
+    lock (dataLock)
+    {
+        if (newSku is not null) variant.Sku = newSku;
+        if (!string.IsNullOrWhiteSpace(req.Name)) variant.Name = req.Name.Trim();
+        if (req.Stock is not null) variant.Stock = req.Stock.Value;
+    }
     return Results.Ok(ProductView(product));
 });
 
@@ -1198,17 +1302,299 @@ admin.MapDelete("/products/{id:int}/variants/{variantId:int}", IResult (int id, 
     if (variant is null) return Msg(404, "Không tìm thấy biến thể");
     if (product.Variants.Count <= 1) return Msg(409, "Sản phẩm phải có ít nhất một biến thể");
 
-    // TODO-DB: biến thể đã nằm trong giỏ hàng / đơn hàng (CartItems, OrderItems) thì không xóa cứng
-    product.Variants.Remove(variant);
+    lock (dataLock)
+    {
+        if (carts.Values.Any(cart => cart.Any(item => item.VariantId == variantId)) ||
+            orders.Any(order => order.Items.Any(item => item.VariantId == variantId)))
+            return Msg(409, "Biến thể đang nằm trong giỏ hàng hoặc đơn hàng, không thể xóa");
+
+        product.Variants.Remove(variant);
+    }
     return Results.Ok(ProductView(product));
 });
 
 // =====================================================
 // 9. PHẦN CỦA NGƯỜI B: Sản phẩm (công khai) + Giỏ hàng + Đơn hàng
-// (Người B thêm các app.MapGet / app.MapPost của mình vào đây.
-//  Dùng được GetCurrentUser(ctx), CheckRole(ctx, ...), Msg(...) ở trên,
-//  và danh sách "products" ở phần 1 để dữ liệu khớp với trang quản trị.)
+// Các collection được nạp từ SQL Server và lưu trong transaction sau request ghi.
 // =====================================================
+
+// Danh sách sản phẩm công khai. Sản phẩm ẩn không được hiển thị hoặc đặt mua.
+app.MapGet("/api/products", IResult (
+    string? q, int? artistId, int? categoryId, int? minPrice, int? maxPrice, string? sort) =>
+{
+    if (minPrice < 0 || maxPrice < 0 || (minPrice is not null && maxPrice is not null && minPrice > maxPrice))
+        return Msg(400, "Khoảng giá không hợp lệ");
+
+    var keyword = Fold(q);
+    var result = products
+        .Where(p => p.Status == "active")
+        .Where(p => artistId is null || p.ArtistId == artistId)
+        .Where(p => categoryId is null || p.CategoryId == categoryId)
+        .Where(p => minPrice is null || p.Price >= minPrice)
+        .Where(p => maxPrice is null || p.Price <= maxPrice)
+        .Where(p => keyword == "" || Fold(p.Name).Contains(keyword) ||
+            Fold(artists.FirstOrDefault(a => a.Id == p.ArtistId)?.Name).Contains(keyword))
+        .ToList();
+
+    result = (sort ?? "").Trim().ToLowerInvariant() switch
+    {
+        "price-asc" => result.OrderBy(p => p.Price).ThenBy(p => p.Id).ToList(),
+        "price-desc" => result.OrderByDescending(p => p.Price).ThenBy(p => p.Id).ToList(),
+        "name-asc" => result.OrderBy(p => p.Name).ThenBy(p => p.Id).ToList(),
+        _ => result.OrderBy(p => p.Id).ToList(),
+    };
+
+    return Results.Ok(result.Select(PublicProductView));
+});
+
+// Chi tiết sản phẩm
+app.MapGet("/api/products/{id:int}", IResult (int id) =>
+{
+    var product = products.FirstOrDefault(p => p.Id == id && p.Status == "active");
+    return product is null ? Msg(404, "Không tìm thấy sản phẩm") : Results.Ok(PublicProductView(product));
+});
+
+// Xem giỏ hàng của tài khoản hiện tại
+app.MapGet("/api/cart", IResult (HttpContext ctx) =>
+{
+    if (CheckRole(ctx, Roles.Customer) is { } denied) return denied;
+    var user = GetCurrentUser(ctx)!;
+    lock (dataLock)
+        return Results.Ok(CartView(carts.GetValueOrDefault(user.Id) ?? new List<CartItem>()));
+});
+
+// Thêm sản phẩm/biến thể vào giỏ
+app.MapPost("/api/cart/items", IResult (HttpContext ctx, AddCartItemRequest req) =>
+{
+    if (CheckRole(ctx, Roles.Customer) is { } denied) return denied;
+    if (req.ProductId is null || req.Quantity is null || req.Quantity < 1 || req.Quantity > 99)
+        return Msg(400, "Sản phẩm và số lượng từ 1 đến 99 là bắt buộc");
+
+    var user = GetCurrentUser(ctx)!;
+    lock (dataLock)
+    {
+        var product = products.FirstOrDefault(p => p.Id == req.ProductId && p.Status == "active");
+        if (product is null) return Msg(404, "Không tìm thấy sản phẩm đang bán");
+
+        var variant = req.VariantId is null
+            ? product.Variants.Count == 1 ? product.Variants[0] : null
+            : product.Variants.FirstOrDefault(v => v.Id == req.VariantId);
+        if (variant is null) return Msg(400, "Vui lòng chọn biến thể hợp lệ");
+
+        var cart = carts.GetValueOrDefault(user.Id);
+        if (cart is null)
+        {
+            cart = new List<CartItem>();
+            carts[user.Id] = cart;
+        }
+
+        var item = cart.FirstOrDefault(i => i.VariantId == variant.Id);
+        var nextQuantity = (item?.Quantity ?? 0) + req.Quantity.Value;
+        if (nextQuantity > 99) return Msg(400, "Số lượng mỗi biến thể không được vượt quá 99");
+        if (nextQuantity > variant.Stock)
+            return Msg(409, $"Sản phẩm chỉ còn {variant.Stock} sản phẩm trong kho");
+
+        if (item is null)
+            cart.Add(new CartItem { VariantId = variant.Id, Quantity = req.Quantity.Value });
+        else
+            item.Quantity = nextQuantity;
+
+        return Results.Created("/api/cart", CartView(cart));
+    }
+});
+
+// Cập nhật số lượng một biến thể trong giỏ
+app.MapPut("/api/cart/items/{variantId:int}", IResult (int variantId, HttpContext ctx, UpdateCartItemRequest req) =>
+{
+    if (CheckRole(ctx, Roles.Customer) is { } denied) return denied;
+    if (req.Quantity is null || req.Quantity < 1 || req.Quantity > 99)
+        return Msg(400, "Số lượng phải từ 1 đến 99");
+
+    var user = GetCurrentUser(ctx)!;
+    lock (dataLock)
+    {
+        var cart = carts.GetValueOrDefault(user.Id);
+        var item = cart?.FirstOrDefault(i => i.VariantId == variantId);
+        if (item is null) return Msg(404, "Không tìm thấy sản phẩm trong giỏ hàng");
+
+        var product = products.FirstOrDefault(p => p.Variants.Any(v => v.Id == variantId));
+        var variant = product?.Variants.FirstOrDefault(v => v.Id == variantId);
+        if (product is null || variant is null || product.Status != "active")
+            return Msg(409, "Sản phẩm hiện không thể đặt mua");
+        if (req.Quantity > variant.Stock)
+            return Msg(409, $"Sản phẩm chỉ còn {variant.Stock} sản phẩm trong kho");
+
+        item.Quantity = req.Quantity.Value;
+        return Results.Ok(CartView(cart!));
+    }
+});
+
+// Xóa một sản phẩm khỏi giỏ
+app.MapDelete("/api/cart/items/{variantId:int}", IResult (int variantId, HttpContext ctx) =>
+{
+    if (CheckRole(ctx, Roles.Customer) is { } denied) return denied;
+    var user = GetCurrentUser(ctx)!;
+    lock (dataLock)
+    {
+        var cart = carts.GetValueOrDefault(user.Id);
+        if (cart is null || cart.RemoveAll(i => i.VariantId == variantId) == 0)
+            return Msg(404, "Không tìm thấy sản phẩm trong giỏ hàng");
+        return Results.Ok(CartView(cart));
+    }
+});
+
+// Xóa toàn bộ giỏ hàng
+app.MapDelete("/api/cart", IResult (HttpContext ctx) =>
+{
+    if (CheckRole(ctx, Roles.Customer) is { } denied) return denied;
+    var user = GetCurrentUser(ctx)!;
+    lock (dataLock)
+    {
+        carts.Remove(user.Id);
+        return Results.Ok(new { message = "Đã làm trống giỏ hàng" });
+    }
+});
+
+// Tạo đơn từ giỏ hàng. Giá và tồn kho luôn được máy chủ kiểm tra/tính toán.
+app.MapPost("/api/orders", IResult (HttpContext ctx, CreateOrderRequest req) =>
+{
+    if (CheckRole(ctx, Roles.Customer) is { } denied) return denied;
+
+    var receiverName = (req.ReceiverName ?? "").Trim();
+    var receiverPhone = (req.ReceiverPhone ?? "").Trim();
+    var shippingAddress = (req.ShippingAddress ?? "").Trim();
+    var note = (req.Note ?? "").Trim();
+    if (receiverName.Length is < 2 or > 100)
+        return Msg(400, "Tên người nhận phải từ 2 đến 100 ký tự");
+    if (!System.Text.RegularExpressions.Regex.IsMatch(receiverPhone, @"^[0-9+()\-\s]{8,20}$"))
+        return Msg(400, "Số điện thoại người nhận không hợp lệ");
+    if (shippingAddress.Length is < 5 or > 500)
+        return Msg(400, "Địa chỉ nhận hàng phải từ 5 đến 500 ký tự");
+    if (note.Length > 500)
+        return Msg(400, "Ghi chú không được vượt quá 500 ký tự");
+
+    var user = GetCurrentUser(ctx)!;
+    lock (dataLock)
+    {
+        var cart = carts.GetValueOrDefault(user.Id);
+        if (cart is null || cart.Count == 0) return Msg(409, "Giỏ hàng đang trống");
+
+        var orderItems = new List<OrderItem>();
+        foreach (var cartItem in cart)
+        {
+            var product = products.FirstOrDefault(p => p.Variants.Any(v => v.Id == cartItem.VariantId));
+            var variant = product?.Variants.FirstOrDefault(v => v.Id == cartItem.VariantId);
+            if (product is null || variant is null || product.Status != "active")
+                return Msg(409, "Một sản phẩm trong giỏ hiện không thể đặt mua");
+            if (cartItem.Quantity > variant.Stock)
+                return Msg(409, $"Sản phẩm '{product.Name}' chỉ còn {variant.Stock} sản phẩm trong kho");
+
+            orderItems.Add(new OrderItem
+            {
+                VariantId = variant.Id,
+                ProductName = product.Name,
+                Sku = variant.Sku,
+                UnitPrice = product.Price,
+                Quantity = cartItem.Quantity,
+            });
+        }
+
+        var subtotal = orderItems.Sum(item => (decimal)item.UnitPrice * item.Quantity);
+        var orderId = nextOrderId++;
+        var order = new Order
+        {
+            Id = orderId,
+            Code = $"OV{DateTime.UtcNow:yyMMdd}{orderId:D6}",
+            UserId = user.Id,
+            ReceiverName = receiverName,
+            ReceiverPhone = receiverPhone,
+            ShippingAddress = shippingAddress,
+            Note = note,
+            ShippingFee = 0,
+            TotalAmount = subtotal,
+            Items = orderItems,
+        };
+
+        foreach (var cartItem in cart)
+        {
+            var variant = products.SelectMany(p => p.Variants).First(v => v.Id == cartItem.VariantId);
+            variant.Stock -= cartItem.Quantity;
+        }
+        orders.Add(order);
+        carts.Remove(user.Id);
+
+        return Results.Created($"/api/orders/{order.Id}", OrderView(order));
+    }
+});
+
+// Danh sách đơn của người dùng hiện tại
+app.MapGet("/api/orders", IResult (HttpContext ctx) =>
+{
+    if (CheckRole(ctx, Roles.Customer) is { } denied) return denied;
+    var user = GetCurrentUser(ctx)!;
+    lock (dataLock)
+        return Results.Ok(orders.Where(order => order.UserId == user.Id)
+            .OrderByDescending(order => order.CreatedAt).Select(OrderView).ToList());
+});
+
+// Chi tiết đơn hàng chỉ chủ đơn mới xem được
+app.MapGet("/api/orders/{id:int}", IResult (int id, HttpContext ctx) =>
+{
+    if (CheckRole(ctx, Roles.Customer) is { } denied) return denied;
+    var user = GetCurrentUser(ctx)!;
+    lock (dataLock)
+    {
+        var order = orders.FirstOrDefault(item => item.Id == id && item.UserId == user.Id);
+        return order is null ? Msg(404, "Không tìm thấy đơn hàng") : Results.Ok(OrderView(order));
+    }
+});
+
+// Ghi mọi thay đổi thành công vào SQL trước khi trả phản hồi thành công cho client.
+app.Use(async (ctx, next) =>
+{
+    if (HttpMethods.IsGet(ctx.Request.Method) ||
+        HttpMethods.IsHead(ctx.Request.Method) ||
+        HttpMethods.IsOptions(ctx.Request.Method))
+    {
+        await next();
+        return;
+    }
+
+    var originalBody = ctx.Response.Body;
+    await using var bufferedBody = new MemoryStream();
+    ctx.Response.Body = bufferedBody;
+    try
+    {
+        await next();
+        if (ctx.Response.StatusCode < StatusCodes.Status400BadRequest)
+        {
+            try
+            {
+                await database.SaveAsync(
+                    users, artists, categories, products, communities, communityMembers,
+                    passwordResetTokens, carts, orders);
+            }
+            catch (Exception ex)
+            {
+                app.Logger.LogError(ex, "Failed to commit API state to SQL Server.");
+                ctx.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                ctx.Response.ContentType = "application/json; charset=utf-8";
+                ctx.Response.Headers.ContentLength = null;
+                bufferedBody.SetLength(0);
+                await System.Text.Json.JsonSerializer.SerializeAsync(
+                    bufferedBody,
+                    new { message = "Không thể lưu dữ liệu vào database. Vui lòng thử lại." });
+            }
+        }
+    }
+    finally
+    {
+        ctx.Response.Body = originalBody;
+    }
+
+    bufferedBody.Position = 0;
+    await bufferedBody.CopyToAsync(originalBody);
+});
 
 // =====================================================
 // CHẠY SERVER (giữ cổng 3000 để frontend khỏi phải đổi)
