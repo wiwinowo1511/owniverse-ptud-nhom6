@@ -225,7 +225,6 @@ sealed class SqlDatabase(string connectionString)
                 await SaveCategoriesAsync(connection, transaction, categories);
                 await SaveProductsAsync(connection, transaction, products);
                 await SaveCommunitiesAsync(connection, transaction, communities);
-                await SaveCommunityMembersAsync(connection, transaction, communityMembers);
                 await SaveResetTokensAsync(connection, transaction, passwordResetTokens);
                 await SaveCartsAsync(connection, transaction, carts);
                 await SaveOrdersAsync(connection, transaction, orders);
@@ -404,16 +403,6 @@ sealed class SqlDatabase(string connectionString)
                 VALUES (@Id, @ArtistId, @Name, @Description, @AvatarUrl, @CoverUrl)
                 """);
         }
-    }
-
-    private static async Task SaveCommunityMembersAsync(
-        SqlConnection connection, SqlTransaction transaction, IEnumerable<CommunityMember> members)
-    {
-        await connection.ExecuteAsync("DELETE FROM dbo.CommunityMembers", transaction: transaction);
-        foreach (var member in members)
-            await connection.ExecuteAsync(
-                "INSERT dbo.CommunityMembers (CommunityId, UserId) VALUES (@CommunityId, @UserId)",
-                new { member.CommunityId, member.UserId }, transaction);
     }
 
     private static async Task SaveResetTokensAsync(
