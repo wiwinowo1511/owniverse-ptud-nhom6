@@ -1,4 +1,4 @@
-document.querySelector("#passwordForm")?.addEventListener("submit", function (e) {
+document.querySelector("#passwordForm")?.addEventListener("submit", async function (e) {
     e.preventDefault();
 
     const oldPassword = document.querySelector("#oldPassword").value;
@@ -6,14 +6,15 @@ document.querySelector("#passwordForm")?.addEventListener("submit", function (e)
     const confirmNewPassword = document.querySelector("#confirmNewPassword").value;
 
     if (newPassword !== confirmNewPassword) {
-        return alert("Mật khẩu xác nhận không khớp");
+        return showAppMessage("Mật khẩu xác nhận không khớp.", { type: "warning" });
     }
 
     try {
-        changePassword(oldPassword, newPassword);
+        await changePassword(oldPassword, newPassword);
         this.reset();
-        alert("Đổi mật khẩu thành công");
+        await showAppMessage("Đổi mật khẩu thành công. Vui lòng đăng nhập lại.", { type: "success" });
+        window.location.replace("login.html");
     } catch (error) {
-        alert(error.message);
+        await showAppMessage(error.message, { type: "error", title: "Không thể đổi mật khẩu" });
     }
 });

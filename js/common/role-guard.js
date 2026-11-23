@@ -8,8 +8,8 @@ function requireRole(role) {
     }
 
     if (currentUser.role !== role) {
-        alert("Bạn không có quyền truy cập");
-        window.location.href = "index.html";
+        showAppMessage("Tài khoản của bạn không có quyền truy cập trang này.", { type: "error", title: "Không đủ quyền" })
+            .then(function () { window.location.href = "index.html"; });
         return false;
     }
 

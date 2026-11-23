@@ -57,69 +57,37 @@ BEGIN TRY
         N'images/banners/Rhea-banner.png'
     );
 
-    DECLARE @ArtistProfiles TABLE (
-        Slug VARCHAR(100) PRIMARY KEY,
-        ProfileDataJson NVARCHAR(MAX) NOT NULL
-    );
+    -- Tao tai khoan lien ket neu chua ton tai.
+    -- Mat khau ngau nhien khong dung de dang nhap.
+    -- Tai khoan moi duoc khoa den khi cau hinh
+    -- xac thuc that tren backend.
 
-    INSERT INTO @ArtistProfiles (Slug, ProfileDataJson) VALUES
-    ('kairo', N'{"handle":"","photo":"images/artists/kairo.png","summary":"KAIRO là nam ca sĩ solo người Việt Nam theo đuổi phong cách Pop, R&B và Dance-pop hiện đại. Với hình tượng trẻ trung, tinh nghịch và nguồn năng lượng tích cực, KAIRO mang đến những màn trình diễn cuốn hút, kết nối với người hâm mộ KALEO qua âm nhạc.","communityLink":"artist-community.html?id=1","social":{"youtube":"https://www.youtube.com/channel/UCZMYvSPulDSUdx7bdtTFdrg","instagram":"https://www.instagram.com/cortis","tiktok":"https://www.tiktok.com/@cortis_bighit"},"promotion":{"title":"Mang năng lượng KAIRO vào bộ sưu tập của bạn.","description":"Khám phá những sản phẩm merchandise chính thức mang dấu ấn riêng của KAIRO và cộng đồng KALEO.","image":"images/banners/Kairo-banner.png","link":"products.html"},"information":[{"year":"12.2023","title":"Artist Training","description":"Chính thức trở thành thực tập sinh và bắt đầu quá trình đào tạo thanh nhạc, vũ đạo và biểu diễn."},{"year":"8.2024","title":"Official Debut","description":"Ra mắt với digital single đầu tay \"First Light\"."},{"year":"3.2025","title":"First Mini Album","description":"Phát hành mini album \"BLUEPRINT\", đánh dấu sự trưởng thành trong phong cách âm nhạc."},{"year":"5.2026","title":"Expanding Horizons","description":"Mở rộng hoạt động biểu diễn, phát triển merchandise cá nhân và tổ chức fan meeting đầu tiên."},{"year":"8.2026","title":"First Full Album","description":"Phát hành full album đầu tay \"Shiny Paradise\"."}],"activities":[{"title":"KALEO Streaming Party – First Light","type":"Hoạt động cộng đồng","date":"01.11.2026 – 15.11.2026","status":"ongoing","description":"Cùng KALEO tham gia chiến dịch nghe nhạc và chia sẻ digital single First Light, lan tỏa những giai điệu đầu tiên trong hành trình âm nhạc của KAIRO.","image":"images/event/kairo-streaming-party.png","link":"#"},{"title":"KAIRO – Shiny Paradise Fan Meeting","type":"Fan Meeting","date":"28.11.2026","status":"upcoming","description":"Buổi gặp gỡ đặc biệt dành cho KAIRO và KALEO với những màn trình diễn trực tiếp, giao lưu cùng người hâm mộ và nhiều hoạt động tương tác thú vị.","image":"images/event/kairo-shiny-paradise-fan-meeting.png","link":"#"},{"title":"BLUEPRINT – Mini Album Showcase","type":"Showcase","date":"20.09.2026","status":"ended","description":"Sự kiện showcase giới thiệu mini album BLUEPRINT, đánh dấu một cột mốc đáng nhớ trong hành trình trưởng thành về âm nhạc và phong cách biểu diễn của KAIRO.","image":"images/event/kairo-blueprint-showcase.png","link":"#"}],"musicVideos":[{"title":"BLUEPRINT","type":"Official Music Video","youtubeId":"a1vHjBy85TU"},{"title":"SHINY PARADISE","type":"Official Music Video","youtubeId":"WXS-o57VJ5w"}]}'),
-    ('mira', N'{"handle":"@mira.official","photo":"images/artists/mira.png","summary":"MIRA là nữ ca sĩ solo nổi bật với phong cách V-Pop và Dance-pop trẻ trung, ngọt ngào. Sở hữu chất giọng trong trẻo cùng hình tượng nữ tính, vui tươi, MIRA không ngừng làm mới bản thân và lan tỏa năng lượng tích cực đến cộng đồng người hâm mộ MIEL.","communityLink":"artist-community.html?id=2","social":{"youtube":"","instagram":"","tiktok":""},"promotion":{"title":"Lưu giữ những khoảnh khắc ngọt ngào cùng MIRA.","description":"Khám phá bộ sưu tập merchandise chính thức dành cho những người hâm mộ MIRA và cộng đồng MIEL.","image":"images/banners/Mira-banner.png","link":"products.html"},"information":[{"year":"2.2023","title":"First Bloom","description":"Chính thức debut solo với digital single đầu tay \"First Bloom\", đánh dấu sự khởi đầu trong hành trình âm nhạc của MIRA."},{"year":"5.2023","title":"First Fan Meeting","description":"Tổ chức buổi gặp gỡ người hâm mộ đầu tiên, tạo nên dấu mốc đặc biệt trong hành trình kết nối cùng cộng đồng MIEL."},{"year":"9.2024","title":"Summer in My Pocket","description":"Ra mắt mini album đầu tay với ca khúc chủ đề \"Summer Diary\", mang đến hình ảnh trẻ trung, năng động và đầy màu sắc."},{"year":"12.2025","title":"Beyond the Stars","description":"Phát hành mini album thứ hai với ca khúc chủ đề \"Orbit\", đánh dấu sự trưởng thành trong phong cách âm nhạc và hình ảnh nghệ thuật."},{"year":"3.2026","title":"MIRA: THE NEXT CHAPTER","description":"Tổ chức concert solo đầu tiên, đánh dấu bước tiến mới trong sự nghiệp và hành trình phát triển nghệ thuật của MIRA."}],"activities":[{"title":"MIEL Streaming Party – ORBIT","type":"STREAMING PROJECT","date":"05.11.2026 – 15.11.2026","status":"ongoing","description":"Dự án streaming do cộng đồng MIEL tổ chức nhằm lan tỏa ca khúc \"Orbit\" và ủng hộ hành trình âm nhạc của MIRA.","image":"images/event/mira-streaming-party.png","link":"#"},{"title":"MIRA – THE NEXT CHAPTER","type":"FIRST SOLO CONCERT","date":"29.11.2026","status":"upcoming","description":"Concert solo đầu tiên của MIRA, hứa hẹn mang đến những màn trình diễn đặc biệt cùng các ca khúc nổi bật trong hành trình âm nhạc của cô.","image":"images/event/mira-the-next-chapter.png","link":"#"},{"title":"BEYOND THE STARS – Listening Party","type":"ALBUM EVENT","date":"20.09.2026","status":"ended","description":"Sự kiện nghe album \"Beyond the Stars\" dành cho người hâm mộ, cùng khám phá những giai điệu và câu chuyện phía sau ca khúc \"Orbit\".","image":"images/event/mira-beyond-the-stars.png","link":"#"}],"musicVideos":[{"title":"FIRST BLOOM","type":"Official Music Video","youtubeId":"eHHQaoEW30Q"},{"title":"BEYOND THE STARS","type":"Official Music Video","youtubeId":"vPwaXytZcgI"}]}'),
-    ('rhea', N'{"handle":"@rhea.official","photo":"images/artists/rhea.png","summary":"RHEA là nữ nghệ sĩ solo theo đuổi phong cách Dark Pop, Hip-hop và Alternative R&B. Với hình tượng mạnh mẽ, sắc sảo và cá tính, RHEA tạo dấu ấn qua âm nhạc độc đáo cùng những màn trình diễn đầy cuốn hút, đồng thời thể hiện tinh thần tự do và bản lĩnh nghệ thuật.","communityLink":"artist-community.html?id=3","social":{"youtube":"https://www.youtube.com/channel/UCOmHUn--16B90oW2L6FRR3A","instagram":"https://www.instagram.com/blackpinkofficial","tiktok":"https://www.tiktok.com/@bp_tiktok?_r=1&_t=ZS-9BESqXDVPap"},"promotion":{"title":"Thể hiện cá tính riêng cùng bộ sưu tập RHEA.","description":"Khám phá merchandise chính thức mang dấu ấn nghệ thuật độc đáo của RHEA.","image":"images/banners/Rhea-banner.png","link":"products.html"},"information":[{"year":"11/2021","title":"Official Debut","description":"Chính thức debut với digital single đầu tay \"REDLINE\"."},{"year":"03/2023","title":"First Mini Album","description":"Ra mắt mini album đầu tay \"AFTER DARK\"."},{"year":"09/2024","title":"First Solo Showcase","description":"Tổ chức showcase cá nhân \"RHEA: UNBOUND\"."},{"year":"05/2025","title":"Second Mini Album","description":"Phát hành mini album \"OUT OF FRAME\"."},{"year":"08/2026","title":"ECLIPSE","description":"Trở lại với dự án âm nhạc mới \"ECLIPSE\"."}],"activities":[{"title":"ECLIPSE – Comeback Streaming Project","type":"Hoạt động cộng đồng","date":"05.11.2026 – 15.11.2026","status":"ongoing","description":"Cùng VANTA tham gia chiến dịch nghe nhạc và chia sẻ dự án ECLIPSE, lan tỏa sản phẩm âm nhạc mới của RHEA trên các nền tảng trực tuyến.","image":"images/event/rhea-eclipse-comback-streaming-project.png","link":"#"},{"title":"RHEA – ECLIPSE Showcase","type":"Showcase","date":"22.11.2026","status":"upcoming","description":"Sự kiện giới thiệu dự án ECLIPSE với những màn trình diễn trực tiếp, chia sẻ về quá trình sản xuất âm nhạc và giao lưu cùng người hâm mộ.","image":"images/event/rhea-eclipse-showcase.png","link":"#"},{"title":"OUT OF FRAME – Special Fan Event","type":"Fan Event","date":"20.09.2026","status":"ended","description":"Sự kiện đặc biệt dành cho VANTA nhân dịp phát hành mini album OUT OF FRAME, với các hoạt động giao lưu và trải nghiệm merchandise độc quyền.","image":"images/event/rhea-out-of-frame.png","link":"#"}],"musicVideos":[{"title":"ECLIPSE","type":"Official Music Video","youtubeId":"2S24-y0Ij3Y"},{"title":"OUT OF FRAME","type":"Official Music Video","youtubeId":"IHNzOHi8sJs"}]}');
-
-    IF COL_LENGTH(N'dbo.Artists', N'ProfileDataJson') IS NULL
-        THROW 51001, 'Run database/migration-artist-profile-data-json.sql before seed-data.sql.', 1;
-
-    -- Reject an email already owned by a different role; never promote it implicitly.
-    IF EXISTS (
-        SELECT 1
-        FROM @Artists s
-        JOIN dbo.Users u ON u.Email = s.Email
-        WHERE u.Role <> 'Artist'
-    )
-        THROW 51002, 'An artist email already exists with a non-Artist role; no account permissions were changed.', 1;
-
-    -- Create only missing artist accounts with a random, non-PasswordHasher marker.
-    -- Existing PasswordHash, Role, and Status values are never updated.
-    INSERT INTO dbo.Users (Email, PasswordHash, FullName, Role, Status)
+    INSERT INTO dbo.Users
+        (Email, PasswordHash, FullName, Role, Status)
     SELECT
-        s.Email,
-        CONCAT('LOCKED_IMPORT_', CONVERT(VARCHAR(64), CRYPT_GEN_RANDOM(32), 2)),
-        s.Name,
+        a.Email,
+        CONCAT('LOCKED_IMPORT_',
+               CONVERT(VARCHAR(64), CRYPT_GEN_RANDOM(32), 2)),
+        a.Name,
         'Artist',
         'Locked'
-    FROM @Artists s
+    FROM @Artists a
     WHERE NOT EXISTS (
-        SELECT 1
-        FROM dbo.Users u WITH (UPDLOCK, HOLDLOCK)
-        WHERE u.Email = s.Email
+        SELECT 1 FROM dbo.Users u
+        WHERE u.Email = a.Email
     );
 
-    IF EXISTS (
-        SELECT 1
-        FROM @Artists s
-        LEFT JOIN dbo.Users u ON u.Email = s.Email
-        WHERE u.UserId IS NULL OR u.Role <> 'Artist'
-    )
-        THROW 51003, 'An artist account could not be linked to a User with Role=Artist.', 1;
-
-    IF EXISTS (
-        SELECT 1
-        FROM dbo.Artists a
-        JOIN @Artists s ON s.Slug = a.Slug
-        JOIN dbo.Users u ON u.Email = s.Email
-        WHERE a.UserId <> u.UserId
-    )
-        THROW 51004, 'An existing artist slug is linked to another user; seed stopped to preserve the link.', 1;
-
-    IF EXISTS (
-        SELECT 1
-        FROM @Artists s
-        JOIN dbo.Users u ON u.Email = s.Email
-        JOIN dbo.Artists a ON a.UserId = u.UserId
-        WHERE a.Slug <> s.Slug
-    )
-        THROW 51005, 'An artist user is already linked to a different artist slug; seed stopped to preserve the link.', 1;
+    -- Cap nhat ho so nghe si da co
+    UPDATE a
+    SET
+        a.Name = s.Name,
+        a.Bio = s.Bio,
+        a.Style = s.Style,
+        a.AvatarUrl = s.AvatarUrl,
+        a.CoverUrl = s.CoverUrl,
+        a.UpdatedAt = SYSUTCDATETIME()
+    FROM dbo.Artists a
+    JOIN @Artists s ON a.Slug = s.Slug;
 
     -- Them nghe si neu chua co
     INSERT INTO dbo.Artists
@@ -134,14 +102,6 @@ BEGIN TRY
         SELECT 1 FROM dbo.Artists a
         WHERE a.Slug = s.Slug
     );
-
-    -- Restore details from SeedData.cs. Existing non-NULL profile edits are preserved.
-    UPDATE a
-    SET a.ProfileDataJson = p.ProfileDataJson
-    FROM dbo.Artists a
-    JOIN @Artists s ON s.Slug = a.Slug
-    JOIN @ArtistProfiles p ON p.Slug = a.Slug
-    WHERE a.ProfileDataJson IS NULL;
 
     /* ========================================================
        2. DANH MUC SAN PHAM
@@ -297,7 +257,24 @@ BEGIN TRY
     END
     ELSE
     BEGIN
-        -- Insert missing products only; preserve any edits to existing products.
+        -- Cap nhat san pham da import truoc do
+        UPDATE p
+        SET
+            p.Name = s.Name,
+            p.ArtistId = a.ArtistId,
+            p.CategoryId = c.CategoryId,
+            p.Description = s.Description,
+            p.BasePrice = s.Price,
+            p.UpdatedAt = SYSUTCDATETIME()
+        FROM dbo.Products p
+        JOIN @Products s
+            ON p.Slug = CONCAT('owniverse-js-', s.JSId)
+        JOIN dbo.Artists a
+            ON a.Slug = s.ArtistSlug
+        JOIN dbo.Categories c
+            ON c.Slug = s.CategorySlug;
+
+        -- Chi them san pham chua ton tai
         INSERT INTO dbo.Products
             (ArtistId, CategoryId, Name, Slug,
              Description, BasePrice)

@@ -33,16 +33,16 @@ var connectionString = builder.Configuration.GetConnectionString("Owniverse")
 var database = new SqlDatabase(connectionString);
 var adminRepository = new AdminRepository(connectionString);
 
-// Cho phép trang HTML (chạy ở địa chỉ khác) gọi sang API này
-builder.Services.AddCors(options =>
-    options.AddDefaultPolicy(policy =>
-        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
-
+builder.Services.AddCors(options => options.AddPolicy("LocalFrontendPreview", policy =>
+    policy.WithOrigins("http://localhost:3000", "http://127.0.0.1:3000")
+        .AllowAnyHeader()
+        .AllowAnyMethod()));
 builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
 var app = builder.Build();
 var passwordHasher = app.Services.GetRequiredService<IPasswordHasher<User>>();
 var userRepository = new UserRepository(connectionString);
-app.UseCors();
+if (app.Environment.IsDevelopment())
+    app.UseCors("LocalFrontendPreview");
 
 // =====================================================
 // 1. DỮ LIỆU NẠP TỪ SQL SERVER
@@ -57,6 +57,13 @@ if (app.Environment.IsDevelopment())
         app.Lifetime.ApplicationStopping);
     if (developmentAdmin is not null)
         users.Add(developmentAdmin);
+
+    var demoCustomer = await DemoCustomerBootstrap.EnsureAsync(
+        app.Configuration,
+        passwordHasher,
+        app.Lifetime.ApplicationStopping);
+    if (demoCustomer is not null)
+        users.Add(demoCustomer);
 }
 var nextUserId = await userRepository.GetNextUserIdAsync(app.Lifetime.ApplicationStopping);
 
@@ -1763,6 +1770,6 @@ app.Use(async (ctx, next) =>
 });
 
 // =====================================================
-// CHẠY SERVER (giữ cổng 3000 để frontend khỏi phải đổi)
+// Địa chỉ/cổng lấy từ profile cấu hình khi chạy dotnet run.
 // =====================================================
-app.Run("http://localhost:3000");
+app.Run();

@@ -519,7 +519,10 @@
     try {
       const user = await refreshCurrentUser();
       if (user.role !== 'admin') {
-        alert('Bạn không có quyền truy cập trang quản trị.');
+        await showAppMessage('Tài khoản của bạn không có quyền truy cập trang quản trị.', {
+          type: 'error',
+          title: 'Không đủ quyền'
+        });
         window.location.replace('index.html');
         return;
       }

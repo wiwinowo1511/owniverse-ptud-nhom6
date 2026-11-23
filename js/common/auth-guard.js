@@ -35,7 +35,15 @@
     }
 
     function askLogin(target) {
-        alert("Vui lòng đăng nhập để sử dụng chức năng này.");
+        if (typeof showAppMessage === "function") {
+            showAppMessage("Bạn cần đăng nhập để sử dụng chức năng này.", {
+                type: "warning",
+                title: "Yêu cầu đăng nhập"
+            }).finally(function () {
+                goToLogin(target);
+            });
+            return;
+        }
         goToLogin(target);
     }
 
@@ -49,6 +57,7 @@
 
         const link = e.target.closest("a[href]");
         if (link && PROTECTED_PAGES.includes(pageOf(link.getAttribute("href")))) {
+            if (link.classList.contains("account-circle")) return;
             e.preventDefault();
             e.stopImmediatePropagation();
             askLogin(link.getAttribute("href"));
