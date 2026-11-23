@@ -33,16 +33,26 @@ var connectionString = builder.Configuration.GetConnectionString("Owniverse")
 var database = new SqlDatabase(connectionString);
 var adminRepository = new AdminRepository(connectionString);
 
-builder.Services.AddCors(options => options.AddPolicy("LocalFrontendPreview", policy =>
-    policy.WithOrigins("http://localhost:3000", "http://127.0.0.1:3000")
+var configuredCorsOrigins = builder.Configuration.GetSection("CorsOrigins").Get<string[]>()
+    ?? Array.Empty<string>();
+
+builder.Services.AddCors(options => options.AddPolicy("FrontendPreview", policy =>
+    policy.SetIsOriginAllowed(origin =>
+        {
+            if (!Uri.TryCreate(origin, UriKind.Absolute, out var uri)) return false;
+            if ((uri.Host == "localhost" || uri.Host == "127.0.0.1")
+                && uri.Scheme is "http" or "https")
+                return true;
+            return configuredCorsOrigins.Any(allowed =>
+                allowed.Trim().TrimEnd('/').Equals(origin.TrimEnd('/'), StringComparison.OrdinalIgnoreCase));
+        })
         .AllowAnyHeader()
         .AllowAnyMethod()));
 builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
 var app = builder.Build();
 var passwordHasher = app.Services.GetRequiredService<IPasswordHasher<User>>();
 var userRepository = new UserRepository(connectionString);
-if (app.Environment.IsDevelopment())
-    app.UseCors("LocalFrontendPreview");
+app.UseCors("FrontendPreview");
 
 // =====================================================
 // 1. DỮ LIỆU NẠP TỪ SQL SERVER

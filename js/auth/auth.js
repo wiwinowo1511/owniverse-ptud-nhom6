@@ -13,12 +13,17 @@ const TOKEN_KEY = "owniverse_token";
 const HOME_PAGE = "index.html";
 const LOGIN_PAGE = "login.html";
 
-// The site is normally served by the API (same origin). When previewed with
-// VS Code Live Server on port 3000, send API requests to the local .NET API.
+// Frontend deploy and local preview can run on a different origin from .NET API.
+// Set window.OWNIVERSE_API_BASE before auth.js to override the API URL.
 const API_BASE_URL = (() => {
-    const { hostname, port, protocol } = window.location;
+    if (window.OWNIVERSE_API_BASE) return String(window.OWNIVERSE_API_BASE).replace(/\/$/, "");
+    const configured = localStorage.getItem("owniverse_api_base");
+    if (configured) return configured.replace(/\/$/, "");
+    const meta = document.querySelector('meta[name="owniverse-api-base"]');
+    if (meta && meta.content.trim()) return meta.content.trim().replace(/\/$/, "");
+    const { hostname, protocol } = window.location;
     const isLocalHost = hostname === "localhost" || hostname === "127.0.0.1";
-    return isLocalHost && port === "3000" ? `${protocol}//${hostname}:5055` : "";
+    return isLocalHost ? `${protocol}//${hostname}:5055` : "";
 })();
 
 /* ---------- Tiện ích ---------- */
