@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quản trị | OWNIVERSE</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="images/icons/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="images/icons/favicon-32x32.png">
+  <link rel="apple-touch-icon" href="images/icons/apple-touch-icon.png">
+  <link rel="manifest" href="images/icons/site.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/pages/admin.css">
+</head>
+<body class="admin">
+
+  <aside class="sidebar">
+    <a class="sidebar_brand" href="admin.html"><strong>OWNIVERSE</strong><span>ADMINISTRATION PANEL</span></a>
+    <nav aria-label="Menu quản trị">
+      <p class="sidebar_label">QUẢN LÝ</p>
+      <a href="#" data-soon><i aria-hidden="true">▦</i><span>Tổng quan</span></a>
+      <a href="#" data-soon><i aria-hidden="true">▤</i><span>Sản phẩm</span></a>
+      <a href="#" data-soon><i aria-hidden="true">◇</i><span>Danh mục</span></a>
+      <a href="#artists" data-view="artists"><i aria-hidden="true">♬</i><span>Nghệ sĩ</span></a>
+      <a href="#users" data-view="users"><i aria-hidden="true">◎</i><span>Người dùng</span></a>
+      <a href="#orders" data-view="orders"><i aria-hidden="true">▤</i><span>Đơn hàng</span></a>
+      <a href="#promotions" data-view="promotions"><i aria-hidden="true">◇</i><span>Khuyến mãi</span></a>
+      <p class="sidebar_label">HỆ THỐNG</p>
+      <a href="#" class="is-muted" data-soon><i aria-hidden="true">⚙</i><span>Cài đặt (dự kiến)</span></a>
+      <a href="#" class="is-muted" data-soon><i aria-hidden="true">?</i><span>Hỗ trợ</span></a>
+    </nav>
+    <div class="user-card">
+      <div class="user-card_row"><span class="avatar">AD</span><div><strong>Admin OWNIVERSE</strong><small>Vai trò: Quản trị viên</small></div></div>
+      <a href="login.html" data-logout>Đăng xuất</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <p class="topbar_title">QUẢN TRỊ WEBSITE</p>
+      <input id="quick-search" type="search" placeholder="Tìm kiếm nhanh..." aria-label="Tìm kiếm nhanh">
+      <button class="icon-btn" id="btn-alert" type="button" aria-label="Thông báo">!</button>
+      <details class="user-menu">
+        <summary>Admin</summary>
+        <div><a href="index.html">Xem website</a><a href="login.html" data-logout>Đăng xuất</a></div>
+      </details>
+    </header>
+
+    <main class="content">
+
+      <!-- ===== 4. QUẢN LÝ NGHỆ SĨ ===== -->
+      <section id="view-artists" aria-labelledby="artists-title" hidden>
+        <h1 id="artists-title">QUẢN LÝ NGHỆ SĨ</h1>
+        <p class="lead">Quản lý hồ sơ Kairo, Rhea, Mira và liên kết sản phẩm/bộ sưu tập theo mô hình D2C.</p>
+        <div class="toolbar">
+          <input type="search" data-search placeholder="Tìm tên / mã nghệ sĩ..." aria-label="Tìm tên hoặc mã nghệ sĩ">
+          <select data-filter="status" aria-label="Lọc theo trạng thái"><option value="">Trạng thái</option></select>
+          <button class="btn" type="button" data-create>+ THÊM NGHỆ SĨ</button>
+        </div>
+        <div class="panel">
+          <div class="panel_head"><h2>NGHỆ SĨ TRỰC THUỘC OWNIVERSE</h2><span data-count></span></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Mã</th><th>Tên nghệ sĩ</th><th>Thể loại / phong cách</th><th>Số SP</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="panel_foot"><span data-info></span><nav class="pager" data-pager aria-label="Phân trang nghệ sĩ"></nav></div>
+        </div>
+        <div class="split">
+          <div class="panel">
+            <div class="panel_head"><h2>THÔNG TIN VÀ LIÊN KẾT</h2></div>
+            <div class="artist-card" data-artist-card></div>
+          </div>
+          <div class="panel">
+            <div class="panel_head"><h2>GHI CHÚ NGHIỆP VỤ D2C</h2></div>
+            <form class="note-box" data-note-form>
+              <textarea id="artist-note" rows="7" aria-label="Ghi chú nghiệp vụ D2C" placeholder="Ghi chú về hợp đồng, quyền phân phối, lịch mở bán..."></textarea>
+              <button class="btn" type="submit">LƯU GHI CHÚ</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== 5. QUẢN LÝ NGƯỜI DÙNG ===== -->
+      <section id="view-users" aria-labelledby="users-title" hidden>
+        <h1 id="users-title">QUẢN LÝ NGƯỜI DÙNG</h1>
+        <p class="lead">Tra cứu tài khoản, cập nhật trạng thái và phân quyền theo vai trò được phép.</p>
+        <div class="toolbar">
+          <input type="search" data-search placeholder="Tìm tên / mã / email..." aria-label="Tìm tên, mã hoặc email">
+          <select data-filter="role" aria-label="Lọc theo vai trò"><option value="">Vai trò: Tất cả</option></select>
+          <select data-filter="status" aria-label="Lọc theo trạng thái"><option value="">Trạng thái</option></select>
+          <button class="btn" type="button" data-create>+ THÊM TÀI KHOẢN</button>
+        </div>
+        <div class="panel">
+          <div class="panel_head"><h2>DANH SÁCH TÀI KHOẢN</h2><span data-count></span></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Mã TK</th><th>Tên hiển thị</th><th>Email</th><th>Vai trò</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="panel_foot"><span data-info></span><nav class="pager" data-pager aria-label="Phân trang tài khoản"></nav></div>
+        </div>
+      </section>
+
+      <!-- ===== 6. QUẢN LÝ ĐƠN HÀNG ===== -->
+      <section id="view-orders" aria-labelledby="orders-title" hidden>
+        <h1 id="orders-title">QUẢN LÝ ĐƠN HÀNG</h1>
+        <p class="lead">Xem chi tiết, kiểm tra thanh toán và cập nhật trạng thái xử lý – vận chuyển của đơn hàng.</p>
+        <div class="toolbar">
+          <input type="search" data-search placeholder="Tìm mã đơn / người mua..." aria-label="Tìm mã đơn hoặc người mua">
+          <select data-filter="status" aria-label="Lọc theo trạng thái"><option value="">Trạng thái</option></select>
+          <select data-filter="payment" aria-label="Lọc theo thanh toán"><option value="">Thanh toán</option></select>
+          <button class="btn" type="button" data-create>+ TẠO ĐƠN HÀNG</button>
+        </div>
+        <div class="panel">
+          <div class="panel_head"><h2>DANH SÁCH ĐƠN HÀNG</h2><span data-count></span></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Ngày đặt</th><th>Sản phẩm</th><th>Tổng tiền</th><th>Thanh toán</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="panel_foot"><span data-info></span><nav class="pager" data-pager aria-label="Phân trang đơn hàng"></nav></div>
+        </div>
+      </section>
+
+      <!-- ===== 7. QUẢN LÝ KHUYẾN MÃI ===== -->
+      <section id="view-promotions" aria-labelledby="promo-title" hidden>
+        <h1 id="promo-title">QUẢN LÝ KHUYẾN MÃI</h1>
+        <p class="lead">Tạo và cập nhật voucher, điều kiện áp dụng, thời hạn, lượt sử dụng và trạng thái phát hành.</p>
+        <div class="toolbar">
+          <input type="search" data-search placeholder="Tìm tên / mã voucher..." aria-label="Tìm tên hoặc mã voucher">
+          <select data-filter="status" aria-label="Lọc theo trạng thái"><option value="">Trạng thái</option></select>
+          <button class="btn" type="button" data-create>+ THÊM VOUCHER</button>
+        </div>
+        <div class="panel">
+          <div class="panel_head"><h2>DANH SÁCH VOUCHER / ƯU ĐÃI</h2><span data-count></span></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Mã voucher</th><th>Tên chương trình</th><th>Ưu đãi</th><th>Đơn tối thiểu</th><th>Thời gian</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="panel_foot"><span data-info></span><nav class="pager" data-pager aria-label="Phân trang voucher"></nav></div>
+        </div>
+      </section>
+
+    </main>
+    <footer class="admin-footer">&copy; 2026 Owniverse. All rights reserved.</footer>
+  </div>
+
+  <dialog id="form-dialog" aria-labelledby="form-title">
+    <form id="crud-form" novalidate>
+      <header class="dialog_head"><h2 id="form-title"></h2><button type="button" class="icon-btn" data-close aria-label="Đóng">×</button></header>
+      <fieldset id="form-fields" class="form-grid"></fieldset>
+      <footer class="dialog_foot">
+        <button type="button" class="btn btn--ghost" data-close>Hủy</button>
+        <button type="submit" class="btn" id="form-submit">Lưu</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog id="confirm-dialog" aria-labelledby="confirm-msg">
+    <form method="dialog">
+      <p id="confirm-msg"></p>
+      <footer class="dialog_foot">
+        <button value="cancel" class="btn btn--ghost">Hủy</button>
+        <button value="ok" class="btn btn--danger">Xóa</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="js/auth/auth.js"></script>
+  <script src="js/pages/admin.js"></script>
+</body>
+</html>

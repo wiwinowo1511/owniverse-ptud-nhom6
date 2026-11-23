@@ -43,6 +43,8 @@ class Artist
 {
 
     public string Status { get; set; } = "active";
+    [System.Text.Json.Serialization.JsonIgnore]
+    public string AdminNote { get; set; } = "";
     public int Id { get; set; }
     public int? UserId { get; set; }                // Artists.UserId (1:1) - tài khoản đăng nhập của nghệ sĩ
     public string Slug { get; set; } = "";          // dùng trên địa chỉ: artist-detail.html?artist=kairo
@@ -201,6 +203,11 @@ record CreateOrderRequest(string? ReceiverName, string? ReceiverPhone, string? S
 record ForgotPasswordRequest(string? Email);
 record ResetPasswordRequest(string? Token, string? NewPassword);
 record ArtistStatusRequest(string? Status);
+record AdminArtistNoteRequest(string? Note);
+record AdminOrderStatusRequest(string? Status);
+record AdminPromotionRequest(
+    string? Code, string? Name, string? Type, decimal? Value, decimal? MinimumOrder,
+    int? UsageLimit, string? Start, string? End, string? Release);
 
 class PasswordResetToken
 {
