@@ -74,6 +74,13 @@ if (app.Environment.IsDevelopment())
         app.Lifetime.ApplicationStopping);
     if (demoCustomer is not null)
         users.Add(demoCustomer);
+
+    var demoArtist = await DemoArtistBootstrap.EnsureAsync(
+        app.Configuration,
+        passwordHasher,
+        app.Lifetime.ApplicationStopping);
+    if (demoArtist is not null)
+        users.Add(demoArtist);
 }
 var nextUserId = await userRepository.GetNextUserIdAsync(app.Lifetime.ApplicationStopping);
 
@@ -122,7 +129,8 @@ foreach (var u in users)
         throw new InvalidOperationException($"Tài khoản {u.Email} không có PasswordHash hợp lệ.");
 
 // TODO-DB: có thể giữ nguyên, hoặc đổi sang JWT / bảng Sessions
-var sessions = new ConcurrentDictionary<string, int>(); // token -> userId
+var sessions = new ConcurrentDictionary<string, SessionEntry>(); // token -> user and last activity
+var sessionIdleTimeout = TimeSpan.FromMinutes(30);
 
 // =====================================================
 // 2. HÀM HỖ TRỢ
@@ -155,6 +163,16 @@ string Fold(string? text)
 // "Mira Official" -> "mira-official", "Áo thun" -> "ao-thun"
 string Slugify(string? text) =>
     System.Text.RegularExpressions.Regex.Replace(Fold(text), "[^a-z0-9]+", "-").Trim('-');
+
+bool IsAllowedArtistImageReference(string? value)
+{
+    if (string.IsNullOrWhiteSpace(value)) return true;
+    if (System.Text.RegularExpressions.Regex.IsMatch(value, @"^[a-zA-Z][a-zA-Z0-9+.-]*:"))
+        return Uri.TryCreate(value, UriKind.Absolute, out var uri) && uri.Scheme == Uri.UriSchemeHttps;
+    return !value.StartsWith("//", StringComparison.Ordinal)
+        && value[0] != '\\'
+        && !value.Contains('\0');
+}
 
 // Slug không được trùng với đường dẫn đặc biệt (/api/artists/me) hoặc là số (vì số được hiểu là id)
 bool IsReservedSlug(string slug) => slug == "me" || int.TryParse(slug, out _);
@@ -194,7 +212,7 @@ void CacheUser(User user)
 User? GetCurrentUser(HttpContext ctx)
 {
     var token = GetToken(ctx);
-    if (!sessions.TryGetValue(token, out var userId)) return null;
+    if (!TryGetActiveSession(token, out var userId)) return null;
 
     var user = users.FirstOrDefault(u => u.Id == userId); // TODO-DB: SELECT * FROM Users WHERE Id = @id
     if (user is null || user.Status != "active")
@@ -208,7 +226,7 @@ User? GetCurrentUser(HttpContext ctx)
 async Task<User?> GetCurrentUserFromDatabaseAsync(HttpContext ctx)
 {
     var token = GetToken(ctx);
-    if (!sessions.TryGetValue(token, out var userId)) return null;
+    if (!TryGetActiveSession(token, out var userId)) return null;
 
     var user = await userRepository.FindByIdAsync(userId, ctx.RequestAborted);
     if (user is null || user.Status != "active")
@@ -219,6 +237,28 @@ async Task<User?> GetCurrentUserFromDatabaseAsync(HttpContext ctx)
 
     CacheUser(user);
     return user;
+}
+
+bool TryGetActiveSession(string token, out int userId)
+{
+    userId = 0;
+    while (sessions.TryGetValue(token, out var session))
+    {
+        var now = DateTime.UtcNow;
+        if (now - session.LastActivityUtc >= sessionIdleTimeout)
+        {
+            sessions.TryRemove(token, out _);
+            return false;
+        }
+
+        var touched = session with { LastActivityUtc = now };
+        if (sessions.TryUpdate(token, touched, session))
+        {
+            userId = session.UserId;
+            return true;
+        }
+    }
+    return false;
 }
 
 // Kiểm tra quyền. Trả về lỗi (401/403) nếu không đủ quyền, trả về null nếu hợp lệ.
@@ -234,7 +274,7 @@ IResult? CheckRole(HttpContext ctx, params string[] allowedRoles)
 // Hủy tất cả phiên đăng nhập của một tài khoản (khi khóa, xóa, admin đặt lại mật khẩu)
 void RemoveSessionsOf(int userId)
 {
-    foreach (var item in sessions.Where(s => s.Value == userId).ToList())
+    foreach (var item in sessions.Where(s => s.Value.UserId == userId).ToList())
         sessions.TryRemove(item.Key, out _);
 }
 
@@ -505,7 +545,7 @@ app.MapPost("/api/auth/login", async (LoginRequest req) =>
 
     CacheUser(user);
     var token = Guid.NewGuid().ToString();
-    sessions[token] = user.Id;
+    sessions[token] = new SessionEntry(user.Id, DateTime.UtcNow);
 
     return Results.Ok(new { message = "Đăng nhập thành công", token, user = PublicUser(user) });
 });
@@ -677,6 +717,13 @@ app.MapPut("/api/artists/me", IResult (HttpContext ctx, ArtistSelfUpdateRequest 
     var artist = GetMyArtist(ctx);
     if (artist is null) return Msg(404, "Tài khoản chưa được liên kết với hồ sơ nghệ sĩ nào");
 
+    if (req.Description is { Length: > 4000 } || req.Summary is { Length: > 2000 })
+        return Msg(400, "Nội dung giới thiệu vượt quá độ dài cho phép");
+    if (req.Avatar is { Length: > 500 } || req.Cover is { Length: > 500 })
+        return Msg(400, "Đường dẫn ảnh không được vượt quá 500 ký tự");
+    if (!IsAllowedArtistImageReference(req.Avatar) || !IsAllowedArtistImageReference(req.Cover))
+        return Msg(400, "Ảnh phải dùng đường dẫn trong website hoặc URL bảo mật HTTPS");
+
     // TODO-DB: UPDATE Artists SET ... WHERE UserId = @userId (+ cập nhật các bảng con)
     if (req.Handle is not null) artist.Handle = req.Handle;
     if (req.Genre is not null) artist.Genre = req.Genre;
@@ -690,6 +737,14 @@ app.MapPut("/api/artists/me", IResult (HttpContext ctx, ArtistSelfUpdateRequest 
     if (req.Information is not null) artist.Information = req.Information;
     if (req.Activities is not null) artist.Activities = req.Activities;
     if (req.MusicVideos is not null) artist.MusicVideos = req.MusicVideos;
+
+    var community = CommunityForArtist(artist.Id);
+    if (community is not null)
+    {
+        community.Description = artist.Description;
+        community.Avatar = artist.Avatar;
+        community.Cover = artist.Cover;
+    }
 
     return Results.Ok(artist);
 });

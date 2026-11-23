@@ -24,6 +24,35 @@ function setText(elementId, value) {
 
 }
 
+function safeArtistLink(value) {
+    const reference = String(value || "").trim();
+    if (!reference || reference === "#") return "";
+    if (/^https:\/\//i.test(reference)) {
+        try {
+            return new URL(reference).protocol === "https:" ? reference : "";
+        } catch (error) {
+            return "";
+        }
+    }
+    if (/^(\/\/|[a-z][a-z0-9+.-]*:)/i.test(reference)) return "";
+    try {
+        const url = new URL(reference, window.location.href);
+        return url.origin === window.location.origin ? reference : "";
+    } catch (error) {
+        return "";
+    }
+}
+
+function safeSocialLink(value) {
+    const reference = String(value || "").trim();
+    if (!reference) return "";
+    try {
+        return new URL(reference).protocol === "https:" ? reference : "";
+    } catch (error) {
+        return "";
+    }
+}
+
 
 /* Cập nhật hình ảnh */
 
@@ -48,10 +77,11 @@ function setLink(elementId, url) {
 
     if (!element) return;
 
-    if (url && url.trim() !== "" && url !== "#") {
+    const safeUrl = safeArtistLink(url);
+    if (safeUrl) {
 
         // Có đường dẫn: cho phép bấm
-        element.href = url;
+        element.href = safeUrl;
         element.removeAttribute("aria-disabled");
         element.style.pointerEvents = "auto";
         element.style.opacity = "1";
@@ -83,10 +113,11 @@ function setSocialLink(elementId, url) {
     // Luôn hiển thị icon
     element.hidden = false;
 
-    if (url && url.trim() !== "" && url !== "#") {
+    const safeUrl = safeSocialLink(url);
+    if (safeUrl) {
 
         // Có đường dẫn chính thức
-        element.href = url;
+        element.href = safeUrl;
         element.target = "_blank";
         element.rel = "noopener noreferrer";
 
@@ -308,12 +339,13 @@ function renderActivities(activities) {
         content.append(status, meta, title, description);
 
         // Liên kết xem chi tiết (chỉ tạo khi có URL)
-        if (activity.link && activity.link.trim() !== "" && activity.link !== "#") {
+        const safeLink = safeArtistLink(activity.link);
+        if (safeLink) {
 
             const link = document.createElement("a");
 
             link.className = "artist-activity-link";
-            link.href = activity.link;
+            link.href = safeLink;
             link.textContent = "XEM CHI TIẾT ↗";
 
             content.appendChild(link);
@@ -364,21 +396,30 @@ function renderMusicVideos(videos) {
         card.rel = "noopener noreferrer";
         card.setAttribute("aria-label", `Xem MV ${video.title} trên YouTube`);
 
-        card.innerHTML = `
-            <div class="artist-music-video-thumbnail">
-                <img
-                    src="https://img.youtube.com/vi/${encodeURIComponent(video.youtubeId)}/hqdefault.jpg"
-                    alt="${video.title}"
-                    loading="lazy"
-                >
-                <span class="artist-music-video-play">▶</span>
-            </div>
+        const thumbnail = document.createElement("div");
+        thumbnail.className = "artist-music-video-thumbnail";
 
-            <div class="artist-music-video-info">
-                <h3>${video.title}</h3>
-                <p>${video.type}</p>
-            </div>
-        `;
+        const image = document.createElement("img");
+        image.src = `https://img.youtube.com/vi/${encodeURIComponent(video.youtubeId)}/hqdefault.jpg`;
+        image.alt = video.title || "Video âm nhạc của nghệ sĩ";
+        image.loading = "lazy";
+
+        const playIcon = document.createElement("span");
+        playIcon.className = "artist-music-video-play";
+        playIcon.textContent = "▶";
+        thumbnail.append(image, playIcon);
+
+        const info = document.createElement("div");
+        info.className = "artist-music-video-info";
+
+        const title = document.createElement("h3");
+        title.textContent = video.title || "Video âm nhạc";
+
+        const type = document.createElement("p");
+        type.textContent = video.type || "Music Video";
+        info.append(title, type);
+
+        card.append(thumbnail, info);
 
         container.appendChild(card);
 
@@ -629,14 +670,21 @@ async function initArtistDetail() {
 
     try {
 
-        artist = await apiRequest("/api/artists/" + encodeURIComponent(artistSlug));
+        if (artistSlug.toLowerCase() === "kairo" && typeof window.isArtistDemoSession === "function" && window.isArtistDemoSession()) {
+            artist = window.getArtistDemoProfile();
+        } else {
+            artist = await apiRequest("/api/artists/" + encodeURIComponent(artistSlug));
+        }
 
     } catch (error) {
 
-        // 404 -> "Không tìm thấy nghệ sĩ"; backend chưa chạy -> "Không kết nối được máy chủ..."
-        showArtistError(error.message);
-
-        return;
+        if (artistSlug.toLowerCase() === "kairo" && typeof window.getArtistDemoProfile === "function") {
+            artist = window.getArtistDemoProfile();
+        } else {
+            // 404 -> "Không tìm thấy nghệ sĩ"; backend chưa chạy -> "Không kết nối được máy chủ..."
+            showArtistError(error.message);
+            return;
+        }
 
     }
 

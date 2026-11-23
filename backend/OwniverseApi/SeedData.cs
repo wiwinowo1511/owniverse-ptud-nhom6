@@ -241,7 +241,7 @@ static class SeedData
     public static List<User> CreateUsers() => new()
     {
         // No default admin or fabricated customer accounts.
-        // Artist credentials are not provisioned here; real SQL accounts remain locked.
+        // Artist credentials are activated only by the explicit Development User Secrets bootstrap.
     };
 
     // =====================================================

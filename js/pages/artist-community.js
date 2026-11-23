@@ -550,9 +550,9 @@ function initArtistCommunityFeed(artist) {
   });
 }
 
-function initArtistCommunity() {
+async function initArtistCommunity() {
   const requestedId = new URLSearchParams(window.location.search).get("id") || "1";
-  const artist = COMMUNITY_ARTISTS[requestedId];
+  let artist = COMMUNITY_ARTISTS[requestedId];
   const main = document.querySelector(".artist-community-page");
 
   if (!artist) {
@@ -561,6 +561,19 @@ function initArtistCommunity() {
       main.innerHTML = '<section class="community-not-found" role="alert"><h1>Không tìm thấy cộng đồng</h1><p>Đường dẫn không hợp lệ. Hãy chọn một cộng đồng nghệ sĩ để tiếp tục.</p><a href="community.html">Quay lại cộng đồng</a></section>';
     }
     return;
+  }
+
+  if (typeof apiRequest === "function") {
+    try {
+      const savedProfile = await apiRequest("/api/artists/" + encodeURIComponent(requestedId));
+      artist = Object.assign({}, artist, {
+        description: typeof savedProfile.description === "string" ? savedProfile.description : artist.description,
+        avatar: savedProfile.avatar || artist.avatar,
+        cover: savedProfile.cover || artist.cover
+      });
+    } catch (error) {
+      // Keep the bundled demo profile visible when the API is not available.
+    }
   }
 
   const artistSlug = artist.name.toLocaleLowerCase("vi");
