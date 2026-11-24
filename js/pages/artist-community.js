@@ -97,6 +97,11 @@ const COMMUNITY_ARTISTS = {
   }
 };
 
+function communityApiField(row, name) {
+  if (!row) return undefined;
+  return row[name] !== undefined ? row[name] : row[name.charAt(0).toUpperCase() + name.slice(1)];
+}
+
 function normalizeCommunityText(value) {
   return String(value || "")
     .toLocaleLowerCase("vi")
@@ -192,25 +197,69 @@ function initCommunityTabs() {
   if (activeTab) activateTab(activeTab, false);
 }
 
-function initCommunityJoin(artist) {
+let communityMembershipState = { communityId: null, artistId: null, isMember: false, memberCount: 0 };
+
+function updateCommunityInteractionAccess() {
+  document.querySelectorAll(".post-like-button").forEach(function (button) {
+    button.disabled = !communityMembershipState.isMember;
+  });
+  document.querySelectorAll(".post-comment-form").forEach(function (form) {
+    form.hidden = !communityMembershipState.isMember;
+  });
+  const composer = document.getElementById("fan-composer");
+  if (composer) composer.hidden = !communityMembershipState.isMember;
+}
+
+function initCommunityJoin(artist, state) {
   const button = document.getElementById("community-join");
   const count = document.getElementById("community-member-count");
   if (!button || !count) return;
 
-  let joined = true;
   function render() {
-    button.setAttribute("aria-pressed", String(joined));
-    button.classList.toggle("is-joined", joined);
+    button.disabled = !state.communityId;
+    button.setAttribute("aria-pressed", String(state.isMember));
+    button.classList.toggle("is-joined", state.isMember);
     const icon = document.createElement("span");
     icon.setAttribute("aria-hidden", "true");
-    icon.textContent = joined ? "✓" : "+";
-    button.replaceChildren(icon, document.createTextNode(joined ? " Đã tham gia" : " Tham gia cộng đồng"));
-    count.textContent = "♟ " + new Intl.NumberFormat("vi-VN").format(artist.members + (joined ? 0 : -1)) + " thành viên";
+    icon.textContent = state.isMember ? "✓" : "+";
+    button.replaceChildren(icon, document.createTextNode(state.isMember ? " Đã tham gia" : " Tham gia cộng đồng"));
+    count.textContent = "♟ " + new Intl.NumberFormat("vi-VN").format(state.memberCount) + " thành viên";
+    communityMembershipState = state;
+    updateCommunityInteractionAccess();
   }
 
-  button.addEventListener("click", function () {
-    joined = !joined;
+  async function refreshFromSql() {
+    const [allCommunities, joinedCommunities] = await Promise.all([
+      apiRequest("/api/communities", { auth: true }),
+      apiRequest("/api/users/me/communities", { auth: true })
+    ]);
+    const row = (Array.isArray(allCommunities) ? allCommunities : [])
+      .find(item => Number(communityApiField(item, "id")) === Number(state.communityId));
+    const joined = Array.isArray(joinedCommunities) && joinedCommunities
+      .some(item => Number(communityApiField(item, "communityId")) === Number(state.communityId));
+    if (row) state.memberCount = Number(communityApiField(row, "memberCount")) || 0;
+    state.isMember = joined;
     render();
+  }
+
+  button.addEventListener("click", async function () {
+    button.disabled = true;
+    try {
+      await apiRequest("/api/communities/" + state.communityId + (state.isMember ? "/leave" : "/join"), {
+        method: state.isMember ? "DELETE" : "POST",
+        auth: true
+      });
+      await refreshFromSql();
+      window.localStorage.setItem("owniverse_community_membership_updated", String(Date.now()));
+      window.dispatchEvent(new Event("owniverse:community-membership-updated"));
+    } catch (error) {
+      window.alert(error.message || "Không thể cập nhật trạng thái tham gia.");
+    } finally {
+      button.disabled = !state.communityId;
+    }
+  });
+  window.addEventListener("storage", function (event) {
+    if (event.key === "owniverse_community_membership_updated") refreshFromSql().catch(console.error);
   });
   render();
 }
@@ -322,10 +371,12 @@ function createCommunityPost(post, artist, isOfficial) {
   const likeButton = document.createElement("button");
   likeButton.className = "post-action post-like-button";
   likeButton.type = "button";
+  likeButton.disabled = !communityMembershipState.isMember;
   likeButton.setAttribute("aria-pressed", "false");
   let likes = Number(post.likes) || 0;
   likeButton.textContent = "♡ Thích" + (likes ? " (" + new Intl.NumberFormat("vi-VN").format(likes) + ")" : "");
   likeButton.addEventListener("click", function () {
+    if (!communityMembershipState.isMember) return;
     const liked = likeButton.getAttribute("aria-pressed") !== "true";
     likeButton.setAttribute("aria-pressed", String(liked));
     likeButton.classList.toggle("is-liked", liked);
@@ -350,6 +401,7 @@ function createCommunityPost(post, artist, isOfficial) {
   commentsArea.hidden = true;
   const commentForm = document.createElement("form");
   commentForm.className = "post-comment-form";
+  commentForm.hidden = !communityMembershipState.isMember;
   const commentInput = document.createElement("label");
   commentInput.className = "visually-hidden";
   const inputId = "post-comment-" + Math.random().toString(36).slice(2, 10);
@@ -369,6 +421,7 @@ function createCommunityPost(post, artist, isOfficial) {
   commentsList.className = "post-comments-list";
   commentForm.addEventListener("submit", function (event) {
     event.preventDefault();
+    if (!communityMembershipState.isMember) return;
     const value = commentField.value.trim();
     if (!value) return;
     const item = document.createElement("li");
@@ -482,6 +535,7 @@ function initFanCommunity(artist) {
 
   composer.addEventListener("submit", function (event) {
     event.preventDefault();
+    if (!communityMembershipState.isMember) return;
     const text = textInput.value.trim();
     if (!text && !imageUrl) {
       uploadName.textContent = "Nhập nội dung hoặc đính kèm ảnh/video trước khi đăng.";
@@ -551,8 +605,12 @@ function initArtistCommunityFeed(artist) {
 }
 
 async function initArtistCommunity() {
-  const requestedId = new URLSearchParams(window.location.search).get("id") || "1";
-  let artist = COMMUNITY_ARTISTS[requestedId];
+  const requestedId = new URLSearchParams(window.location.search).get("id");
+  if (!requestedId) {
+    window.location.replace("community.html");
+    return;
+  }
+  const artist = COMMUNITY_ARTISTS[requestedId];
   const main = document.querySelector(".artist-community-page");
 
   if (!artist) {
@@ -563,18 +621,58 @@ async function initArtistCommunity() {
     return;
   }
 
-  if (typeof apiRequest === "function") {
+
+if (typeof apiRequest === "function") {
     try {
-      const savedProfile = await apiRequest("/api/artists/" + encodeURIComponent(requestedId));
-      artist = Object.assign({}, artist, {
-        description: typeof savedProfile.description === "string" ? savedProfile.description : artist.description,
-        avatar: savedProfile.avatar || artist.avatar,
-        cover: savedProfile.cover || artist.cover
-      });
+        const savedProfile = await apiRequest(
+            "/api/artists/" + encodeURIComponent(requestedId)
+        );
+
+        artist = Object.assign({}, artist, {
+            description: typeof savedProfile.description === "string"
+                ? savedProfile.description
+                : artist.description,
+            avatar: savedProfile.avatar || artist.avatar,
+            cover: savedProfile.cover || artist.cover
+        });
     } catch (error) {
-      // Keep the bundled demo profile visible when the API is not available.
+        // Giữ thông tin nghệ sĩ demo nếu API không khả dụng.
     }
-  }
+}
+
+const membership = {
+    communityId: null,
+    artistId: Number(requestedId),
+    isMember: false,
+    memberCount: 0
+};
+
+try {
+    const [allCommunities, joinedCommunities] = await Promise.all([
+        apiRequest("/api/communities", { auth: true }),
+        apiRequest("/api/users/me/communities", { auth: true })
+    ]);
+
+    const community = (Array.isArray(allCommunities) ? allCommunities : [])
+        .find(item =>
+            Number(communityApiField(item, "artistId")) === Number(requestedId)
+        );
+
+    if (community) {
+        membership.communityId = communityApiField(community, "id");
+        membership.memberCount =
+            Number(communityApiField(community, "memberCount")) || 0;
+
+        membership.isMember = Array.isArray(joinedCommunities)
+            && joinedCommunities.some(item =>
+                Number(communityApiField(item, "communityId")) ===
+                Number(communityApiField(community, "id"))
+            );
+    }
+} catch (error) {
+    console.error("Unable to load SQL community membership", error);
+}
+
 
   const artistSlug = artist.name.toLocaleLowerCase("vi");
   document.title = artist.fandom + " Community | OWNIVERSE";
@@ -591,10 +689,11 @@ async function initArtistCommunity() {
   document.querySelector(".shop-all-link").href = "products.html?q=" + encodeURIComponent(artist.name);
 
   initCommunityTabs();
-  initCommunityJoin(artist);
+  initCommunityJoin(artist, membership);
   initFanCommunity(artist);
   initArtistCommunityFeed(artist);
+  updateCommunityInteractionAccess();
   initCommunityShop(artist);
 }
 
-document.addEventListener("DOMContentLoaded", initArtistCommunity);
+document.addEventListener("DOMContentLoaded", function () { initArtistCommunity().catch(console.error); });

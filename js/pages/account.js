@@ -42,27 +42,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     return;
   }
 
-  const accountDataError = document.getElementById("account-data-error");
-  let ordersData;
-  let addresses;
-  let joinedCommunities;
-  try {
-    [ordersData, addresses, joinedCommunities] = await Promise.all([
-      apiRequest("/api/users/me/orders", { auth: true }),
-      apiRequest("/api/users/me/addresses", { auth: true }),
-      apiRequest("/api/users/me/communities", { auth: true })
-    ]);
-  } catch (error) {
-    if (!isLoggedIn()) {
-      goToLogin("account.html");
-      return;
-    }
-    if (accountDataError) {
-      accountDataError.textContent = error.message || "Không thể tải dữ liệu tài khoản.";
-      accountDataError.hidden = false;
-    }
-    return;
-  }
   const profileFields = {
     name: document.getElementById("edit-name"),
     email: document.getElementById("edit-email"),
@@ -185,6 +164,19 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
+  function renderOrdersError(error) {
+    const ordersBody = document.getElementById("account-orders-body");
+    const emptyState = document.getElementById("account-orders-empty");
+    const row = document.createElement("tr");
+    const cell = document.createElement("td");
+    cell.colSpan = 5;
+    cell.className = "account-load-error";
+    cell.textContent = error.message || "Không thể tải đơn hàng.";
+    row.appendChild(cell);
+    ordersBody.replaceChildren(row);
+    emptyState.hidden = true;
+  }
+
   function renderAddresses(items) {
     const list = document.getElementById("account-address-list");
     list.replaceChildren();
@@ -224,21 +216,40 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
+  function renderAddressesError(error) {
+    const list = document.getElementById("account-address-list");
+    const message = document.createElement("p");
+    message.className = "account-load-error";
+    message.setAttribute("role", "status");
+    message.textContent = error.message || "Không thể tải địa chỉ.";
+    list.replaceChildren(message);
+  }
+
   function renderCommunities(items) {
+    if (!Array.isArray(items)) throw new Error("Dữ liệu cộng đồng trả về không hợp lệ.");
+    const communities = items.map(function (community) {
+      const artistId = community && (community.artistId !== undefined ? community.artistId : community.ArtistId);
+      const artistName = community && (community.artistName || community.ArtistName);
+      const communityName = community && (community.name || community.Name);
+      if (artistId == null || !Number.isInteger(Number(artistId)) || Number(artistId) < 1) {
+        throw new Error("Dữ liệu cộng đồng trả về thiếu mã nghệ sĩ hợp lệ.");
+      }
+      return { artistId, label: artistName || communityName || "Cộng đồng" };
+    });
     const count = document.getElementById("account-community-count");
     const summary = document.getElementById("account-community-summary");
     const list = document.getElementById("account-community-list");
     const emptyState = document.getElementById("account-communities-empty");
-    const communities = Array.isArray(items) ? items : [];
     count.textContent = String(communities.length);
     summary.textContent = `Cộng đồng đã tham gia: ${communities.length}.`;
+    summary.classList.remove("account-load-error");
     emptyState.hidden = communities.length > 0;
     list.replaceChildren();
 
     communities.forEach(function (community) {
       const link = document.createElement("a");
       link.href = `artist-community.html?id=${encodeURIComponent(community.artistId)}`;
-      link.appendChild(document.createTextNode(community.artistName || community.name || "Cộng đồng"));
+      link.appendChild(document.createTextNode(community.label));
       const arrow = document.createElement("span");
       arrow.setAttribute("aria-hidden", "true");
       arrow.textContent = " →";
@@ -246,6 +257,37 @@ document.addEventListener("DOMContentLoaded", async function () {
       list.appendChild(link);
     });
   }
+
+  function renderCommunitiesError(error) {
+    const summary = document.getElementById("account-community-summary");
+    const list = document.getElementById("account-community-list");
+    const emptyState = document.getElementById("account-communities-empty");
+    summary.textContent = error.message || "Không thể tải danh sách cộng đồng.";
+    summary.classList.add("account-load-error");
+    list.replaceChildren();
+    emptyState.hidden = true;
+  }
+
+  async function refreshJoinedCommunities() {
+    try {
+      renderCommunities(await apiRequest("/api/users/me/communities", { auth: true }));
+    } catch (error) {
+      console.error("Could not refresh joined communities", error);
+      if (!isLoggedIn()) {
+        goToLogin("account.html");
+        return;
+      }
+      renderCommunitiesError(error);
+    }
+  }
+
+  window.addEventListener("owniverse:community-membership-updated", refreshJoinedCommunities);
+  window.addEventListener("storage", function (event) {
+    if (event.key === "owniverse_community_membership_updated") refreshJoinedCommunities();
+  });
+  window.addEventListener("pageshow", function (event) {
+    if (event.persisted) refreshJoinedCommunities();
+  });
 
   function openProfileDialog() {
     profileFields.name.value = profile.name;
@@ -422,8 +464,24 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
+  function loadAccountSection(path, renderSuccess, renderError) {
+    apiRequest(path, { auth: true }).then(function (data) {
+      if (!isLoggedIn()) {
+        goToLogin("account.html");
+        return;
+      }
+      renderSuccess(data);
+    }).catch(function (error) {
+      if (!isLoggedIn()) {
+        goToLogin("account.html");
+        return;
+      }
+      renderError(error);
+    });
+  }
+
   renderProfile();
-  renderOrders(ordersData);
-  renderAddresses(addresses);
-  renderCommunities(joinedCommunities);
+  loadAccountSection("/api/users/me/orders", renderOrders, renderOrdersError);
+  loadAccountSection("/api/users/me/addresses", renderAddresses, renderAddressesError);
+  loadAccountSection("/api/users/me/communities", renderCommunities, renderCommunitiesError);
 });

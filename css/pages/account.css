@@ -374,6 +374,19 @@ body {
   white-space: nowrap;
 }
 
+#account-orders-body td[colspan="5"],
+#account-address-list > p,
+#account-community-summary {
+  font-family: var(--font-body, "Inter", sans-serif);
+  font-size: 0.68rem;
+  line-height: 1.5;
+}
+
+.account-load-error {
+  white-space: normal !important;
+  overflow-wrap: anywhere;
+}
+
 .account-order-table tr:last-child td {
   border-bottom: 0;
 }
