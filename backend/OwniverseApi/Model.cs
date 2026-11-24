@@ -227,3 +227,30 @@ class Community
     public string Cover { get; set; } = "";
 }
 record CommunityMember(int CommunityId, int UserId);
+
+record CommunityPostRequest(string? Section, string? Content, List<CommunityMediaRequest>? Media);
+record CommunityMediaRequest(string? MediaType, string? MediaUrl);
+record CommunityCommentRequest(string? Content, int? ParentCommentId);
+
+class CommunityPostView
+{
+    public int PostId { get; set; }
+    public int CommunityId { get; set; }
+    public int AuthorId { get; set; }
+    public string AuthorName { get; set; } = "";
+    public string Section { get; set; } = "";
+    public string? Content { get; set; }
+    public bool IsPinned { get; set; }
+    public string Status { get; set; } = "";
+    public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public int LikeCount { get; set; }
+    public int CommentCount { get; set; }
+    public bool LikedByMe { get; set; }
+    public List<CommunityMediaView> Media { get; set; } = new();
+}
+
+record CommunityMediaView(int MediaId, string MediaType, string MediaUrl, int SortOrder);
+record CommunityCommentView(
+    int CommentId, int PostId, int UserId, string AuthorName, int? ParentCommentId,
+    string Content, DateTime CreatedAt, DateTime? UpdatedAt);

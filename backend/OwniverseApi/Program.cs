@@ -727,25 +727,24 @@ app.MapDelete("/api/artists/{id:int}/follow", async (int id, HttpContext ctx) =>
     await userRepository.LeaveCommunityAsync(communityId.Value, user.Id, ctx.RequestAborted);
     return Msg(200, "Đã rời cộng đồng nghệ sĩ");
 });
-app.MapGet("/api/users/me/following", IResult (HttpContext ctx) =>
+app.MapGet("/api/users/me/following", async (HttpContext ctx) =>
 {
-    var user = GetCurrentUser(ctx);
+    var user = await GetCurrentUserFromDatabaseAsync(ctx);
     if (user is null) return Msg(401, "Bạn chưa đăng nhập");
-    return Results.Ok(communities.Where(c => communityMembers.Any(m => m.CommunityId == c.Id && m.UserId == user.Id))
-        .Select(c => c.ArtistId).ToList());
+    return Results.Ok(await communityRepository.GetFollowingArtistIdsAsync(user.Id, ctx.RequestAborted));
 });
 
-// API cộng đồng theo schema DB. Chưa triển khai bài đăng, bình luận (nhóm phụ trách khác).
-app.MapGet("/api/communities", () => Results.Ok(communities
-    .Where(c => artists.Any(a => a.Id == c.ArtistId && a.Status == "active"))
-    .Select(c => new { c.Id, c.ArtistId, c.Name, c.Description, c.Avatar, c.Cover,
-        MemberCount = communityMembers.Count(m => m.CommunityId == c.Id) }).ToList()));
-app.MapGet("/api/communities/{id:int}", IResult (int id) =>
+// API cộng đồng đọc/ghi trực tiếp SQL Server.
+app.MapGet("/api/communities", async (HttpContext ctx) =>
 {
-    var c = communities.FirstOrDefault(c => c.Id == id);
-    if (c is null || !artists.Any(a => a.Id == c.ArtistId && a.Status == "active")) return Msg(404, "Không tìm thấy cộng đồng");
-    return Results.Ok(new { c.Id, c.ArtistId, c.Name, c.Description, c.Avatar, c.Cover,
-        MemberCount = communityMembers.Count(m => m.CommunityId == c.Id) });
+    var user = await GetCurrentUserFromDatabaseAsync(ctx);
+    return Results.Ok(await communityRepository.GetCommunitiesAsync(user?.Id, ctx.RequestAborted));
+});
+app.MapGet("/api/communities/{id:int}", async (int id, HttpContext ctx) =>
+{
+    var user = await GetCurrentUserFromDatabaseAsync(ctx);
+    var community = await communityRepository.GetCommunityAsync(id, user?.Id, ctx.RequestAborted);
+    return community is null ? Msg(404, "Không tìm thấy cộng đồng") : Results.Ok(community);
 });
 app.MapPost("/api/communities/{id:int}/join", async (int id, HttpContext ctx) =>
 {
@@ -770,21 +769,172 @@ app.MapGet("/api/users/me/communities", async (HttpContext ctx) =>
     if (user is null) return Msg(401, "Bạn chưa đăng nhập");
     return Results.Ok(await userRepository.GetAccountCommunitiesAsync(user.Id, ctx.RequestAborted));
 });
-app.MapGet("/api/communities/{id:int}/members", IResult (int id, HttpContext ctx) =>
+app.MapGet("/api/communities/{id:int}/members", async (int id, HttpContext ctx) =>
 {
     if (CheckRole(ctx, Roles.Admin, Roles.Artist) is { } denied) return denied;
-    var c = communities.FirstOrDefault(c => c.Id == id);
-    if (c is null) return Msg(404, "Không tìm thấy cộng đồng");
-    var me = GetCurrentUser(ctx)!;
-    if (me.Role == Roles.Artist && artists.FirstOrDefault(a => a.Id == c.ArtistId)?.UserId != me.Id)
+    if (!await communityRepository.IsCommunityActiveAsync(id, ctx.RequestAborted)) return Msg(404, "Không tìm thấy cộng đồng");
+    var me = await GetCurrentUserFromDatabaseAsync(ctx);
+    if (me?.Role == Roles.Artist && await communityRepository.GetMemberArtistOwnerAsync(id, ctx.RequestAborted) != me.Id)
         return Msg(403, "Bạn không quản lý cộng đồng này");
-    return Results.Ok(users.Where(u => communityMembers.Any(m => m.UserId == u.Id && m.CommunityId == id)).Select(PublicUser).ToList());
+    return Results.Ok(await communityRepository.GetMembersAsync(id, ctx.RequestAborted));
 });
-
 // ----- Admin quản lý nghệ sĩ (cần đăng nhập bằng tài khoản admin) -----
 
 // Thêm nghệ sĩ (gửi toàn bộ thông tin nghệ sĩ dạng JSON, giống dữ liệu trong GET /api/artists/kairo)
 // Tài khoản đăng nhập của nghệ sĩ được gắn riêng ở API: PUT /api/admin/artists/{id}/account
+app.MapGet("/api/communities/{id:int}/posts", async (int id, string? section, HttpContext ctx) =>
+{
+    if (!await communityRepository.IsCommunityActiveAsync(id, ctx.RequestAborted)) return Msg(404, "Không tìm thấy cộng đồng");
+    var normalizedSection = string.IsNullOrWhiteSpace(section) ? null : section.Trim();
+    if (normalizedSection is not null && normalizedSection is not ("Fan" or "Artist")) return Msg(400, "Section không hợp lệ");
+    var user = await GetCurrentUserFromDatabaseAsync(ctx);
+    return Results.Ok(await communityRepository.GetPostsAsync(id, normalizedSection, user?.Id, ctx.RequestAborted));
+});
+app.MapPost("/api/communities/{id:int}/posts", async (int id, HttpContext ctx, CommunityPostRequest req) =>
+{
+    var user = await GetCurrentUserFromDatabaseAsync(ctx);
+    if (user is null) return Msg(401, "Bạn chưa đăng nhập");
+    if (!await communityRepository.IsCommunityActiveAsync(id, ctx.RequestAborted)) return Msg(404, "Không tìm thấy cộng đồng");
+    var section = user.Role == Roles.Customer ? "Fan"
+        : user.Role == Roles.Artist && await communityRepository.GetMemberArtistOwnerAsync(id, ctx.RequestAborted) == user.Id ? "Artist" : "";
+    if (section == "") return Msg(403, "Bạn không có quyền đăng bài trong cộng đồng này");
+    if (user.Role == Roles.Customer && !await communityRepository.IsMemberAsync(id, user.Id, ctx.RequestAborted))
+        return Msg(403, "Bạn cần tham gia cộng đồng trước khi đăng bài");
+    if (!string.IsNullOrWhiteSpace(req.Section) && !req.Section.Equals(section, StringComparison.OrdinalIgnoreCase))
+        return Msg(403, "Bạn không có quyền đăng vào mục này");
+    var content = req.Content?.Trim();
+    var mediaError = ValidateCommunityMedia(req.Media);
+    if (string.IsNullOrEmpty(content) && (req.Media?.Count ?? 0) == 0) return Msg(400, "Bài viết cần có nội dung hoặc media");
+    if (content?.Length > 5000) return Msg(400, "Nội dung bài viết tối đa 5000 ký tự");
+    if (mediaError is not null) return Msg(400, mediaError);
+    var postId = await communityRepository.CreatePostAsync(id, user.Id, section, content, req.Media ?? [], ctx.RequestAborted);
+    return Results.Created($"/api/posts/{postId}", new { postId });
+});
+app.MapGet("/api/posts/{postId:int}", async (int postId, HttpContext ctx) =>
+{
+    var permission = await communityRepository.GetPostPermissionAsync(postId, ctx.RequestAborted);
+    if (permission.Status != "Visible" || permission.CommunityId is null) return Msg(404, "Không tìm thấy bài viết");
+    var user = await GetCurrentUserFromDatabaseAsync(ctx);
+    var post = (await communityRepository.GetPostsAsync(permission.CommunityId.Value, null, user?.Id, ctx.RequestAborted))
+        .FirstOrDefault(item => item.PostId == postId);
+    return post is null ? Msg(404, "Không tìm thấy bài viết") : Results.Ok(post);
+});
+app.MapPut("/api/posts/{postId:int}", async (int postId, HttpContext ctx, CommunityPostRequest req) =>
+{
+    var user = await GetCurrentUserFromDatabaseAsync(ctx);
+    if (user is null) return Msg(401, "Bạn chưa đăng nhập");
+    var permission = await communityRepository.GetPostPermissionAsync(postId, ctx.RequestAborted);
+    if (permission.Status != "Visible") return Msg(404, "Không tìm thấy bài viết");
+    if (user.Role != Roles.Admin && permission.CommunityId is { } updateCommunityId
+        && !await communityRepository.IsMemberAsync(updateCommunityId, user.Id, ctx.RequestAborted)
+        && !(user.Role == Roles.Artist && await communityRepository.GetMemberArtistOwnerAsync(updateCommunityId, ctx.RequestAborted) == user.Id))
+        return Msg(403, "Bạn cần là thành viên cộng đồng để sửa bài viết");
+    if (permission.AuthorId != user.Id && user.Role != Roles.Admin) return Msg(403, "Bạn không có quyền sửa bài viết này");
+    var content = req.Content?.Trim();
+    if (content?.Length > 5000) return Msg(400, "Nội dung bài viết tối đa 5000 ký tự");
+    if (string.IsNullOrEmpty(content) && (req.Media?.Count ?? 0) == 0) return Msg(400, "Bài viết cần có nội dung hoặc media");
+    var mediaError = ValidateCommunityMedia(req.Media);
+    if (mediaError is not null) return Msg(400, mediaError);
+    return await communityRepository.UpdatePostAsync(postId, content, req.Media, ctx.RequestAborted)
+        ? Msg(200, "Đã cập nhật bài viết") : Msg(404, "Không tìm thấy bài viết");
+});
+app.MapDelete("/api/posts/{postId:int}", async (int postId, HttpContext ctx) =>
+{
+    var user = await GetCurrentUserFromDatabaseAsync(ctx);
+    if (user is null) return Msg(401, "Bạn chưa đăng nhập");
+    var permission = await communityRepository.GetPostPermissionAsync(postId, ctx.RequestAborted);
+    if (permission.Status != "Visible") return Msg(404, "Không tìm thấy bài viết");
+    if (user.Role != Roles.Admin && permission.CommunityId is { } deleteCommunityId
+        && !await communityRepository.IsMemberAsync(deleteCommunityId, user.Id, ctx.RequestAborted)
+        && !(user.Role == Roles.Artist && await communityRepository.GetMemberArtistOwnerAsync(deleteCommunityId, ctx.RequestAborted) == user.Id))
+        return Msg(403, "Bạn cần là thành viên cộng đồng để xóa bài viết");
+    if (permission.AuthorId != user.Id && user.Role != Roles.Admin) return Msg(403, "Bạn không có quyền xóa bài viết này");
+    return await communityRepository.DeletePostAsync(postId, ctx.RequestAborted)
+        ? Msg(200, "Đã xóa bài viết") : Msg(404, "Không tìm thấy bài viết");
+});
+app.MapPost("/api/posts/{postId:int}/like", async (int postId, HttpContext ctx) => await SetCommunityLikeAsync(postId, ctx, true));
+app.MapDelete("/api/posts/{postId:int}/like", async (int postId, HttpContext ctx) => await SetCommunityLikeAsync(postId, ctx, false));
+app.MapGet("/api/posts/{postId:int}/comments", async (int postId, HttpContext ctx) =>
+{
+    var permission = await communityRepository.GetPostPermissionAsync(postId, ctx.RequestAborted);
+    if (permission.Status != "Visible") return Msg(404, "Không tìm thấy bài viết");
+    return Results.Ok(await communityRepository.GetCommentsAsync(postId, ctx.RequestAborted));
+});
+app.MapPost("/api/posts/{postId:int}/comments", async (int postId, HttpContext ctx, CommunityCommentRequest req) =>
+{
+    var user = await GetCurrentUserFromDatabaseAsync(ctx);
+    if (user is null) return Msg(401, "Bạn chưa đăng nhập");
+    var permission = await communityRepository.GetPostPermissionAsync(postId, ctx.RequestAborted);
+    if (permission.Status != "Visible" || permission.CommunityId is null) return Msg(404, "Không tìm thấy bài viết");
+    if (!await communityRepository.IsMemberAsync(permission.CommunityId.Value, user.Id, ctx.RequestAborted))
+        return Msg(403, "Bạn cần tham gia cộng đồng trước khi bình luận");
+    var content = req.Content?.Trim() ?? "";
+    if (content.Length == 0 || content.Length > 2000) return Msg(400, "Bình luận phải có từ 1 đến 2000 ký tự");
+    var commentId = await communityRepository.CreateCommentAsync(postId, user.Id, req.ParentCommentId, content, ctx.RequestAborted);
+    if (commentId is null) return Msg(404, "Không tìm thấy bài viết");
+    if (commentId == -1) return Msg(400, "Bình luận trả lời không hợp lệ");
+    return Results.Created($"/api/comments/{commentId}", new { commentId });
+});
+app.MapPut("/api/comments/{commentId:int}", async (int commentId, HttpContext ctx, CommunityCommentRequest req) =>
+{
+    var user = await GetCurrentUserFromDatabaseAsync(ctx);
+    if (user is null) return Msg(401, "Bạn chưa đăng nhập");
+    var permission = await communityRepository.GetCommentPermissionAsync(commentId, ctx.RequestAborted);
+    if (permission.Status != "Visible") return Msg(404, "Không tìm thấy bình luận");
+    if (user.Role != Roles.Admin && permission.CommunityId is { } updateCommentCommunityId
+        && !await communityRepository.IsMemberAsync(updateCommentCommunityId, user.Id, ctx.RequestAborted))
+        return Msg(403, "Bạn cần là thành viên cộng đồng để sửa bình luận");
+    if (permission.UserId != user.Id && user.Role != Roles.Admin) return Msg(403, "Bạn không có quyền sửa bình luận này");
+    var content = req.Content?.Trim() ?? "";
+    if (content.Length == 0 || content.Length > 2000) return Msg(400, "Bình luận phải có từ 1 đến 2000 ký tự");
+    return await communityRepository.UpdateCommentAsync(commentId, content, ctx.RequestAborted)
+        ? Msg(200, "Đã cập nhật bình luận") : Msg(404, "Không tìm thấy bình luận");
+});
+app.MapDelete("/api/comments/{commentId:int}", async (int commentId, HttpContext ctx) =>
+{
+    var user = await GetCurrentUserFromDatabaseAsync(ctx);
+    if (user is null) return Msg(401, "Bạn chưa đăng nhập");
+    var permission = await communityRepository.GetCommentPermissionAsync(commentId, ctx.RequestAborted);
+    if (permission.Status != "Visible") return Msg(404, "Không tìm thấy bình luận");
+    if (user.Role != Roles.Admin && permission.CommunityId is { } deleteCommentCommunityId
+        && !await communityRepository.IsMemberAsync(deleteCommentCommunityId, user.Id, ctx.RequestAborted))
+        return Msg(403, "Bạn cần là thành viên cộng đồng để xóa bình luận");
+    if (permission.UserId != user.Id && user.Role != Roles.Admin) return Msg(403, "Bạn không có quyền xóa bình luận này");
+    return await communityRepository.DeleteCommentAsync(commentId, ctx.RequestAborted)
+        ? Msg(200, "Đã xóa bình luận") : Msg(404, "Không tìm thấy bình luận");
+});
+
+string? ValidateCommunityMedia(List<CommunityMediaRequest>? media)
+{
+    if (media is null) return null;
+    if (media.Count > 10) return "Mỗi bài viết tối đa 10 tệp media";
+    foreach (var item in media)
+    {
+        if (item.MediaType is null || !(item.MediaType.Equals("Image", StringComparison.OrdinalIgnoreCase)
+            || item.MediaType.Equals("Video", StringComparison.OrdinalIgnoreCase))) return "MediaType chỉ nhận Image hoặc Video";
+        var url = item.MediaUrl?.Trim() ?? "";
+        if (url.Length == 0 || url.Length > 500 || url.Any(char.IsControl)) return "Đường dẫn media không hợp lệ";
+        if (Uri.TryCreate(url, UriKind.Absolute, out var absolute)
+            ? absolute.Scheme is not ("http" or "https")
+            : url.StartsWith("//", StringComparison.Ordinal) || url.Contains("..", StringComparison.Ordinal))
+            return "Media chỉ nhận URL HTTP(S) hoặc đường dẫn tương đối an toàn";
+    }
+    return null;
+}
+
+async Task<IResult> SetCommunityLikeAsync(int postId, HttpContext ctx, bool liked)
+{
+    var user = await GetCurrentUserFromDatabaseAsync(ctx);
+    if (user is null) return Msg(401, "Bạn chưa đăng nhập");
+    var permission = await communityRepository.GetPostPermissionAsync(postId, ctx.RequestAborted);
+    if (permission.Status != "Visible" || permission.CommunityId is null) return Msg(404, "Không tìm thấy bài viết");
+    if (!await communityRepository.IsMemberAsync(permission.CommunityId.Value, user.Id, ctx.RequestAborted))
+        return Msg(403, "Bạn cần tham gia cộng đồng trước khi thích bài viết");
+    return await communityRepository.SetLikeAsync(postId, user.Id, liked, ctx.RequestAborted)
+        ? Msg(200, liked ? "Đã thích bài viết" : "Đã bỏ thích bài viết")
+        : Msg(404, "Không tìm thấy bài viết");
+}
+
 app.MapPost("/api/artists", IResult (HttpContext ctx, Artist req) =>
 {
     if (CheckRole(ctx, Roles.Admin) is { } denied) return denied;
@@ -885,6 +1035,17 @@ app.MapDelete("/api/artists/{id:int}", IResult (int id, HttpContext ctx) =>
 // và chỉ tài khoản có vai trò admin dùng được.
 // =====================================================
 var admin = app.MapGroup("/api/admin");
+admin.MapGet("/communities", async (HttpContext ctx) =>
+{
+    if (CheckRole(ctx, Roles.Admin) is { } denied) return denied;
+    return Results.Ok(await communityRepository.GetAdminCommunitiesAsync(ctx.RequestAborted));
+});
+admin.MapDelete("/posts/{postId:int}", async (int postId, HttpContext ctx) =>
+{
+    if (CheckRole(ctx, Roles.Admin) is { } denied) return denied;
+    return await communityRepository.DeletePostAsync(postId, ctx.RequestAborted)
+        ? Msg(200, "Đã xóa bài viết") : Msg(404, "Không tìm thấy bài viết");
+});
 
 // Ghi chú nội bộ của nghệ sĩ được lưu trong ArtistApiData và không trả về API công khai.
 admin.MapPut("/artists/{id:int}/note", IResult (int id, HttpContext ctx, AdminArtistNoteRequest req) =>
