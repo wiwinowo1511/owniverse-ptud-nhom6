@@ -121,6 +121,21 @@ function logout() {
     }
 }
 
+async function logoutAndWait() {
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (token) {
+        try {
+            await fetch(`${API_BASE_URL}/api/auth/logout`, {
+                method: "POST",
+                headers: { Authorization: "Bearer " + token }
+            });
+        } catch (e) {
+            // Clear the local session even if the server cannot be reached.
+        }
+    }
+    clearSession();
+}
+
 /* ---------- Đăng ký ---------- */
 async function register(userData) {
     const data = await apiRequest("/api/auth/register", {
@@ -206,11 +221,12 @@ function safeRedirectTarget(target) {
         : null;
 }
 
-function goToLogin(redirectTo) {
+function goToLogin(redirectTo, loginPage) {
     const target = safeRedirectTarget(redirectTo);
+    const destination = loginPage === "artist-login.html" ? loginPage : LOGIN_PAGE;
     window.location.href = target
-        ? `${LOGIN_PAGE}?redirect=${encodeURIComponent(target)}`
-        : LOGIN_PAGE;
+        ? `${destination}?redirect=${encodeURIComponent(target)}`
+        : destination;
 }
 
 // Icon tài khoản dùng hai luồng: đã đăng nhập -> trang tài khoản,
@@ -219,11 +235,15 @@ function initAccountAvatarLink() {
     document.querySelectorAll(".account-circle").forEach(function (link) {
         link.addEventListener("click", function (event) {
             event.preventDefault();
-            if (isLoggedIn()) {
+            if (typeof window.isArtistDemoSession === "function" && window.isArtistDemoSession()) {
+                window.location.href = "artist-account.html";
+            } else if (isLoggedIn()) {
                 const user = getCurrentUser();
                 window.location.href = String(user && user.role).toLowerCase() === "admin"
                     ? "admin.html"
-                    : "account.html";
+                    : String(user && user.role).toLowerCase() === "artist"
+                        ? "artist-account.html"
+                        : "account.html";
             } else {
                 goToLogin("account.html");
             }

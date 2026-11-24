@@ -15,6 +15,16 @@ Các API giỏ hàng và đơn hàng yêu cầu tài khoản khách hàng đã �
 Authorization: Bearer <token>
 ```
 
+## Tài khoản demo nghệ sĩ
+
+Để đăng nhập KAIRO trong bản demo, đặt mật khẩu cục bộ bằng User Secrets từ thư mục `backend/OwniverseApi` rồi khởi động backend ở môi trường Development:
+
+```powershell
+dotnet user-secrets set "ArtistBootstrap:Password" "<mat-khau-demo-tu-chon>"
+```
+
+Backend chỉ mở tài khoản seed `kairo@owniverse.vn` khi có cấu hình này; mật khẩu được lưu dưới dạng hash. Không commit mật khẩu. Sau đó có thể đăng nhập tại `artist-login.html`.
+
 ## Sản phẩm
 
 | Method | Endpoint | Mô tả |
@@ -79,4 +89,4 @@ powershell -ExecutionPolicy Bypass -File .\backend\test-api.ps1
 
 ## Giới hạn hiện tại
 
-Ở môi trường Development, API tự tạo các tài khoản demo thiếu trong database; mật khẩu được hash và không ghi đè tài khoản đã tồn tại, trừ các tài khoản nghệ sĩ seed đang bị khóa. Có thể đăng nhập bằng `admin@owniverse.com` / `admin123` hoặc `customer@owniverse.com` / `Customer123`. Tồn kho seed ban đầu là 0 và cần được cập nhật trước khi đặt hàng. Phí vận chuyển hiện bằng 0 và API chưa thực hiện thanh toán trực tuyến. Frontend hiện có vẫn dùng `localStorage` cho giỏ hàng và chưa gọi API; phần tích hợp giao diện là công việc riêng.
+Ở môi trường Development, API tự tạo các tài khoản demo thiếu trong database; mật khẩu được hash. KAIRO chỉ được mở khóa khi đã đặt `ArtistBootstrap:Password` bằng User Secrets như phần tài khoản demo nghệ sĩ. Có thể đăng nhập bằng `admin@owniverse.com` / `admin123` hoặc `customer@owniverse.com` / `Customer123`. Tồn kho seed ban đầu là 0 và cần được cập nhật trước khi đặt hàng. Phí vận chuyển hiện bằng 0 và API chưa thực hiện thanh toán trực tuyến.

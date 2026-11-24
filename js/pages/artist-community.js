@@ -621,23 +621,58 @@ async function initArtistCommunity() {
     return;
   }
 
-  const membership = { communityId: null, artistId: Number(requestedId), isMember: false, memberCount: 0 };
-  try {
-    const [allCommunities, joinedCommunities] = await Promise.all([
-      apiRequest("/api/communities", { auth: true }),
-      apiRequest("/api/users/me/communities", { auth: true })
-    ]);
-    const community = (Array.isArray(allCommunities) ? allCommunities : [])
-      .find(item => Number(communityApiField(item, "artistId")) === Number(requestedId));
-    if (community) {
-      membership.communityId = communityApiField(community, "id");
-      membership.memberCount = Number(communityApiField(community, "memberCount")) || 0;
-      membership.isMember = Array.isArray(joinedCommunities)
-        && joinedCommunities.some(item => Number(communityApiField(item, "communityId")) === Number(communityApiField(community, "id")));
+
+if (typeof apiRequest === "function") {
+    try {
+        const savedProfile = await apiRequest(
+            "/api/artists/" + encodeURIComponent(requestedId)
+        );
+
+        artist = Object.assign({}, artist, {
+            description: typeof savedProfile.description === "string"
+                ? savedProfile.description
+                : artist.description,
+            avatar: savedProfile.avatar || artist.avatar,
+            cover: savedProfile.cover || artist.cover
+        });
+    } catch (error) {
+        // Giữ thông tin nghệ sĩ demo nếu API không khả dụng.
     }
-  } catch (error) {
+}
+
+const membership = {
+    communityId: null,
+    artistId: Number(requestedId),
+    isMember: false,
+    memberCount: 0
+};
+
+try {
+    const [allCommunities, joinedCommunities] = await Promise.all([
+        apiRequest("/api/communities", { auth: true }),
+        apiRequest("/api/users/me/communities", { auth: true })
+    ]);
+
+    const community = (Array.isArray(allCommunities) ? allCommunities : [])
+        .find(item =>
+            Number(communityApiField(item, "artistId")) === Number(requestedId)
+        );
+
+    if (community) {
+        membership.communityId = communityApiField(community, "id");
+        membership.memberCount =
+            Number(communityApiField(community, "memberCount")) || 0;
+
+        membership.isMember = Array.isArray(joinedCommunities)
+            && joinedCommunities.some(item =>
+                Number(communityApiField(item, "communityId")) ===
+                Number(communityApiField(community, "id"))
+            );
+    }
+} catch (error) {
     console.error("Unable to load SQL community membership", error);
-  }
+}
+
 
   const artistSlug = artist.name.toLocaleLowerCase("vi");
   document.title = artist.fandom + " Community | OWNIVERSE";

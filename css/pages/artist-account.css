@@ -1,0 +1,189 @@
+﻿.artist-account-page {
+  max-width: 1200px;
+  padding-top: 20px;
+  padding-bottom: 54px;
+}
+
+.artist-account-page .account-page-heading { margin-bottom: 20px; }
+.artist-account-page .account-page-heading h1 { text-transform: none; }
+
+.artist-account-alert,
+.artist-form-status {
+  padding: 11px 14px;
+  border: 1px solid #d8c9fb;
+  border-radius: 9px;
+  background: #faf8ff;
+  color: #40315d;
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.artist-account-alert[hidden],
+.artist-form-status[hidden] { display: none; }
+.artist-form-status--error { border-color: #f0b8b3; background: #fff7f6; color: #8d2b22; }
+
+.artist-profile-hero {
+  overflow: hidden;
+  margin-bottom: 28px;
+  border: 1px solid var(--border-gray, #e5e7eb);
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 14px 40px rgba(20, 16, 32, 0.06);
+}
+
+.artist-profile-cover {
+  position: relative;
+  height: clamp(150px, 23vw, 250px);
+  overflow: hidden;
+  background: linear-gradient(120deg, #20172f, #8f72c8 60%, #e4d9fb);
+}
+
+.artist-profile-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.artist-profile-cover-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(17, 12, 27, 0.38), transparent 72%);
+}
+
+.artist-profile-summary {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 0;
+  padding: 0 24px 20px;
+}
+
+.artist-profile-avatar {
+  flex: 0 0 104px;
+  width: 104px;
+  height: 104px;
+  margin-top: -43px;
+  border: 4px solid #fff;
+  border-radius: 50%;
+  background: #ede8f8;
+  object-fit: cover;
+  box-shadow: 0 5px 18px rgba(16, 12, 24, 0.14);
+}
+
+.artist-profile-copy { min-width: 0; flex: 1; padding-top: 12px; }
+.artist-profile-kicker { color: #716384; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; }
+.artist-profile-copy h2 { margin: 2px 0 3px; font: 700 clamp(1.15rem, 2.4vw, 1.55rem)/1.3 var(--font-heading, "Montserrat", sans-serif); }
+.artist-profile-copy p { margin: 0; color: var(--text-muted, #626273); font-size: 0.85rem; }
+.artist-community-preview-link { flex: 0 0 auto; margin-top: 12px; }
+
+.artist-account-layout { align-items: start; }
+.artist-account-content { display: grid; gap: 22px; min-width: 0; }
+.artist-stat-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.artist-account-page .account-stat-card strong { font-size: clamp(1rem, 2vw, 1.3rem); }
+.artist-stat-genre { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.artist-form-card { padding: 23px; }
+.artist-section-heading { margin-bottom: 18px; }
+.artist-section-heading h2 { margin: 0 0 4px; font: 700 1.05rem/1.35 var(--font-heading, "Montserrat", sans-serif); }
+.artist-section-heading p { margin: 0; color: var(--text-muted, #626273); font-size: 0.79rem; line-height: 1.55; }
+
+.artist-form-grid,
+.artist-community-form,
+.artist-repeatable-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 17px 18px;
+}
+
+.artist-field { display: grid; gap: 7px; color: #292633; font-size: 0.81rem; font-weight: 600; }
+.artist-field--wide { grid-column: 1 / -1; }
+.artist-field input,
+.artist-field textarea,
+.artist-field select {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #dedce5;
+  border-radius: 8px;
+  background: #fff;
+  color: #17151d;
+  font: 400 0.88rem/1.5 var(--font-body, "Inter", sans-serif);
+}
+.artist-field textarea { min-height: 125px; resize: vertical; }
+.artist-field select { min-height: 44px; }
+.artist-field input:focus,
+.artist-field textarea:focus,
+.artist-field select:focus { border-color: #8b67d3; outline: 3px solid rgba(167, 139, 250, 0.24); }
+.artist-field-hint { color: #777383; font-size: 0.72rem; font-weight: 400; line-height: 1.5; }
+.artist-form-actions { display: flex; grid-column: 1 / -1; align-items: center; justify-content: flex-end; gap: 14px; margin-top: 2px; }
+.artist-form-status { flex: 1; margin: 0; }
+.artist-form-actions .account-button { min-width: 156px; }
+
+.artist-image-edit-grid { display: grid; grid-column: 1 / -1; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.artist-image-edit { display: grid; align-content: start; gap: 10px; min-width: 0; }
+.artist-image-preview { overflow: hidden; border: 1px solid #e4e1eb; border-radius: 11px; background: #f4f1fa; }
+.artist-image-preview img { width: 100%; height: 100%; object-fit: cover; }
+.artist-image-preview--avatar { width: 116px; height: 116px; border-radius: 50%; }
+.artist-image-preview--cover { aspect-ratio: 16 / 7; }
+
+.artist-detail-editor-card > .account-card-heading { align-items: center; }
+.artist-detail-editor-note { margin: -5px 0 20px; padding: 11px 13px; border-radius: 8px; background: #f7f5fb; color: #625b70; font-size: 0.77rem; line-height: 1.55; }
+.artist-detail-form { display: grid; gap: 20px; }
+.artist-detail-editor-section { display: grid; gap: 14px; padding-top: 19px; border-top: 1px solid #ece9f1; }
+.artist-detail-editor-section > h3,
+.artist-detail-repeater-heading h3 { margin: 0; color: #272332; font: 700 0.94rem/1.4 var(--font-heading, "Montserrat", sans-serif); }
+.artist-detail-editor-section > .artist-form-grid { margin-top: 0; }
+.artist-detail-repeater-heading { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.artist-detail-repeater-heading p { margin: 4px 0 0; color: #777383; font-size: 0.73rem; line-height: 1.45; }
+.artist-detail-repeater-heading .account-button { min-height: 38px; padding: 8px 12px; font-size: 0.75rem; }
+.artist-repeatable-list { display: grid; gap: 12px; }
+.artist-repeatable-item { position: relative; min-width: 0; margin: 0; padding: 20px 15px 15px; border: 1px solid #e7e3ed; border-radius: 10px; }
+.artist-repeatable-item legend { padding: 0 7px; color: #65527f; font-size: 0.7rem; font-weight: 700; }
+.artist-repeatable-remove { position: absolute; top: 7px; right: 10px; padding: 3px 5px; border: 0; background: transparent; color: #8d3b4b; font: 600 0.7rem/1.3 var(--font-body, "Inter", sans-serif); cursor: pointer; }
+.artist-repeatable-remove:hover { text-decoration: underline; }
+
+.artist-security-card { padding: 22px 23px; }
+.artist-security-card h2 { margin: 0 0 6px; font: 700 1.05rem/1.35 var(--font-heading, "Montserrat", sans-serif); }
+.artist-security-card > p { margin: 0 0 9px; color: var(--text-muted, #626273); font-size: 0.82rem; }
+.artist-account-page a:focus-visible,
+.artist-account-page button:focus-visible,
+.artist-account-page input:focus-visible,
+.artist-account-page textarea:focus-visible { outline: 3px solid #a78bfa; outline-offset: 3px; }
+.artist-account-page select:focus-visible { outline: 3px solid #a78bfa; outline-offset: 3px; }
+
+@media (max-width: 900px) {
+  .artist-account-layout { grid-template-columns: 1fr; }
+  .artist-account-layout .account-sidebar { position: static; }
+  .artist-account-layout .account-navigation { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
+  .artist-account-page { padding-top: 15px; padding-bottom: 35px; }
+  .artist-profile-summary { flex-wrap: wrap; gap: 10px 14px; padding: 0 16px 17px; }
+  .artist-profile-avatar { flex-basis: 82px; width: 82px; height: 82px; margin-top: -34px; }
+  .artist-profile-copy { padding-top: 6px; }
+  .artist-profile-copy p { font-size: 0.76rem; }
+  .artist-community-preview-link { width: 100%; margin: 3px 0 0; }
+  .artist-stat-grid { grid-template-columns: 1fr; gap: 9px; }
+  .artist-account-page .account-stat-card { padding: 13px 15px; }
+  .artist-account-page .account-stat-card strong { margin: 1px 0; }
+  .artist-account-page .account-stat-card p { margin: 0; }
+  .artist-form-card { padding: 18px 15px; }
+  .artist-form-grid,
+  .artist-community-form,
+  .artist-repeatable-fields,
+  .artist-image-edit-grid { grid-template-columns: 1fr; }
+  .artist-field--wide,
+  .artist-image-edit-grid { grid-column: auto; }
+  .artist-form-actions { align-items: stretch; flex-direction: column; }
+  .artist-form-actions .account-button { width: 100%; }
+  .artist-account-layout .account-navigation { grid-template-columns: 1fr; }
+  .artist-detail-repeater-heading { align-items: stretch; flex-direction: column; }
+  .artist-detail-repeater-heading .account-button { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .artist-account-page *,
+  .artist-account-page *::before,
+  .artist-account-page *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+}

@@ -20,6 +20,8 @@ static class Roles
     public const string Admin = "admin";
 }
 
+sealed record SessionEntry(int UserId, DateTime LastActivityUtc);
+
 // ----- Tài khoản (bảng Users) -----
 class User
 {

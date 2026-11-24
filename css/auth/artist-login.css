@@ -1,0 +1,46 @@
+﻿.artist-login-page {
+  min-height: min(76vh, 800px);
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(167, 139, 250, 0.2), transparent 48%),
+    #f5f5f7;
+}
+
+.auth-card--artist {
+  max-width: 470px;
+  padding: 36px 38px;
+  border: 1px solid rgba(167, 139, 250, 0.2);
+  box-shadow: 0 18px 55px rgba(35, 24, 57, 0.1);
+}
+
+.auth-card--artist .brand-logo { margin-bottom: 27px; }
+.auth-card--artist .logo-wordmark { font-size: 1.1rem; }
+.artist-login-eyebrow { margin-bottom: 5px; color: #7358a5; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em; text-align: center; }
+.auth-card--artist h1 { margin-bottom: 8px; font-size: clamp(1.55rem, 4vw, 1.9rem); }
+.artist-login-description { margin: 0 auto 24px; max-width: 38ch; color: #656273; font-size: 0.87rem; line-height: 1.65; text-align: center; }
+.artist-demo-panel { display: grid; gap: 15px; margin: 0 0 21px; padding: 16px; border: 1px solid #d8c9fb; border-radius: 11px; background: linear-gradient(135deg, #fbf9ff, #f4efff); }
+.artist-demo-panel-title { margin: 0 0 3px; color: #35264f; font-size: 0.88rem; font-weight: 700; }
+.artist-demo-panel-copy { margin: 0; color: #6b6478; font-size: 0.76rem; line-height: 1.5; }
+.artist-demo-credentials { display: grid; gap: 6px; margin: 11px 0 0; }
+.artist-demo-credentials div { display: flex; justify-content: space-between; gap: 10px; font-size: 0.75rem; }
+.artist-demo-credentials dt { color: #6b6478; }
+.artist-demo-credentials dd { margin: 0; color: #29213a; font-weight: 600; }
+.artist-demo-submit { min-height: 43px; border: 1px solid #7c5bc0; border-radius: 8px; background: #fff; color: #5d428d; font: 700 0.82rem/1.3 var(--font-body, "Inter", sans-serif); cursor: pointer; }
+.artist-demo-submit:hover { background: #7c5bc0; color: #fff; }
+.artist-login-message { margin: -3px 0 15px; color: #6b6478; font-size: 0.74rem; line-height: 1.5; }
+.auth-card--artist .artist-login-submit { min-height: 48px; border-radius: 8px; background: #17131f; }
+.auth-card--artist .artist-login-submit:hover { background: #7c5bc0; }
+.artist-login-links { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 11px 18px; margin-top: 19px; }
+.artist-login-links a { color: #30273e; font-size: 0.81rem; text-decoration: underline; text-decoration-color: #c9b9e9; text-underline-offset: 3px; }
+.artist-login-links a:hover { color: #7c3aed; }
+
+@media (max-width: 600px) {
+  .artist-login-page { min-height: auto; }
+  .auth-card--artist { padding: 29px 22px; }
+  .artist-login-links { flex-direction: column; align-items: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .artist-login-page *,
+  .artist-login-page *::before,
+  .artist-login-page *::after { transition-duration: 0.01ms !important; }
+}
