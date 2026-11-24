@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Dapper;
 using Microsoft.Data.SqlClient;
 
@@ -55,7 +56,19 @@ sealed class SqlDatabase(string connectionString)
         {
             Artist artist;
             if (row.DataJson is not null)
+            {
                 artist = JsonSerializer.Deserialize<Artist>(row.DataJson, jsonOptions) ?? new Artist();
+                try
+                {
+                    using var document = JsonDocument.Parse(row.DataJson);
+                    if (document.RootElement.TryGetProperty("adminNote", out var note) && note.ValueKind == JsonValueKind.String)
+                        artist.AdminNote = note.GetString() ?? "";
+                }
+                catch (JsonException)
+                {
+                    // Ignore malformed optional admin metadata and keep the database columns as the source of truth.
+                }
+            }
             else if (row.ProfileDataJson is not null)
                 artist = JsonSerializer.Deserialize<Artist>(row.ProfileDataJson, jsonOptions) ?? new Artist();
             else if (!fallbackArtists.TryGetValue(row.Slug, out artist!))
@@ -300,8 +313,15 @@ sealed class SqlDatabase(string connectionString)
                 IF @@ROWCOUNT = 0
                     INSERT dbo.ArtistApiData (ArtistId, DataJson) VALUES (@ArtistId, @DataJson);
                 """,
-                new { ArtistId = artist.Id, DataJson = JsonSerializer.Serialize(artist, jsonOptions) }, transaction);
+                new { ArtistId = artist.Id, DataJson = SerializeArtistData(artist) }, transaction);
         }
+    }
+
+    private string SerializeArtistData(Artist artist)
+    {
+        var data = JsonSerializer.SerializeToNode(artist, jsonOptions) as JsonObject ?? new JsonObject();
+        data["adminNote"] = artist.AdminNote;
+        return data.ToJsonString(jsonOptions);
     }
 
     private async Task SaveCategoriesAsync(SqlConnection connection, SqlTransaction transaction, IEnumerable<Category> categories)

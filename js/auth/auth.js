@@ -8,11 +8,23 @@
    giờ là hàm BẤT ĐỒNG BỘ (async) nên khi gọi phải có "await".
    ========================================================= */
 
-const API_BASE = "http://localhost:3000";
 const CURRENT_USER_KEY = "owniverse_current_user";
 const TOKEN_KEY = "owniverse_token";
 const HOME_PAGE = "index.html";
 const LOGIN_PAGE = "login.html";
+
+// Frontend deploy and local preview can run on a different origin from .NET API.
+// Set window.OWNIVERSE_API_BASE before auth.js to override the API URL.
+const API_BASE_URL = (() => {
+    if (window.OWNIVERSE_API_BASE) return String(window.OWNIVERSE_API_BASE).replace(/\/$/, "");
+    const configured = localStorage.getItem("owniverse_api_base");
+    if (configured) return configured.replace(/\/$/, "");
+    const meta = document.querySelector('meta[name="owniverse-api-base"]');
+    if (meta && meta.content.trim()) return meta.content.trim().replace(/\/$/, "");
+    const { hostname, protocol } = window.location;
+    const isLocalHost = hostname === "localhost" || hostname === "127.0.0.1";
+    return isLocalHost ? `${protocol}//${hostname}:5055` : "";
+})();
 
 /* ---------- Tiện ích ---------- */
 function readJSON(key, fallback) {
@@ -42,7 +54,7 @@ async function apiRequest(path, { method = "GET", body, auth = false } = {}) {
 
     let res;
     try {
-        res = await fetch(API_BASE + path, {
+        res = await fetch(`${API_BASE_URL}${path}`, {
             method,
             headers,
             body: body !== undefined ? JSON.stringify(body) : undefined
@@ -102,7 +114,7 @@ function logout() {
     clearSession();
     if (token) {
         // Báo cho backend hủy token (không cần chờ kết quả)
-        fetch(API_BASE + "/api/auth/logout", {
+        fetch(`${API_BASE_URL}/api/auth/logout`, {
             method: "POST",
             headers: { Authorization: "Bearer " + token }
         }).catch(() => {});
@@ -199,6 +211,30 @@ function goToLogin(redirectTo) {
     window.location.href = target
         ? `${LOGIN_PAGE}?redirect=${encodeURIComponent(target)}`
         : LOGIN_PAGE;
+}
+
+// Icon tài khoản dùng hai luồng: đã đăng nhập -> trang tài khoản,
+// chưa đăng nhập -> trang đăng nhập. Không hiển thị cảnh báo chuyển hướng.
+function initAccountAvatarLink() {
+    document.querySelectorAll(".account-circle").forEach(function (link) {
+        link.addEventListener("click", function (event) {
+            event.preventDefault();
+            if (isLoggedIn()) {
+                const user = getCurrentUser();
+                window.location.href = String(user && user.role).toLowerCase() === "admin"
+                    ? "admin.html"
+                    : "account.html";
+            } else {
+                goToLogin("account.html");
+            }
+        });
+    });
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAccountAvatarLink, { once: true });
+} else {
+    initAccountAvatarLink();
 }
 
 // Dùng ở đầu các trang cần đăng nhập (account.html, ...)

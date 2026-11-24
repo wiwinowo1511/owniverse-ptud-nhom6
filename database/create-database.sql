@@ -23,7 +23,6 @@ CREATE TABLE dbo.Users (
     PasswordHash  NVARCHAR(255)     NOT NULL,
     FullName      NVARCHAR(100)     NOT NULL,
     Phone         VARCHAR(20)       NULL,
-    Address       NVARCHAR(500)     NOT NULL CONSTRAINT DF_Users_Address DEFAULT N'',
     AvatarUrl     NVARCHAR(500)     NULL,
     Role          VARCHAR(20)       NOT NULL CONSTRAINT DF_Users_Role DEFAULT 'Customer',
     Status        VARCHAR(20)       NOT NULL CONSTRAINT DF_Users_Status DEFAULT 'Active',
@@ -68,7 +67,7 @@ GO
 
 CREATE TABLE dbo.Artists (
     ArtistId   INT IDENTITY(1,1) NOT NULL,
-    UserId     INT               NULL,           -- tài khoản đăng nhập của nghệ sĩ (1:1, có thể chưa liên kết)
+    UserId     INT               NOT NULL,       -- tài khoản đăng nhập của nghệ sĩ (1:1)
     Name       NVARCHAR(100)     NOT NULL,       -- KAIRO, MIRA, RHEA
     Slug       VARCHAR(100)      NOT NULL,
     Bio        NVARCHAR(MAX)     NULL,
@@ -79,19 +78,11 @@ CREATE TABLE dbo.Artists (
     CreatedAt  DATETIME2         NOT NULL CONSTRAINT DF_Artists_CreatedAt DEFAULT SYSUTCDATETIME(),
     UpdatedAt  DATETIME2         NULL,
     CONSTRAINT PK_Artists PRIMARY KEY (ArtistId),
+    CONSTRAINT UQ_Artists_UserId UNIQUE (UserId),
     CONSTRAINT UQ_Artists_Name UNIQUE (Name),
     CONSTRAINT UQ_Artists_Slug UNIQUE (Slug),
     CONSTRAINT CK_Artists_Status CHECK (Status IN ('Active','Inactive')),
     CONSTRAINT FK_Artists_Users FOREIGN KEY (UserId) REFERENCES dbo.Users (UserId)
-);
-GO
-
-CREATE TABLE dbo.ArtistApiData (
-    ArtistId   INT            NOT NULL,
-    DataJson   NVARCHAR(MAX)  NOT NULL,
-    CONSTRAINT PK_ArtistApiData PRIMARY KEY (ArtistId),
-    CONSTRAINT FK_ArtistApiData_Artists FOREIGN KEY (ArtistId)
-        REFERENCES dbo.Artists (ArtistId) ON DELETE CASCADE
 );
 GO
 
@@ -151,7 +142,6 @@ CREATE TABLE dbo.ProductVariants (
     VariantId      INT IDENTITY(1,1) NOT NULL,
     ProductId      INT               NOT NULL,
     Sku            VARCHAR(50)       NOT NULL,
-    DisplayName    NVARCHAR(100)     NOT NULL CONSTRAINT DF_ProductVariants_DisplayName DEFAULT N'Mặc định',
     Size           NVARCHAR(30)      NULL,
     Color          NVARCHAR(50)      NULL,
     PriceDelta     DECIMAL(18,2)     NOT NULL CONSTRAINT DF_ProductVariants_PriceDelta DEFAULT 0,
@@ -159,20 +149,12 @@ CREATE TABLE dbo.ProductVariants (
     IsActive       BIT               NOT NULL CONSTRAINT DF_ProductVariants_IsActive DEFAULT 1,
     CONSTRAINT PK_ProductVariants PRIMARY KEY (VariantId),
     CONSTRAINT UQ_ProductVariants_Sku UNIQUE (Sku),
+    -- Lưu ý: SQL Server coi NULL = NULL trong UNIQUE, nên mỗi sản phẩm chỉ có 1 biến thể mặc định (Size, Color đều NULL)
+    CONSTRAINT UQ_ProductVariants_Product_Size_Color UNIQUE (ProductId, Size, Color),
     CONSTRAINT CK_ProductVariants_Stock CHECK (StockQuantity >= 0),
     CONSTRAINT FK_ProductVariants_Products FOREIGN KEY (ProductId)
         REFERENCES dbo.Products (ProductId) ON DELETE CASCADE
 );
-GO
-
-CREATE UNIQUE INDEX UX_ProductVariants_Product_Size_Color
-    ON dbo.ProductVariants (ProductId, Size, Color)
-    WHERE Size IS NOT NULL;
-GO
-
-CREATE UNIQUE INDEX UX_ProductVariants_Product_Color
-    ON dbo.ProductVariants (ProductId, Color)
-    WHERE Size IS NULL AND Color IS NOT NULL;
 GO
 
 CREATE TABLE dbo.ProductImages (
@@ -472,7 +454,6 @@ CREATE TABLE dbo.Communities (
     ArtistId     INT               NOT NULL,   -- mỗi nghệ sĩ 1 cộng đồng
     Name         NVARCHAR(150)     NOT NULL,
     Description  NVARCHAR(1000)    NULL,
-    AvatarUrl    NVARCHAR(500)     NULL,
     CoverUrl     NVARCHAR(500)     NULL,
     CreatedAt    DATETIME2         NOT NULL CONSTRAINT DF_Communities_CreatedAt DEFAULT SYSUTCDATETIME(),
     CONSTRAINT PK_Communities PRIMARY KEY (CommunityId),
@@ -637,8 +618,6 @@ CREATE UNIQUE INDEX UX_Shipments_TrackingCode
 -- Mỗi người dùng chỉ có 1 địa chỉ mặc định
 CREATE UNIQUE INDEX UX_UserAddresses_OneDefaultPerUser
     ON dbo.UserAddresses (UserId) WHERE IsDefault = 1;
-CREATE UNIQUE INDEX UX_Artists_UserId
-    ON dbo.Artists (UserId) WHERE UserId IS NOT NULL;
 
 -- Một người không báo cáo trùng cùng bài đăng / cùng bình luận
 CREATE UNIQUE INDEX UX_Reports_Reporter_Post

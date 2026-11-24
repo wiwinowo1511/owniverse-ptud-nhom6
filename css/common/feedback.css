@@ -1,0 +1,116 @@
+.app-message-dialog {
+  width: min(440px, calc(100vw - 32px));
+  max-width: none;
+  padding: 0;
+  border: 1px solid rgba(124, 58, 237, 0.14);
+  border-radius: 20px;
+  color: #1a1722;
+  background: #fff;
+  box-shadow: 0 24px 72px rgba(22, 16, 35, 0.28);
+  overflow: hidden;
+}
+
+.app-message-dialog::backdrop {
+  background: rgba(18, 14, 27, 0.54);
+  backdrop-filter: blur(3px);
+}
+
+.app-message-card {
+  display: grid;
+  justify-items: center;
+  padding: 30px 30px 26px;
+  text-align: center;
+  font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+.app-message-mark {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  margin-bottom: 14px;
+  place-items: center;
+  border-radius: 50%;
+  color: #6d28d9;
+  background: #f0eaff;
+  font-size: 27px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.app-message-dialog[data-type="success"] .app-message-mark {
+  color: #157347;
+  background: #e8f7ef;
+}
+
+.app-message-dialog[data-type="error"] .app-message-mark {
+  color: #b42318;
+  background: #fff0ef;
+}
+
+.app-message-dialog[data-type="warning"] .app-message-mark {
+  color: #9a6700;
+  background: #fff5d8;
+}
+
+.app-message-eyebrow {
+  margin: 0 0 6px;
+  color: #7c3aed;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.app-message-title {
+  margin: 0;
+  color: #1a1722;
+  font-family: "Montserrat", "Inter", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.app-message-text {
+  margin: 12px 0 24px;
+  color: #5d5868;
+  font-size: 14px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.app-message-close {
+  min-width: 132px;
+  min-height: 44px;
+  padding: 10px 22px;
+  border: 0;
+  border-radius: 10px;
+  color: #fff;
+  background: #7c3aed;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.18s ease, transform 0.18s ease;
+}
+
+.app-message-close:hover {
+  background: #6d28d9;
+  transform: translateY(-1px);
+}
+
+.app-message-close:focus-visible {
+  outline: 3px solid rgba(124, 58, 237, 0.32);
+  outline-offset: 3px;
+}
+
+@media (max-width: 480px) {
+  .app-message-card {
+    padding: 26px 22px 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-message-close {
+    transition: none;
+  }
+}

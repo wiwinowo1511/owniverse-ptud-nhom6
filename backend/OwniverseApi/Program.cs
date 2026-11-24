@@ -31,18 +31,28 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("Owniverse")
     ?? throw new InvalidOperationException("Thiếu cấu hình ConnectionStrings:Owniverse.");
 var database = new SqlDatabase(connectionString);
+var adminRepository = new AdminRepository(connectionString);
 
-// Cho phép trang HTML (chạy ở địa chỉ khác) gọi sang API này
-builder.Services.AddCors(options =>
-    options.AddDefaultPolicy(policy =>
-        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
+var configuredCorsOrigins = builder.Configuration.GetSection("CorsOrigins").Get<string[]>()
+    ?? Array.Empty<string>();
 
+builder.Services.AddCors(options => options.AddPolicy("FrontendPreview", policy =>
+    policy.SetIsOriginAllowed(origin =>
+        {
+            if (!Uri.TryCreate(origin, UriKind.Absolute, out var uri)) return false;
+            if ((uri.Host == "localhost" || uri.Host == "127.0.0.1")
+                && uri.Scheme is "http" or "https")
+                return true;
+            return configuredCorsOrigins.Any(allowed =>
+                allowed.Trim().TrimEnd('/').Equals(origin.TrimEnd('/'), StringComparison.OrdinalIgnoreCase));
+        })
+        .AllowAnyHeader()
+        .AllowAnyMethod()));
 builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
 var app = builder.Build();
 var passwordHasher = app.Services.GetRequiredService<IPasswordHasher<User>>();
 var userRepository = new UserRepository(connectionString);
-var communityRepository = new CommunityRepository(connectionString);
-app.UseCors();
+app.UseCors("FrontendPreview");
 
 // =====================================================
 // 1. DỮ LIỆU NẠP TỪ SQL SERVER
@@ -57,6 +67,13 @@ if (app.Environment.IsDevelopment())
         app.Lifetime.ApplicationStopping);
     if (developmentAdmin is not null)
         users.Add(developmentAdmin);
+
+    var demoCustomer = await DemoCustomerBootstrap.EnsureAsync(
+        app.Configuration,
+        passwordHasher,
+        app.Lifetime.ApplicationStopping);
+    if (demoCustomer is not null)
+        users.Add(demoCustomer);
 }
 var nextUserId = await userRepository.GetNextUserIdAsync(app.Lifetime.ApplicationStopping);
 
@@ -980,7 +997,13 @@ app.MapPut("/api/admin/artists/{id:int}/status", IResult (int id, HttpContext ct
 app.MapGet("/api/admin/artists", IResult (HttpContext ctx) =>
 {
     if (CheckRole(ctx, Roles.Admin) is { } denied) return denied;
-    return Results.Ok(artists);
+    return Results.Ok(artists.Select(a => new
+    {
+        a.Id, a.UserId, a.Slug, a.Name, a.Handle, a.Genre, a.Description, a.Cover,
+        a.Avatar, a.Photo, a.Summary, a.CommunityLink, a.Social, a.Promotion,
+        a.Information, a.Activities, a.MusicVideos, a.Status, a.AdminNote,
+        ProductCount = products.Count(p => p.ArtistId == a.Id),
+    }).ToList());
 });
 
 // Xóa nghệ sĩ (không xóa được nếu nghệ sĩ còn sản phẩm)
@@ -1022,6 +1045,153 @@ admin.MapDelete("/posts/{postId:int}", async (int postId, HttpContext ctx) =>
     if (CheckRole(ctx, Roles.Admin) is { } denied) return denied;
     return await communityRepository.DeletePostAsync(postId, ctx.RequestAborted)
         ? Msg(200, "Đã xóa bài viết") : Msg(404, "Không tìm thấy bài viết");
+});
+
+// Ghi chú nội bộ của nghệ sĩ được lưu trong ArtistApiData và không trả về API công khai.
+admin.MapPut("/artists/{id:int}/note", IResult (int id, HttpContext ctx, AdminArtistNoteRequest req) =>
+{
+    if (CheckRole(ctx, Roles.Admin) is { } denied) return denied;
+    var artist = artists.FirstOrDefault(a => a.Id == id);
+    if (artist is null) return Msg(404, "Không tìm thấy nghệ sĩ");
+    if ((req.Note ?? "").Length > 4000) return Msg(400, "Ghi chú không được vượt quá 4000 ký tự");
+    artist.AdminNote = req.Note?.Trim() ?? "";
+    return Results.Ok(new { artist.Id, artist.AdminNote });
+});
+
+// Đơn hàng chỉ cho phép xem và cập nhật trạng thái xử lý; không tạo/xóa đơn ở trang quản trị.
+admin.MapGet("/orders", async Task<IResult> (HttpContext ctx) =>
+{
+    if (CheckRole(ctx, Roles.Admin) is { } denied) return denied;
+    return Results.Ok(await adminRepository.GetOrdersAsync(ctx.RequestAborted));
+});
+admin.MapGet("/orders/{id:int}", async Task<IResult> (int id, HttpContext ctx) =>
+{
+    if (CheckRole(ctx, Roles.Admin) is { } denied) return denied;
+    var order = await adminRepository.GetOrderAsync(id, ctx.RequestAborted);
+    return order is null ? Msg(404, "Không tìm thấy đơn hàng") : Results.Ok(order);
+});
+admin.MapPut("/orders/{id:int}/status", async Task<IResult> (int id, HttpContext ctx, AdminOrderStatusRequest req) =>
+{
+    if (CheckRole(ctx, Roles.Admin) is { } denied) return denied;
+    var requested = (req.Status ?? "").Trim().ToLowerInvariant();
+    var status = requested switch
+    {
+        "pending" => "Pending",
+        "confirmed" => "Confirmed",
+        "processing" => "Processing",
+        "shipping" => "Shipping",
+        "delivered" => "Delivered",
+        "cancelled" => "Cancelled",
+        _ => null,
+    };
+    if (status is null) return Msg(400, "Trạng thái đơn hàng không hợp lệ");
+
+    var adminUser = GetCurrentUser(ctx)!;
+    if (!await adminRepository.SetOrderStatusAsync(id, status, adminUser.Id, ctx.RequestAborted))
+        return Msg(404, "Không tìm thấy đơn hàng");
+    lock (dataLock)
+    {
+        var cachedOrder = orders.FirstOrDefault(o => o.Id == id);
+        if (cachedOrder is not null) cachedOrder.Status = status;
+    }
+    var updatedOrder = await adminRepository.GetOrderAsync(id, ctx.RequestAborted);
+    ctx.Items["SkipApiStateSave"] = true;
+    return Results.Ok(updatedOrder);
+});
+
+// Khuyến mãi được lưu trực tiếp trong dbo.Coupons.
+IResult? BuildPromotion(AdminPromotionRequest req, out AdminPromotionWrite? promotion)
+{
+    promotion = null;
+    var code = (req.Code ?? "").Trim().ToUpperInvariant();
+    var name = (req.Name ?? "").Trim();
+    var type = (req.Type ?? "").Trim().ToLowerInvariant();
+    var release = (req.Release ?? "").Trim().ToLowerInvariant();
+    if (!System.Text.RegularExpressions.Regex.IsMatch(code, "^[A-Z0-9]{3,20}$"))
+        return Msg(400, "Mã voucher phải gồm 3–20 ký tự chữ hoặc số");
+    if (name.Length == 0 || name.Length > 255) return Msg(400, "Tên chương trình không hợp lệ");
+    if (type is not ("percent" or "fixed")) return Msg(400, "Loại ưu đãi không hợp lệ");
+    if (req.Value is null || req.Value <= 0 || (type == "percent" && req.Value > 100))
+        return Msg(400, "Giá trị ưu đãi không hợp lệ");
+    if (req.MinimumOrder is null || req.MinimumOrder < 0) return Msg(400, "Đơn tối thiểu không hợp lệ");
+    if (req.UsageLimit is < 1) return Msg(400, "Lượt sử dụng tối đa phải từ 1 trở lên");
+    if (release is not ("publish" or "draft")) return Msg(400, "Trạng thái phát hành không hợp lệ");
+    if (!DateOnly.TryParseExact(req.Start, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture,
+            System.Globalization.DateTimeStyles.None, out var startDate) ||
+        !DateOnly.TryParseExact(req.End, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture,
+            System.Globalization.DateTimeStyles.None, out var endDate) || endDate < startDate)
+        return Msg(400, "Thời gian khuyến mãi không hợp lệ");
+
+    promotion = new AdminPromotionWrite
+    {
+        Code = code,
+        Name = name,
+        DiscountType = type == "percent" ? "Percent" : "Fixed",
+        Value = req.Value.Value,
+        MinimumOrder = req.MinimumOrder.Value,
+        UsageLimit = req.UsageLimit,
+        StartsAt = startDate.ToDateTime(TimeOnly.MinValue),
+        ExpiresAt = endDate.AddDays(1).ToDateTime(TimeOnly.MinValue).AddTicks(-1),
+        IsActive = release == "publish",
+    };
+    return null;
+}
+
+admin.MapGet("/promotions", async Task<IResult> (HttpContext ctx, string? q, string? status) =>
+{
+    if (CheckRole(ctx, Roles.Admin) is { } denied) return denied;
+    var allowed = new[] { "running", "upcoming", "expired", "draft" };
+    if (!string.IsNullOrWhiteSpace(status) && !allowed.Contains(status.Trim().ToLowerInvariant()))
+        return Msg(400, "Trạng thái khuyến mãi không hợp lệ");
+    return Results.Ok(await adminRepository.GetPromotionsAsync(q, status, ctx.RequestAborted));
+});
+admin.MapPost("/promotions", async Task<IResult> (HttpContext ctx, AdminPromotionRequest req) =>
+{
+    if (CheckRole(ctx, Roles.Admin) is { } denied) return denied;
+    if (BuildPromotion(req, out var promotion) is { } invalid) return invalid;
+    try
+    {
+        var id = await adminRepository.CreatePromotionAsync(promotion!, ctx.RequestAborted);
+        var created = (await adminRepository.GetPromotionsAsync(null, null, ctx.RequestAborted)).First(p => p.Id == id);
+        ctx.Items["SkipApiStateSave"] = true;
+        return Results.Json(created, statusCode: StatusCodes.Status201Created);
+    }
+    catch (SqlException ex) when (ex.Number is 2601 or 2627)
+    {
+        return Msg(409, "Mã voucher đã tồn tại");
+    }
+});
+admin.MapPut("/promotions/{id:int}", async Task<IResult> (int id, HttpContext ctx, AdminPromotionRequest req) =>
+{
+    if (CheckRole(ctx, Roles.Admin) is { } denied) return denied;
+    if (BuildPromotion(req, out var promotion) is { } invalid) return invalid;
+    try
+    {
+        if (!await adminRepository.UpdatePromotionAsync(id, promotion!, ctx.RequestAborted))
+            return Msg(404, "Không tìm thấy voucher");
+        var updated = (await adminRepository.GetPromotionsAsync(null, null, ctx.RequestAborted)).First(p => p.Id == id);
+        ctx.Items["SkipApiStateSave"] = true;
+        return Results.Ok(updated);
+    }
+    catch (SqlException ex) when (ex.Number is 2601 or 2627)
+    {
+        return Msg(409, "Mã voucher đã tồn tại");
+    }
+});
+admin.MapDelete("/promotions/{id:int}", async Task<IResult> (int id, HttpContext ctx) =>
+{
+    if (CheckRole(ctx, Roles.Admin) is { } denied) return denied;
+    try
+    {
+        if (!await adminRepository.DeletePromotionAsync(id, ctx.RequestAborted))
+            return Msg(404, "Không tìm thấy voucher");
+        ctx.Items["SkipApiStateSave"] = true;
+        return Msg(200, "Đã xóa voucher");
+    }
+    catch (SqlException ex) when (ex.Number == 547)
+    {
+        return Msg(409, "Voucher đã được dùng trong đơn hàng nên không thể xóa");
+    }
 });
 
 // =====================================================
@@ -1117,6 +1287,9 @@ admin.MapPut("/users/{id:int}", IResult (int id, HttpContext ctx, AdminUpdateUse
         newRole = req.Role.Trim().ToLowerInvariant();
         if (!IsValidRole(newRole)) return Msg(400, "Vai trò không hợp lệ (customer, artist hoặc admin)");
         if (target.Id == me.Id && newRole != Roles.Admin) return Msg(400, "Không thể tự hạ quyền của chính mình");
+        if (target.Role == Roles.Admin && target.Status == "active" && newRole != Roles.Admin &&
+            !users.Any(u => u.Id != target.Id && u.Role == Roles.Admin && u.Status == "active"))
+            return Msg(409, "Cần giữ ít nhất một quản trị viên đang hoạt động");
     }
 
     // ----- Áp dụng -----
@@ -1154,6 +1327,9 @@ admin.MapPut("/users/{id:int}/status", IResult (int id, HttpContext ctx, AdminSe
         return Msg(400, "Trạng thái không hợp lệ (active hoặc locked)");
     if (newStatus == "locked" && target.Id == GetCurrentUser(ctx)!.Id)
         return Msg(400, "Không thể tự khóa tài khoản của chính mình");
+    if (newStatus == "locked" && target.Role == Roles.Admin && target.Status == "active" &&
+        !users.Any(u => u.Id != target.Id && u.Role == Roles.Admin && u.Status == "active"))
+        return Msg(409, "Cần giữ ít nhất một quản trị viên đang hoạt động");
 
     // TODO-DB: UPDATE Users SET Status = @status WHERE Id = @id
     target.Status = newStatus;
@@ -1184,21 +1360,26 @@ admin.MapPut("/users/{id:int}/password", IResult (int id, HttpContext ctx, Admin
 });
 
 // Xóa tài khoản
-admin.MapDelete("/users/{id:int}", IResult (int id, HttpContext ctx) =>
+admin.MapDelete("/users/{id:int}", async Task<IResult> (int id, HttpContext ctx) =>
 {
     if (CheckRole(ctx, Roles.Admin) is { } denied) return denied;
 
     var target = users.FirstOrDefault(u => u.Id == id);
     if (target is null) return Msg(404, "Không tìm thấy tài khoản");
     if (target.Id == GetCurrentUser(ctx)!.Id) return Msg(400, "Không thể tự xóa tài khoản của chính mình");
+    if (target.Role == Roles.Admin && target.Status == "active" &&
+        !users.Any(u => u.Id != target.Id && u.Role == Roles.Admin && u.Status == "active"))
+        return Msg(409, "Cần giữ ít nhất một quản trị viên đang hoạt động");
+    var deleteBlock = await adminRepository.GetUserDeleteBlockReasonAsync(id, ctx.RequestAborted);
+    if (deleteBlock is not null) return Msg(409, deleteBlock);
 
     // TODO-DB: DELETE FROM Users WHERE Id = @id
-    // (database sẽ chặn nếu tài khoản đã có đơn hàng; khi đó nên khóa tài khoản thay vì xóa)
     foreach (var linked in artists.Where(x => x.UserId == id))
         linked.UserId = null;
     communityMembers.RemoveAll(m => m.UserId == id);
+    carts.Remove(id);
     RemoveSessionsOf(id);
-    InvalidateResetTokens(id);
+    passwordResetTokens.RemoveAll(token => token.UserId == id);
     users.Remove(target);
     return Msg(200, "Đã xóa tài khoản");
 });
@@ -1728,7 +1909,8 @@ app.Use(async (ctx, next) =>
     try
     {
         await next();
-        if (ctx.Response.StatusCode < StatusCodes.Status400BadRequest)
+        if (ctx.Response.StatusCode < StatusCodes.Status400BadRequest &&
+            ctx.Items["SkipApiStateSave"] is not true)
         {
             try
             {
@@ -1759,6 +1941,6 @@ app.Use(async (ctx, next) =>
 });
 
 // =====================================================
-// CHẠY SERVER (giữ cổng 3000 để frontend khỏi phải đổi)
+// Địa chỉ/cổng lấy từ profile cấu hình khi chạy dotnet run.
 // =====================================================
-app.Run(Environment.GetEnvironmentVariable("OWNIVERSE_API_URL") ?? "http://localhost:3000");
+app.Run();
