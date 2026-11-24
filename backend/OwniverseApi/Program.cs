@@ -12,7 +12,7 @@
 // Các phần trong file này (Ctrl + F tìm theo số):
 //   1. Dữ liệu nạp từ SQL Server
 //   2. Hàm hỗ trợ
-//   3. Tài khoản (đăng ký, đăng nhập, hồ sơ, đổi mật khẩu)
+//   3. Tài khoản (đăng ký, đăng nhập, hồ sơ, đổi mật khẩu)a
 //   4. Nghệ sĩ (xem, theo dõi, nghệ sĩ tự sửa hồ sơ, admin thêm/sửa/xóa)
 //   5. Quản trị: tài khoản
 //   6. Quản trị: liên kết tài khoản nghệ sĩ
@@ -32,6 +32,7 @@ var connectionString = builder.Configuration.GetConnectionString("Owniverse")
     ?? throw new InvalidOperationException("Thiếu cấu hình ConnectionStrings:Owniverse.");
 var database = new SqlDatabase(connectionString);
 var adminRepository = new AdminRepository(connectionString);
+var communityRepository = new CommunityRepository(connectionString);
 
 var configuredCorsOrigins = builder.Configuration.GetSection("CorsOrigins").Get<string[]>()
     ?? Array.Empty<string>();
