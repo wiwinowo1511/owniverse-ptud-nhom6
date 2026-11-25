@@ -23,7 +23,7 @@ const API_BASE_URL = (() => {
     if (meta && meta.content.trim()) return meta.content.trim().replace(/\/$/, "");
     const { hostname, protocol } = window.location;
     const isLocalHost = hostname === "localhost" || hostname === "127.0.0.1";
-    return isLocalHost ? `${protocol}//${hostname}:5055` : "";
+    return isLocalHost ? `${protocol}//${hostname}:5055` : "https://owniverse-api.onrender.com";
 })();
 
 /* ---------- Tiện ích ---------- */
