@@ -22,6 +22,11 @@ ON CONFLICT (Slug) DO UPDATE SET
  Name=EXCLUDED.Name, Bio=EXCLUDED.Bio, Style=EXCLUDED.Style,
  AvatarUrl=EXCLUDED.AvatarUrl, CoverUrl=EXCLUDED.CoverUrl;
 
+-- Tai khoan khach hang demo
+INSERT INTO public.Users (Email, PasswordHash, FullName, Role, Status)
+VALUES ('customer@owniverse.com', 'AQAAAAIAAYagAAAAEHKn423aZR+aOefrHKYiX38ifhzsNas4FGS7TWfFnMtLU6yoQyE32ilwbsXjGhQOlw==', 'Khách hàng demo', 'Customer', 'Active')
+ON CONFLICT (Email) DO NOTHING;
+
 INSERT INTO public.Categories (Name, Slug) VALUES
 ('Áo thun','ao-thun'),('Áo hoodie','ao-khoac'),('Quần dài','quan-dai'),
 ('Quần short','quan-short'),('Dây đeo','day-deo'),('Móc khóa','moc-khoa'),
