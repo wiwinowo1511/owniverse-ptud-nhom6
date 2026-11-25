@@ -45,6 +45,10 @@ builder.Services.AddCors(options => options.AddPolicy("FrontendPreview", policy 
             if ((uri.Host == "localhost" || uri.Host == "127.0.0.1")
                 && uri.Scheme is "http" or "https")
                 return true;
+            // Cho phep frontend Vercel (va preview) goi API ma khong can cau hinh CorsOrigins
+            if (uri.Host.EndsWith(".vercel.app", StringComparison.OrdinalIgnoreCase)
+                && uri.Scheme == "https")
+                return true;
             return configuredCorsOrigins.Any(allowed =>
                 allowed.Trim().TrimEnd('/').Equals(origin.TrimEnd('/'), StringComparison.OrdinalIgnoreCase));
         })
