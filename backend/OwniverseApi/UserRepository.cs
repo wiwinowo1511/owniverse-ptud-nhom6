@@ -1,3 +1,4 @@
+using Dapper;
 using Npgsql;
 
 sealed class UserRepository(string connectionString)
@@ -45,8 +46,8 @@ sealed class UserRepository(string connectionString)
     {
         const string sql = """
             INSERT INTO public.users ("email", "passwordhash", "fullname", "phone", "role", "status")
-            OUTPUT INSERTED."userid", INSERTED."createdat"
-            VALUES (@Email, @PasswordHash, @FullName, @Phone, 'Customer', 'Active');
+            VALUES (@Email, @PasswordHash, @FullName, @Phone, 'Customer', 'Active')
+            RETURNING "userid", "createdat";
             """;
         await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
@@ -78,10 +79,8 @@ sealed class UserRepository(string connectionString)
                 "email" = @Email,
                 "phone" = @Phone,
                 "updatedat" = NOW() AT TIME ZONE 'UTC'
-            OUTPUT INSERTED."userid", INSERTED."email", INSERTED."passwordhash",
-                   INSERTED."fullname", INSERTED."phone", INSERTED."role",
-                   INSERTED."status", INSERTED."createdat"
-            WHERE "userid" = @UserId;
+            WHERE "userid" = @UserId
+            RETURNING "userid", "email", "passwordhash", "fullname", "phone", "role", "status", "createdat";
             """;
         await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
@@ -256,32 +255,30 @@ public async Task<AccountOrdersSummary> GetAccountOrdersAsync(
         int userId,
         CancellationToken cancellationToken = default)
     {
-        const string sql = """
-            IF NOT EXISTS (
+        const string activeSql = """
+            SELECT EXISTS (
                 SELECT 1
                 FROM public.communities AS c
                 INNER JOIN public.artists AS a ON a."artistid" = c."artistid"
                 WHERE c."communityid" = @CommunityId AND a."status" = 'Active'
-            )
-                SELECT FALSE;
-            ELSE
-            BEGIN
-                IF NOT EXISTS (
-                    SELECT 1 FROM public.communitymembers
-                    WHERE "communityid" = @CommunityId AND "userid" = @UserId
-                    FOR UPDATE
-                )
-                    INSERT INTO public.communitymembers ("communityid", "userid")
-                    VALUES (@CommunityId, @UserId);
-                SELECT TRUE;
-            END;
+            );
             """;
         await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
-        await using var command = new NpgsqlCommand(sql, connection);
-        command.Parameters.Add("@CommunityId", NpgsqlTypes.NpgsqlDbType.Integer).Value = communityId;
-        command.Parameters.Add("@UserId", NpgsqlTypes.NpgsqlDbType.Integer).Value = userId;
-        return Convert.ToBoolean(await command.ExecuteScalarAsync(cancellationToken));
+        await using (var activeCmd = new NpgsqlCommand(activeSql, connection))
+        {
+            activeCmd.Parameters.Add("@CommunityId", NpgsqlTypes.NpgsqlDbType.Integer).Value = communityId;
+            if (!Convert.ToBoolean(await activeCmd.ExecuteScalarAsync(cancellationToken)))
+                return false;
+        }
+        await connection.ExecuteAsync(
+            """
+            INSERT INTO public.communitymembers ("communityid", "userid")
+            VALUES (@CommunityId, @UserId)
+            ON CONFLICT ("communityid", "userid") DO NOTHING;
+            """,
+            new { CommunityId = communityId, UserId = userId });
+        return true;
     }
 
     public async Task<bool> LeaveCommunityAsync(
@@ -289,22 +286,16 @@ public async Task<AccountOrdersSummary> GetAccountOrdersAsync(
         int userId,
         CancellationToken cancellationToken = default)
     {
-        const string sql = """
-            IF NOT EXISTS (SELECT 1 FROM public.communities WHERE "communityid" = @CommunityId)
-                SELECT FALSE;
-            ELSE
-            BEGIN
-                DELETE FROM public.communitymembers
-                WHERE "communityid" = @CommunityId AND "userid" = @UserId;
-                SELECT TRUE;
-            END;
-            """;
         await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
-        await using var command = new NpgsqlCommand(sql, connection);
-        command.Parameters.Add("@CommunityId", NpgsqlTypes.NpgsqlDbType.Integer).Value = communityId;
-        command.Parameters.Add("@UserId", NpgsqlTypes.NpgsqlDbType.Integer).Value = userId;
-        return Convert.ToBoolean(await command.ExecuteScalarAsync(cancellationToken));
+        var exists = await connection.ExecuteScalarAsync<int>(
+            "SELECT COUNT(1) FROM public.communities WHERE \"communityid\"=@CommunityId;",
+            new { CommunityId = communityId }) > 0;
+        if (!exists) return false;
+        await connection.ExecuteAsync(
+            "DELETE FROM public.communitymembers WHERE \"communityid\"=@CommunityId AND \"userid\"=@UserId;",
+            new { CommunityId = communityId, UserId = userId });
+        return true;
     }
 
     private static User ReadUser(NpgsqlDataReader reader) => new()

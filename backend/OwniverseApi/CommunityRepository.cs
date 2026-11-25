@@ -162,9 +162,10 @@ sealed class CommunityRepository(string connectionString)
         await using var db = new NpgsqlConnection(connectionString);
         if (liked)
             await db.ExecuteAsync("""
-                IF EXISTS(SELECT 1 FROM public.posts WHERE "postid"=@PostId AND "status"='Visible')
-                    IF NOT EXISTS(SELECT 1 FROM public.postlikes WHERE "postid"=@PostId AND "userid"=@UserId)
-                        INSERT INTO public.postlikes("postid","userid") VALUES(@PostId,@UserId);
+                INSERT INTO public.postlikes ("postid", "userid")
+                SELECT @PostId, @UserId
+                WHERE EXISTS (SELECT 1 FROM public.posts WHERE "postid"=@PostId AND "status"='Visible')
+                ON CONFLICT ("postid", "userid") DO NOTHING;
                 """, new { PostId = postId, UserId = userId });
         else
             await db.ExecuteAsync("DELETE FROM public.postlikes WHERE \"postid\"=@PostId AND \"userid\"=@UserId AND EXISTS(SELECT 1 FROM public.posts WHERE \"postid\"=@PostId AND \"status\"='Visible')",
