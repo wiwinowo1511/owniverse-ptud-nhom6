@@ -1,7 +1,7 @@
 function requireRole(role, loginPage) {
     const currentUser = getCurrentUser();
     const requiredRole = String(role || "").toLowerCase();
-    const signInPage = loginPage === "artist-login.html" ? loginPage : "login.html";
+    const signInPage = loginPage === "login.html" ? loginPage : "login.html";
 
     if (requiredRole === "artist" && typeof window.isArtistDemoSession === "function" && window.isArtistDemoSession()) {
         return true;

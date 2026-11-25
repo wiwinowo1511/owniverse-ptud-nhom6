@@ -53,6 +53,10 @@ if (loginForm) {
 
       const redirect = new URLSearchParams(window.location.search).get("redirect");
       const requestedPage = safeRedirectTarget(redirect);
+      if (role === "artist") {
+        if (typeof window.startArtistDemoSession === "function") window.startArtistDemoSession();
+        if (typeof window.saveArtistDemoUser === "function") window.saveArtistDemoUser(user);
+      }
       const defaultPage = role === "admin"
         ? "admin.html"
         : role === "artist"

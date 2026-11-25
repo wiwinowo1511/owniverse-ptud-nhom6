@@ -1,4 +1,4 @@
-﻿document.addEventListener("DOMContentLoaded", async function () {
+document.addEventListener("DOMContentLoaded", async function () {
   const alert = document.getElementById("artist-account-alert");
   const accountForm = document.getElementById("artist-account-form");
   const communityForm = document.getElementById("artist-community-form");
@@ -111,7 +111,7 @@
       return requiredFields.some(function (field) { return !entry[field]; });
     });
     if (incomplete) {
-      showStatus(statuses.detail, "Hãy điền đủ " + label + " cho từng mục hoặc xóa mục còn trống.", true);
+      showStatus(statuses.detail, "H?y �i?n �? " + label + " cho t?ng m?c ho?c x�a m?c c?n tr?ng.", true);
       return false;
     }
     return true;
@@ -147,10 +147,10 @@
   }
 
   function render() {
-    document.getElementById("artist-name").textContent = artist.name || currentUser.fullName || "Nghệ sĩ Owniverse";
-    document.getElementById("artist-genre").textContent = artist.genre || "Chưa cập nhật phong cách nghệ thuật";
-    document.getElementById("artist-stat-genre").textContent = artist.genre || "Chưa cập nhật";
-    document.getElementById("artist-profile-status").textContent = artist.status === "active" ? "Đang hoạt động" : "Đã cập nhật";
+    document.getElementById("artist-name").textContent = artist.name || currentUser.fullName || "Ngh? s? Owniverse";
+    document.getElementById("artist-genre").textContent = artist.genre || "Ch�a c?p nh?t phong c�ch ngh? thu?t";
+    document.getElementById("artist-stat-genre").textContent = artist.genre || "Ch�a c?p nh?t";
+    document.getElementById("artist-profile-status").textContent = artist.status === "active" ? "�ang ho?t �?ng" : "�? c?p nh?t";
     fields.fullName.value = currentUser.fullName || "";
     fields.email.value = currentUser.email || "";
     fields.phone.value = currentUser.phone || "";
@@ -196,7 +196,7 @@
 
   function previewField(field, preview, fallback) {
     const source = imageReference(field.value);
-    field.setCustomValidity(source === null ? "Nhập đường dẫn ảnh trong website hoặc URL bắt đầu bằng https://." : "");
+    field.setCustomValidity(source === null ? "Nh?p ��?ng d?n ?nh trong website ho?c URL b?t �?u b?ng https://." : "");
     setImage(preview, source, fallback);
   }
 
@@ -204,16 +204,16 @@
     if (isDemoSession) {
       currentUser = window.getArtistDemoUser();
       artist = window.getArtistDemoProfile();
-      document.getElementById("artist-account-mode").textContent = "Bản demo ngoại tuyến";
-      showStatus(alert, "Bạn đang xem tài khoản demo. Thay đổi được lưu trong trình duyệt này.", false);
+      document.getElementById("artist-account-mode").textContent = "B?n demo ngo?i tuy?n";
+      showStatus(alert, "B?n �ang xem t�i kho?n demo. Thay �?i ��?c l�u trong tr?nh duy?t n�y.", false);
     } else {
       if (!isLoggedIn()) {
-        goToLogin("artist-account.html", "artist-login.html");
+        goToLogin("artist-account.html", "login.html");
         return;
       }
       currentUser = await refreshCurrentUser();
       if (String(currentUser.role || "").toLowerCase() !== "artist") {
-        showStatus(alert, "Tài khoản này chưa được cấp quyền nghệ sĩ.", true);
+        showStatus(alert, "T�i kho?n n�y ch�a ��?c c?p quy?n ngh? s?.", true);
         window.setTimeout(function () { window.location.replace("index.html"); }, 900);
         return;
       }
@@ -222,10 +222,10 @@
     render();
   } catch (error) {
     if (!isLoggedIn()) {
-      goToLogin("artist-account.html", "artist-login.html");
+      goToLogin("artist-account.html", "login.html");
       return;
     }
-    showStatus(alert, error.message || "Không thể tải hồ sơ nghệ sĩ lúc này.", true);
+    showStatus(alert, error.message || "Kh�ng th? t?i h? s� ngh? s? l�c n�y.", true);
     accountForm.hidden = true;
     communityForm.hidden = true;
     detailForm.hidden = true;
@@ -247,10 +247,10 @@
         : await updateProfile(updatedUser);
       document.getElementById("artist-name").textContent = artist.name || currentUser.fullName;
       showStatus(statuses.account, isDemoSession
-        ? "Thông tin tài khoản đã được lưu trong trình duyệt."
-        : "Thông tin tài khoản đã được cập nhật.", false);
+        ? "Th�ng tin t�i kho?n �? ��?c l�u trong tr?nh duy?t."
+        : "Th�ng tin t�i kho?n �? ��?c c?p nh?t.", false);
     } catch (error) {
-      showStatus(statuses.account, error.message || "Không thể lưu thông tin tài khoản.", true);
+      showStatus(statuses.account, error.message || "Kh�ng th? l�u th�ng tin t�i kho?n.", true);
     } finally {
       setBusy(accountForm, false);
     }
@@ -269,7 +269,7 @@
     const avatar = imageReference(fields.avatar.value);
     const cover = imageReference(fields.cover.value);
     if (avatar === null || cover === null) {
-      showStatus(statuses.community, "Đường dẫn ảnh chưa hợp lệ.", true);
+      showStatus(statuses.community, "��?ng d?n ?nh ch�a h?p l?.", true);
       return;
     }
     setBusy(communityForm, true);
@@ -285,10 +285,10 @@
         : await apiRequest("/api/artists/me", { method: "PUT", auth: true, body: updatedProfile });
       render();
       showStatus(statuses.community, isDemoSession
-        ? "Hồ sơ cộng đồng đã được lưu trong trình duyệt."
-        : "Hồ sơ cộng đồng đã được cập nhật.", false);
+        ? "H? s� c?ng �?ng �? ��?c l�u trong tr?nh duy?t."
+        : "H? s� c?ng �?ng �? ��?c c?p nh?t.", false);
     } catch (error) {
-      showStatus(statuses.community, error.message || "Không thể cập nhật hồ sơ cộng đồng.", true);
+      showStatus(statuses.community, error.message || "Kh�ng th? c?p nh?t h? s� c?ng �?ng.", true);
     } finally {
       setBusy(communityForm, false);
     }
@@ -315,9 +315,9 @@
     if (!detailForm.reportValidity()) return;
     statuses.detail.hidden = true;
 
-    if (!validateRepeater("timeline", ["year", "title"], "thời gian và tiêu đề") ||
-        !validateRepeater("activity", ["title", "type", "date"], "tên, loại và thời gian hoạt động") ||
-        !validateRepeater("video", ["title", "type", "youtubeId"], "tên, loại và mã YouTube")) return;
+    if (!validateRepeater("timeline", ["year", "title"], "th?i gian v� ti�u �?") ||
+        !validateRepeater("activity", ["title", "type", "date"], "t�n, lo?i v� th?i gian ho?t �?ng") ||
+        !validateRepeater("video", ["title", "type", "youtubeId"], "t�n, lo?i v� m? YouTube")) return;
 
     const social = {
       youtube: fields.youtube.value.trim(),
@@ -325,7 +325,7 @@
       tiktok: fields.tiktok.value.trim()
     };
     if (!Object.values(social).every(validSocialUrl)) {
-      showStatus(statuses.detail, "Liên kết mạng xã hội phải là URL HTTPS hợp lệ.", true);
+      showStatus(statuses.detail, "Li�n k?t m?ng x? h?i ph?i l� URL HTTPS h?p l?.", true);
       return;
     }
 
@@ -333,20 +333,20 @@
     const images = [fields.photo.value, fields.promotionImage.value]
       .concat(activities.map(function (activity) { return activity.image; }));
     if (images.some(function (image) { return imageReference(image) === null; })) {
-      showStatus(statuses.detail, "Ảnh cần dùng đường dẫn trong website hoặc URL bắt đầu bằng https://.", true);
+      showStatus(statuses.detail, "?nh c?n d�ng ��?ng d?n trong website ho?c URL b?t �?u b?ng https://.", true);
       return;
     }
 
     const links = [fields.promotionLink.value]
       .concat(activities.map(function (activity) { return activity.link; }));
     if (links.some(function (link) { return linkReference(link) === null; })) {
-      showStatus(statuses.detail, "Liên kết cần là HTTPS hoặc đường dẫn nội bộ của website.", true);
+      showStatus(statuses.detail, "Li�n k?t c?n l� HTTPS ho?c ��?ng d?n n?i b? c?a website.", true);
       return;
     }
 
     const videos = collectRepeater("video");
     if (videos.some(function (video) { return !/^[A-Za-z0-9_-]{6,20}$/.test(video.youtubeId); })) {
-      showStatus(statuses.detail, "Mã video YouTube chưa hợp lệ.", true);
+      showStatus(statuses.detail, "M? video YouTube ch�a h?p l?.", true);
       return;
     }
 
@@ -376,10 +376,10 @@
         : await apiRequest("/api/artists/me", { method: "PUT", auth: true, body: payload });
       render();
       showStatus(statuses.detail, isDemoSession
-        ? "Trang chi tiết nghệ sĩ đã được lưu trong trình duyệt."
-        : "Trang chi tiết nghệ sĩ đã được cập nhật.", false);
+        ? "Trang chi ti?t ngh? s? �? ��?c l�u trong tr?nh duy?t."
+        : "Trang chi ti?t ngh? s? �? ��?c c?p nh?t.", false);
     } catch (error) {
-      showStatus(statuses.detail, error.message || "Không thể lưu trang chi tiết nghệ sĩ.", true);
+      showStatus(statuses.detail, error.message || "Kh�ng th? l�u trang chi ti?t ngh? s?.", true);
     } finally {
       setBusy(detailForm, false);
     }
@@ -404,11 +404,11 @@
     const newPassword = document.getElementById("artist-new-password").value;
     const confirmation = document.getElementById("artist-confirm-password").value;
     if (newPassword !== confirmation) {
-      showStatus(statuses.password, "Mật khẩu xác nhận không khớp.", true);
+      showStatus(statuses.password, "M?t kh?u x�c nh?n kh�ng kh?p.", true);
       return;
     }
     if (isDemoSession) {
-      showStatus(statuses.password, "Đổi mật khẩu cần kết nối backend; thao tác này đang tắt trong bản demo.", true);
+      showStatus(statuses.password, "�?i m?t kh?u c?n k?t n?i backend; thao t�c n�y �ang t?t trong b?n demo.", true);
       return;
     }
     setBusy(passwordForm, true);
@@ -416,9 +416,9 @@
       await changePassword(oldPassword, newPassword);
       passwordForm.reset();
       passwordDialog.close();
-      goToLogin("artist-account.html", "artist-login.html");
+      goToLogin("artist-account.html", "login.html");
     } catch (error) {
-      showStatus(statuses.password, error.message || "Không thể đổi mật khẩu.", true);
+      showStatus(statuses.password, error.message || "Kh�ng th? �?i m?t kh?u.", true);
     } finally {
       setBusy(passwordForm, false);
     }

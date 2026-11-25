@@ -223,7 +223,7 @@ function safeRedirectTarget(target) {
 
 function goToLogin(redirectTo, loginPage) {
     const target = safeRedirectTarget(redirectTo);
-    const destination = loginPage === "artist-login.html" ? loginPage : LOGIN_PAGE;
+    const destination = loginPage === "login.html" ? loginPage : LOGIN_PAGE;
     window.location.href = target
         ? `${destination}?redirect=${encodeURIComponent(target)}`
         : destination;
