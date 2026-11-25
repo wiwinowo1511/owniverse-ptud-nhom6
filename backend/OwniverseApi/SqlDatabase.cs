@@ -310,9 +310,9 @@ sealed class SqlDatabase(string connectionString)
 
             await connection.ExecuteAsync(
                 """
-                UPDATE public.artistapidata SET "datajson"=@DataJson WHERE "artistid"=@ArtistId;
-                IF NOT FOUND
-                    INSERT INTO public.artistapidata ("artistid", "datajson") VALUES (@ArtistId, @DataJson);
+                INSERT INTO public.artistapidata ("artistid", "datajson")
+                VALUES (@ArtistId, @DataJson)
+                ON CONFLICT ("artistid") DO UPDATE SET "datajson" = EXCLUDED."datajson";
                 """,
                 new { ArtistId = artist.Id, DataJson = SerializeArtistData(artist) }, transaction);
         }
@@ -504,20 +504,21 @@ sealed class SqlDatabase(string connectionString)
                 };
                 await connection.ExecuteAsync(
                     """
-                    UPDATE public.orderitems SET "productname"=@ProductName, "sku"=@Sku,
-                        "unitprice"=@UnitPrice, "quantity"=@Quantity
-                    WHERE "orderid"=@OrderId AND "variantid"=@VariantId;
-                    IF NOT FOUND
-                        INSERT INTO public.orderitems ("orderid", "variantid", "productname", "sku", "unitprice", "quantity")
-                        VALUES (@OrderId, @VariantId, @ProductName, @Sku, @UnitPrice, @Quantity);
+                    INSERT INTO public.orderitems ("orderid", "variantid", "productname", "sku", "unitprice", "quantity")
+                    VALUES (@OrderId, @VariantId, @ProductName, @Sku, @UnitPrice, @Quantity)
+                    ON CONFLICT ("orderid", "variantid") DO UPDATE SET
+                        "productname" = EXCLUDED."productname",
+                        "sku" = EXCLUDED."sku",
+                        "unitprice" = EXCLUDED."unitprice",
+                        "quantity" = EXCLUDED."quantity";
                     """, itemArgs, transaction);
             }
 
             await connection.ExecuteAsync(
                 """
-                IF NOT EXISTS (SELECT 1 FROM public.orderstatushistory WHERE "orderid"=@OrderId AND "status"=@Status)
-                    INSERT INTO public.orderstatushistory ("orderid", "status", "changedby", "note")
-                    VALUES (@OrderId, @Status, NULL, 'API state synchronization');
+                INSERT INTO public.orderstatushistory ("orderid", "status", "changedby", "note")
+                SELECT @OrderId, @Status, NULL, 'API state synchronization'
+                WHERE NOT EXISTS (SELECT 1 FROM public.orderstatushistory WHERE "orderid"=@OrderId AND "status"=@Status);
                 """, new { OrderId = order.Id, order.Status }, transaction);
         }
     }
