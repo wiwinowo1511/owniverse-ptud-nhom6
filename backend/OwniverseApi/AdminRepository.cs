@@ -1,30 +1,31 @@
 using Dapper;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 
 sealed class AdminRepository(string connectionString)
 {
     public async Task<string?> GetUserDeleteBlockReasonAsync(int userId, CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT TOP (1) Reason
+            SELECT "reason"
             FROM (
-                SELECT 1 AS Priority, N'Tài khoản đã có đơn hàng; hãy khóa tài khoản thay vì xóa.' AS Reason
-                WHERE EXISTS (SELECT 1 FROM dbo.Orders WHERE UserId=@UserId)
+                SELECT 1 AS "priority", N'Tài khoản đã có đơn hàng; hãy khóa tài khoản thay vì xóa.' AS "reason"
+                WHERE EXISTS (SELECT 1 FROM public.orders WHERE "userid"=@UserId)
                 UNION ALL
                 SELECT 2, N'Tài khoản được ghi nhận trong lịch sử xử lý đơn hàng; hãy khóa tài khoản thay vì xóa.'
-                WHERE EXISTS (SELECT 1 FROM dbo.OrderStatusHistory WHERE ChangedBy=@UserId)
+                WHERE EXISTS (SELECT 1 FROM public.orderstatushistory WHERE "changedby"=@UserId)
                 UNION ALL
                 SELECT 3, N'Tài khoản có hoạt động cộng đồng hoặc thông báo liên quan; hãy khóa tài khoản thay vì xóa.'
-                WHERE EXISTS (SELECT 1 FROM dbo.Posts WHERE AuthorId=@UserId)
-                   OR EXISTS (SELECT 1 FROM dbo.PostLikes WHERE UserId=@UserId)
-                   OR EXISTS (SELECT 1 FROM dbo.PostShares WHERE UserId=@UserId)
-                   OR EXISTS (SELECT 1 FROM dbo.Comments WHERE UserId=@UserId)
-                   OR EXISTS (SELECT 1 FROM dbo.Reports WHERE ReporterId=@UserId OR HandledBy=@UserId)
-                   OR EXISTS (SELECT 1 FROM dbo.Notifications WHERE UserId=@UserId OR ActorId=@UserId)
+                WHERE EXISTS (SELECT 1 FROM public.posts WHERE "authorid"=@UserId)
+                   OR EXISTS (SELECT 1 FROM public.postlikes WHERE "userid"=@UserId)
+                   OR EXISTS (SELECT 1 FROM public.postshares WHERE "userid"=@UserId)
+                   OR EXISTS (SELECT 1 FROM public.comments WHERE "userid"=@UserId)
+                   OR EXISTS (SELECT 1 FROM public.reports WHERE "reporterid"=@UserId OR "handledby"=@UserId)
+                   OR EXISTS (SELECT 1 FROM public.notifications WHERE "userid"=@UserId OR "actorid"=@UserId)
             ) blockers
-            ORDER BY Priority;
+            ORDER BY "priority"
+            LIMIT 1;
             """;
-        await using var connection = new SqlConnection(connectionString);
+        await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
         return await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql, new { UserId = userId }, cancellationToken: cancellationToken));
@@ -33,26 +34,27 @@ sealed class AdminRepository(string connectionString)
     public async Task<List<AdminOrderRow>> GetOrdersAsync(CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT o.OrderId AS Id,
-                   o.OrderCode AS Code,
-                   u.FullName AS Customer,
-                   o.CreatedAt,
-                   COALESCE((SELECT SUM(oi.Quantity) FROM dbo.OrderItems oi WHERE oi.OrderId = o.OrderId), 0) AS Quantity,
-                   o.TotalAmount AS Total,
-                   LOWER(COALESCE(p.PaymentStatus, 'Pending')) AS PaymentStatus,
-                   LOWER(o.OrderStatus) AS Status
-            FROM dbo.Orders o
-            INNER JOIN dbo.Users u ON u.UserId = o.UserId
-            OUTER APPLY (
-                SELECT TOP (1) PaymentStatus
-                FROM dbo.Payments
-                WHERE OrderId = o.OrderId
-                ORDER BY CreatedAt DESC, PaymentId DESC
-            ) p
-            ORDER BY o.CreatedAt DESC, o.OrderId DESC;
+            SELECT o."orderid" AS Id,
+                   o."ordercode" AS Code,
+                   u."fullname" AS Customer,
+                   o."createdat",
+                   COALESCE((SELECT SUM(oi."quantity") FROM public.orderitems oi WHERE oi."orderid" = o."orderid"), 0) AS Quantity,
+                   o."totalamount" AS Total,
+                   LOWER(COALESCE(p."paymentstatus", 'Pending')) AS PaymentStatus,
+                   LOWER(o."orderstatus") AS Status
+            FROM public.orders o
+            INNER JOIN public.users u ON u."userid" = o."userid"
+            LEFT JOIN LATERAL (
+                SELECT "paymentstatus"
+                FROM public.payments
+                WHERE "orderid" = o."orderid"
+                ORDER BY "createdat" DESC, "paymentid" DESC
+                LIMIT 1
+            ) p ON true
+            ORDER BY o."createdat" DESC, o."orderid" DESC;
             """;
 
-        await using var connection = new SqlConnection(connectionString);
+        await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
         var rows = await connection.QueryAsync<AdminOrderRow>(
             new CommandDefinition(sql, cancellationToken: cancellationToken));
@@ -62,26 +64,27 @@ sealed class AdminRepository(string connectionString)
     public async Task<AdminOrderRow?> GetOrderAsync(int id, CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT o.OrderId AS Id,
-                   o.OrderCode AS Code,
-                   u.FullName AS Customer,
-                   o.CreatedAt,
-                   COALESCE((SELECT SUM(oi.Quantity) FROM dbo.OrderItems oi WHERE oi.OrderId = o.OrderId), 0) AS Quantity,
-                   o.TotalAmount AS Total,
-                   LOWER(COALESCE(p.PaymentStatus, 'Pending')) AS PaymentStatus,
-                   LOWER(o.OrderStatus) AS Status
-            FROM dbo.Orders o
-            INNER JOIN dbo.Users u ON u.UserId = o.UserId
-            OUTER APPLY (
-                SELECT TOP (1) PaymentStatus
-                FROM dbo.Payments
-                WHERE OrderId = o.OrderId
-                ORDER BY CreatedAt DESC, PaymentId DESC
-            ) p
-            WHERE o.OrderId = @Id;
+            SELECT o."orderid" AS Id,
+                   o."ordercode" AS Code,
+                   u."fullname" AS Customer,
+                   o."createdat",
+                   COALESCE((SELECT SUM(oi."quantity") FROM public.orderitems oi WHERE oi."orderid" = o."orderid"), 0) AS Quantity,
+                   o."totalamount" AS Total,
+                   LOWER(COALESCE(p."paymentstatus", 'Pending')) AS PaymentStatus,
+                   LOWER(o."orderstatus") AS Status
+            FROM public.orders o
+            INNER JOIN public.users u ON u."userid" = o."userid"
+            LEFT JOIN LATERAL (
+                SELECT "paymentstatus"
+                FROM public.payments
+                WHERE "orderid" = o."orderid"
+                ORDER BY "createdat" DESC, "paymentid" DESC
+                LIMIT 1
+            ) p ON true
+            WHERE o."orderid" = @Id;
             """;
 
-        await using var connection = new SqlConnection(connectionString);
+        await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
         return await connection.QuerySingleOrDefaultAsync<AdminOrderRow>(
             new CommandDefinition(sql, new { Id = id }, cancellationToken: cancellationToken));
@@ -90,14 +93,14 @@ sealed class AdminRepository(string connectionString)
     public async Task<bool> SetOrderStatusAsync(
         int id, string status, int changedBy, CancellationToken cancellationToken = default)
     {
-        await using var connection = new SqlConnection(connectionString);
+        await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
-        await using var transaction = (SqlTransaction)await connection.BeginTransactionAsync(cancellationToken);
+        await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
         try
         {
             var current = await connection.QuerySingleOrDefaultAsync<string>(
                 new CommandDefinition(
-                    "SELECT OrderStatus FROM dbo.Orders WHERE OrderId=@Id",
+                    "SELECT \"orderstatus\" FROM public.orders WHERE \"orderid\"=@Id",
                     new { Id = id }, transaction, cancellationToken: cancellationToken));
             if (current is null)
             {
@@ -107,13 +110,13 @@ sealed class AdminRepository(string connectionString)
 
             if (!string.Equals(current, status, StringComparison.OrdinalIgnoreCase))
             {
-                await connection.ExecuteAsync(new CommandDefinition(
-                    "UPDATE dbo.Orders SET OrderStatus=@Status, UpdatedAt=SYSUTCDATETIME() WHERE OrderId=@Id",
+await connection.ExecuteAsync(new CommandDefinition(
+                    "UPDATE public.orders SET \"orderstatus\"=@Status, \"updatedat\"=NOW() AT TIME ZONE 'UTC' WHERE \"orderid\"=@Id",
                     new { Id = id, Status = status }, transaction, cancellationToken: cancellationToken));
-                await connection.ExecuteAsync(new CommandDefinition(
+            await connection.ExecuteAsync(new CommandDefinition(
                     """
-                    INSERT dbo.OrderStatusHistory (OrderId, Status, ChangedBy, Note)
-                    VALUES (@Id, @Status, @ChangedBy, N'Cập nhật từ trang quản trị');
+                    INSERT INTO public.orderstatushistory ("orderid", "status", "changedby", "note")
+                    VALUES (@Id, @Status, @ChangedBy, 'Cập nhật từ trang quản trị');
                     """,
                     new { Id = id, Status = status, ChangedBy = changedBy }, transaction,
                     cancellationToken: cancellationToken));
@@ -133,33 +136,33 @@ sealed class AdminRepository(string connectionString)
         string? q, string? status, CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT c.CouponId AS Id,
-                   c.Code,
-                   COALESCE(c.Description, '') AS Name,
-                   LOWER(c.DiscountType) AS Type,
-                   c.DiscountValue AS Value,
-                   c.MinOrderAmount AS MinimumOrder,
-                   c.UsageLimit AS UsageLimit,
-                   CONVERT(varchar(10), c.StartsAt, 23) AS StartDate,
-                   CONVERT(varchar(10), c.ExpiresAt, 23) AS EndDate,
-                   (SELECT COUNT(1) FROM dbo.Orders o WHERE o.CouponId = c.CouponId) AS Used,
-                   CASE WHEN c.IsActive = 0 THEN 'draft'
-                        WHEN CONVERT(date, c.StartsAt) > CONVERT(date, DATEADD(hour, 7, SYSUTCDATETIME())) THEN 'upcoming'
-                        WHEN CONVERT(date, c.ExpiresAt) < CONVERT(date, DATEADD(hour, 7, SYSUTCDATETIME())) THEN 'expired'
+            SELECT c."couponid" AS Id,
+                   c."code",
+                   COALESCE(c."description", '') AS Name,
+                   LOWER(c."discounttype") AS Type,
+                   c."discountvalue" AS Value,
+                   c."minorderamount" AS MinimumOrder,
+                   c."usagelimit" AS UsageLimit,
+                   TO_CHAR(c."startsat", 'YYYY-MM-DD') AS StartDate,
+                   TO_CHAR(c."expiresat", 'YYYY-MM-DD') AS EndDate,
+                   (SELECT COUNT(1) FROM public.orders o WHERE o."couponid" = c."couponid") AS Used,
+                   CASE WHEN c."isactive" = false THEN 'draft'
+                        WHEN c."startsat"::date > (NOW() AT TIME ZONE 'UTC' + INTERVAL '7 hours')::date THEN 'upcoming'
+                        WHEN c."expiresat"::date < (NOW() AT TIME ZONE 'UTC' + INTERVAL '7 hours')::date THEN 'expired'
                         ELSE 'running' END AS Status,
-                   CASE WHEN c.IsActive = 1 THEN 'publish' ELSE 'draft' END AS Release
-            FROM dbo.Coupons c
-            WHERE (@Query IS NULL OR @Query = '' OR c.Code LIKE '%' + @Query + '%'
-                   OR COALESCE(c.Description, '') LIKE '%' + @Query + '%')
+                   CASE WHEN c."isactive" = true THEN 'publish' ELSE 'draft' END AS Release
+            FROM public.coupons c
+            WHERE (@Query IS NULL OR @Query = '' OR c."code" ILIKE '%' || @Query || '%'
+                   OR COALESCE(c."description", '') ILIKE '%' || @Query || '%')
               AND (@Status IS NULL OR
-                   CASE WHEN c.IsActive = 0 THEN 'draft'
-                        WHEN CONVERT(date, c.StartsAt) > CONVERT(date, DATEADD(hour, 7, SYSUTCDATETIME())) THEN 'upcoming'
-                        WHEN CONVERT(date, c.ExpiresAt) < CONVERT(date, DATEADD(hour, 7, SYSUTCDATETIME())) THEN 'expired'
+                   CASE WHEN c."isactive" = false THEN 'draft'
+                        WHEN c."startsat"::date > (NOW() AT TIME ZONE 'UTC' + INTERVAL '7 hours')::date THEN 'upcoming'
+                        WHEN c."expiresat"::date < (NOW() AT TIME ZONE 'UTC' + INTERVAL '7 hours')::date THEN 'expired'
                         ELSE 'running' END = @Status)
-            ORDER BY c.CouponId DESC;
+            ORDER BY c."couponid" DESC;
             """;
 
-        await using var connection = new SqlConnection(connectionString);
+        await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
         var rows = await connection.QueryAsync<AdminPromotionRow>(new CommandDefinition(
             sql,
@@ -171,15 +174,15 @@ sealed class AdminRepository(string connectionString)
     public async Task<int> CreatePromotionAsync(AdminPromotionWrite promotion, CancellationToken cancellationToken = default)
     {
         const string sql = """
-            INSERT dbo.Coupons
-                (Code, Description, DiscountType, DiscountValue, MinOrderAmount, UsageLimit,
-                 PerUserLimit, StartsAt, ExpiresAt, IsActive)
-            OUTPUT INSERTED.CouponId
+            INSERT INTO public.coupons
+                ("code", "description", "discounttype", "discountvalue", "minorderamount", "usagelimit",
+                 "peruserlimit", "startsat", "expiresat", "isactive")
             VALUES
                 (@Code, @Name, @DiscountType, @Value, @MinimumOrder, @UsageLimit,
-                 1, @StartsAt, @ExpiresAt, @IsActive);
+                 1, @StartsAt, @ExpiresAt, @IsActive)
+            RETURNING "couponid";
             """;
-        await using var connection = new SqlConnection(connectionString);
+        await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
         return await connection.ExecuteScalarAsync<int>(new CommandDefinition(
             sql, promotion, cancellationToken: cancellationToken));
@@ -188,13 +191,13 @@ sealed class AdminRepository(string connectionString)
     public async Task<bool> UpdatePromotionAsync(int id, AdminPromotionWrite promotion, CancellationToken cancellationToken = default)
     {
         const string sql = """
-            UPDATE dbo.Coupons
-            SET Description=@Name, DiscountType=@DiscountType, DiscountValue=@Value,
-                MinOrderAmount=@MinimumOrder, UsageLimit=@UsageLimit,
-                StartsAt=@StartsAt, ExpiresAt=@ExpiresAt, IsActive=@IsActive
-            WHERE CouponId=@Id;
+            UPDATE public.coupons
+            SET "description"=@Name, "discounttype"=@DiscountType, "discountvalue"=@Value,
+                "minorderamount"=@MinimumOrder, "usagelimit"=@UsageLimit,
+                "startsat"=@StartsAt, "expiresat"=@ExpiresAt, "isactive"=@IsActive
+            WHERE "couponid"=@Id;
             """;
-        await using var connection = new SqlConnection(connectionString);
+        await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
         return await connection.ExecuteAsync(new CommandDefinition(
             sql, new
@@ -207,8 +210,8 @@ sealed class AdminRepository(string connectionString)
 
     public async Task<bool> DeletePromotionAsync(int id, CancellationToken cancellationToken = default)
     {
-        const string sql = "DELETE dbo.Coupons WHERE CouponId=@Id;";
-        await using var connection = new SqlConnection(connectionString);
+        const string sql = "DELETE FROM public.coupons WHERE \"couponid\"=@Id;";
+        await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
         return await connection.ExecuteAsync(new CommandDefinition(
             sql, new { Id = id }, cancellationToken: cancellationToken)) == 1;

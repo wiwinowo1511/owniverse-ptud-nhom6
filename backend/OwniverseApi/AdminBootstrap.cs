@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 
 static class AdminBootstrap
 {
@@ -24,22 +24,23 @@ static class AdminBootstrap
         var fullName = configuration["AdminBootstrap:FullName"]?.Trim();
         if (string.IsNullOrWhiteSpace(fullName)) fullName = DemoAdminName;
 
-        await using var connection = new SqlConnection(connectionString);
+        await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
-        await using var transaction = (SqlTransaction)await connection.BeginTransactionAsync(
+        await using var transaction = await connection.BeginTransactionAsync(
             System.Data.IsolationLevel.Serializable, cancellationToken);
 
         try
         {
             const string findAccountSql = """
-                SELECT UserId, Email, PasswordHash, FullName, Phone, Role, Status
-                FROM dbo.Users WITH (UPDLOCK, HOLDLOCK)
-                WHERE Email = @Email;
+                SELECT "userid", "email", "passwordhash", "fullname", "phone", "role", "status"
+                FROM public.users
+                WHERE "email" = @Email
+                FOR SHARE;
                 """;
             User? admin = null;
-            await using (var command = new SqlCommand(findAccountSql, connection, transaction))
+            await using (var command = new NpgsqlCommand(findAccountSql, connection, transaction))
             {
-                command.Parameters.Add("@Email", System.Data.SqlDbType.NVarChar, 255).Value = email;
+                command.Parameters.Add("@Email", NpgsqlTypes.NpgsqlDbType.Varchar, 255).Value = email;
                 await using var reader = await command.ExecuteReaderAsync(cancellationToken);
                 if (await reader.ReadAsync(cancellationToken))
                 {
@@ -78,13 +79,13 @@ static class AdminBootstrap
                         ? admin.Password
                         : passwordHasher.HashPassword(admin, password);
                     const string updatePasswordSql = """
-                        UPDATE dbo.Users
-                        SET PasswordHash = @PasswordHash, Status = 'Active', UpdatedAt = SYSUTCDATETIME()
-                        WHERE UserId = @UserId;
+                        UPDATE public.users
+                        SET "passwordhash" = @PasswordHash, "status" = 'Active', "updatedat" = NOW() AT TIME ZONE 'UTC'
+                        WHERE "userid" = @UserId;
                         """;
-                    await using var updateCommand = new SqlCommand(updatePasswordSql, connection, transaction);
-                    updateCommand.Parameters.Add("@UserId", System.Data.SqlDbType.Int).Value = admin.Id;
-                    updateCommand.Parameters.Add("@PasswordHash", System.Data.SqlDbType.NVarChar, 255).Value = passwordHash;
+                    await using var updateCommand = new NpgsqlCommand(updatePasswordSql, connection, transaction);
+                    updateCommand.Parameters.Add("@UserId", NpgsqlTypes.NpgsqlDbType.Integer).Value = admin.Id;
+                    updateCommand.Parameters.Add("@PasswordHash", NpgsqlTypes.NpgsqlDbType.Varchar, 255).Value = passwordHash;
                     await updateCommand.ExecuteNonQueryAsync(cancellationToken);
                     admin.Password = passwordHash;
                     admin.Status = "active";
@@ -104,15 +105,15 @@ static class AdminBootstrap
             var newPasswordHash = passwordHasher.HashPassword(admin, password);
 
             const string insertAdminSql = """
-                INSERT INTO dbo.Users (Email, PasswordHash, FullName, Role, Status)
-                OUTPUT INSERTED.UserId
-                VALUES (@Email, @PasswordHash, @FullName, 'Admin', 'Active');
+                INSERT INTO public.users ("email", "passwordhash", "fullname", "role", "status")
+                VALUES (@Email, @PasswordHash, @FullName, 'Admin', 'Active')
+                RETURNING "userid";
                 """;
-            await using (var command = new SqlCommand(insertAdminSql, connection, transaction))
+            await using (var command = new NpgsqlCommand(insertAdminSql, connection, transaction))
             {
-                command.Parameters.Add("@Email", System.Data.SqlDbType.NVarChar, 255).Value = email;
-                command.Parameters.Add("@PasswordHash", System.Data.SqlDbType.NVarChar, 255).Value = newPasswordHash;
-                command.Parameters.Add("@FullName", System.Data.SqlDbType.NVarChar, 100).Value = fullName;
+                command.Parameters.Add("@Email", NpgsqlTypes.NpgsqlDbType.Varchar, 255).Value = email;
+                command.Parameters.Add("@PasswordHash", NpgsqlTypes.NpgsqlDbType.Varchar, 255).Value = newPasswordHash;
+                command.Parameters.Add("@FullName", NpgsqlTypes.NpgsqlDbType.Varchar, 100).Value = fullName;
                 admin.Id = (int)(await command.ExecuteScalarAsync(cancellationToken)
                     ?? throw new InvalidOperationException("Admin bootstrap insert returned no UserId."));
             }

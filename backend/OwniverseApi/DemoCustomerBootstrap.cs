@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 
 static class DemoCustomerBootstrap
 {
@@ -15,13 +15,13 @@ static class DemoCustomerBootstrap
         var password = "customer123";
         var fullName = "Khách hàng demo";
 
-        await using var connection = new SqlConnection(connectionString);
+        await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
 
-        await using var findCommand = new SqlCommand(
-            "SELECT UserId, Email, PasswordHash, FullName, Phone, Role, Status FROM dbo.Users WHERE Email = @Email;",
+        await using var findCommand = new NpgsqlCommand(
+            "SELECT \"userid\", \"email\", \"passwordhash\", \"fullname\", \"phone\", \"role\", \"status\" FROM public.users WHERE \"email\" = @Email;",
             connection);
-        findCommand.Parameters.Add("@Email", System.Data.SqlDbType.NVarChar, 255).Value = email;
+        findCommand.Parameters.Add("@Email", NpgsqlTypes.NpgsqlDbType.Varchar, 255).Value = email;
         await using var reader = await findCommand.ExecuteReaderAsync(cancellationToken);
         if (await reader.ReadAsync(cancellationToken))
         {
@@ -51,11 +51,11 @@ static class DemoCustomerBootstrap
             if (!matches || customer.Status != "active")
             {
                 var hash = matches ? customer.Password : passwordHasher.HashPassword(customer, password);
-                await using var update = new SqlCommand(
-                    "UPDATE dbo.Users SET PasswordHash=@PasswordHash, Status='Active', UpdatedAt=SYSUTCDATETIME() WHERE UserId=@UserId;",
+                await using var update = new NpgsqlCommand(
+                    "UPDATE public.users SET \"passwordhash\"=@PasswordHash, \"status\"='Active', \"updatedat\"=NOW() AT TIME ZONE 'UTC' WHERE \"userid\"=@UserId;",
                     connection);
-                update.Parameters.Add("@UserId", System.Data.SqlDbType.Int).Value = customer.Id;
-                update.Parameters.Add("@PasswordHash", System.Data.SqlDbType.NVarChar, 255).Value = hash;
+                update.Parameters.Add("@UserId", NpgsqlTypes.NpgsqlDbType.Integer).Value = customer.Id;
+                update.Parameters.Add("@PasswordHash", NpgsqlTypes.NpgsqlDbType.Varchar, 255).Value = hash;
                 await update.ExecuteNonQueryAsync(cancellationToken);
                 customer.Password = hash;
                 customer.Status = "active";
@@ -73,12 +73,12 @@ static class DemoCustomerBootstrap
         };
         newCustomer.Password = passwordHasher.HashPassword(newCustomer, password);
 
-        await using var insert = new SqlCommand(
-            "INSERT INTO dbo.Users (Email, PasswordHash, FullName, Role, Status) OUTPUT INSERTED.UserId VALUES (@Email,@PasswordHash,@FullName,'Customer','Active');",
+        await using var insert = new NpgsqlCommand(
+            "INSERT INTO public.users (\"email\", \"passwordhash\", \"fullname\", \"role\", \"status\") VALUES (@Email,@PasswordHash,@FullName,'Customer','Active') RETURNING \"userid\";",
             connection);
-        insert.Parameters.Add("@Email", System.Data.SqlDbType.NVarChar, 255).Value = email;
-        insert.Parameters.Add("@PasswordHash", System.Data.SqlDbType.NVarChar, 255).Value = newCustomer.Password;
-        insert.Parameters.Add("@FullName", System.Data.SqlDbType.NVarChar, 100).Value = fullName;
+        insert.Parameters.Add("@Email", NpgsqlTypes.NpgsqlDbType.Varchar, 255).Value = email;
+        insert.Parameters.Add("@PasswordHash", NpgsqlTypes.NpgsqlDbType.Varchar, 255).Value = newCustomer.Password;
+        insert.Parameters.Add("@FullName", NpgsqlTypes.NpgsqlDbType.Varchar, 100).Value = fullName;
         newCustomer.Id = (int)(await insert.ExecuteScalarAsync(cancellationToken)
             ?? throw new InvalidOperationException("Demo customer insert returned no UserId."));
         return newCustomer;

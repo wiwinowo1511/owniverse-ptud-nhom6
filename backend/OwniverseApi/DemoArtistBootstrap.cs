@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 
 static class DemoArtistBootstrap
 {
@@ -21,12 +21,12 @@ static class DemoArtistBootstrap
         if (string.IsNullOrWhiteSpace(email)) email = DemoArtistEmail;
         email = email.ToLowerInvariant();
 
-        await using var connection = new SqlConnection(connectionString);
+await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
-        await using var findCommand = new SqlCommand(
-            "SELECT UserId, Email, PasswordHash, FullName, Phone, Role, Status, CreatedAt FROM dbo.Users WHERE Email = @Email;",
+        await using var findCommand = new NpgsqlCommand(
+            "SELECT \"userid\", \"email\", \"passwordhash\", \"fullname\", \"phone\", \"role\", \"status\", \"createdat\" FROM public.users WHERE \"email\" = @Email;",
             connection);
-        findCommand.Parameters.Add("@Email", System.Data.SqlDbType.NVarChar, 255).Value = email;
+        findCommand.Parameters.Add("@Email", NpgsqlTypes.NpgsqlDbType.Varchar, 255).Value = email;
         await using var reader = await findCommand.ExecuteReaderAsync(cancellationToken);
         if (!await reader.ReadAsync(cancellationToken)) return null;
 
@@ -46,10 +46,10 @@ static class DemoArtistBootstrap
         if (!string.Equals(artist.Role, Roles.Artist, StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException("ArtistBootstrap email is assigned to a non-artist account.");
 
-        await using var linkCommand = new SqlCommand(
-            "SELECT COUNT(1) FROM dbo.Artists WHERE UserId=@UserId AND Status='Active';",
+        await using var linkCommand = new NpgsqlCommand(
+            "SELECT COUNT(1) FROM public.artists WHERE \"userid\"=@UserId AND \"status\"='Active';",
             connection);
-        linkCommand.Parameters.Add("@UserId", System.Data.SqlDbType.Int).Value = artist.Id;
+        linkCommand.Parameters.Add("@UserId", NpgsqlTypes.NpgsqlDbType.Integer).Value = artist.Id;
         if (Convert.ToInt32(await linkCommand.ExecuteScalarAsync(cancellationToken)) == 0)
             return null;
 
@@ -69,11 +69,11 @@ static class DemoArtistBootstrap
             var passwordHash = passwordMatches
                 ? artist.Password
                 : passwordHasher.HashPassword(artist, configuredPassword);
-            await using var updateCommand = new SqlCommand(
-                "UPDATE dbo.Users SET PasswordHash=@PasswordHash, Status='Active', UpdatedAt=SYSUTCDATETIME() WHERE UserId=@UserId;",
+            await using var updateCommand = new NpgsqlCommand(
+                "UPDATE public.users SET \"passwordhash\"=@PasswordHash, \"status\"='Active', \"updatedat\"=NOW() AT TIME ZONE 'UTC' WHERE \"userid\"=@UserId;",
                 connection);
-            updateCommand.Parameters.Add("@UserId", System.Data.SqlDbType.Int).Value = artist.Id;
-            updateCommand.Parameters.Add("@PasswordHash", System.Data.SqlDbType.NVarChar, 255).Value = passwordHash;
+            updateCommand.Parameters.Add("@UserId", NpgsqlTypes.NpgsqlDbType.Integer).Value = artist.Id;
+            updateCommand.Parameters.Add("@PasswordHash", NpgsqlTypes.NpgsqlDbType.Varchar, 255).Value = passwordHash;
             await updateCommand.ExecuteNonQueryAsync(cancellationToken);
             artist.Password = passwordHash;
             artist.Status = "active";

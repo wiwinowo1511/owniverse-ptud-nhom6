@@ -1,27 +1,27 @@
-using Microsoft.Data.SqlClient;
+using Npgsql;
 
 sealed class UserRepository(string connectionString)
 {
     public async Task<int> GetNextUserIdAsync(CancellationToken cancellationToken = default)
     {
-        await using var connection = new SqlConnection(connectionString);
+        await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
-        await using var command = new SqlCommand(
-            "SELECT ISNULL(MAX(UserId), 0) + 1 FROM dbo.Users;", connection);
+        await using var command = new NpgsqlCommand(
+            "SELECT COALESCE(MAX(\"userid\"), 0) + 1 FROM public.users;", connection);
         return Convert.ToInt32(await command.ExecuteScalarAsync(cancellationToken));
     }
 
     public async Task<User?> FindByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT UserId, Email, PasswordHash, FullName, Phone, Role, Status, CreatedAt
-            FROM dbo.Users
-            WHERE Email = @Email;
+            SELECT "userid", "email", "passwordhash", "fullname", "phone", "role", "status", "createdat"
+            FROM public.users
+            WHERE "email" = @Email;
             """;
-        await using var connection = new SqlConnection(connectionString);
+        await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
-        await using var command = new SqlCommand(sql, connection);
-        command.Parameters.Add("@Email", System.Data.SqlDbType.NVarChar, 255).Value = email;
+        await using var command = new NpgsqlCommand(sql, connection);
+        command.Parameters.Add("@Email", NpgsqlTypes.NpgsqlDbType.Varchar, 255).Value = email;
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         return await reader.ReadAsync(cancellationToken) ? ReadUser(reader) : null;
     }
@@ -29,14 +29,14 @@ sealed class UserRepository(string connectionString)
     public async Task<User?> FindByIdAsync(int userId, CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT UserId, Email, PasswordHash, FullName, Phone, Role, Status, CreatedAt
-            FROM dbo.Users
-            WHERE UserId = @UserId;
+            SELECT "userid", "email", "passwordhash", "fullname", "phone", "role", "status", "createdat"
+            FROM public.users
+            WHERE "userid" = @UserId;
             """;
-        await using var connection = new SqlConnection(connectionString);
+        await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
-        await using var command = new SqlCommand(sql, connection);
-        command.Parameters.Add("@UserId", System.Data.SqlDbType.Int).Value = userId;
+        await using var command = new NpgsqlCommand(sql, connection);
+        command.Parameters.Add("@UserId", NpgsqlTypes.NpgsqlDbType.Integer).Value = userId;
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         return await reader.ReadAsync(cancellationToken) ? ReadUser(reader) : null;
     }
@@ -44,17 +44,17 @@ sealed class UserRepository(string connectionString)
     public async Task<User> CreateCustomerAsync(User user, CancellationToken cancellationToken = default)
     {
         const string sql = """
-            INSERT INTO dbo.Users (Email, PasswordHash, FullName, Phone, Role, Status)
-            OUTPUT INSERTED.UserId, INSERTED.CreatedAt
+            INSERT INTO public.users ("email", "passwordhash", "fullname", "phone", "role", "status")
+            OUTPUT INSERTED."userid", INSERTED."createdat"
             VALUES (@Email, @PasswordHash, @FullName, @Phone, 'Customer', 'Active');
             """;
-        await using var connection = new SqlConnection(connectionString);
+        await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
-        await using var command = new SqlCommand(sql, connection);
-        command.Parameters.Add("@Email", System.Data.SqlDbType.NVarChar, 255).Value = user.Email;
-        command.Parameters.Add("@PasswordHash", System.Data.SqlDbType.NVarChar, 255).Value = user.Password;
-        command.Parameters.Add("@FullName", System.Data.SqlDbType.NVarChar, 100).Value = user.FullName;
-        command.Parameters.Add("@Phone", System.Data.SqlDbType.VarChar, 20).Value =
+        await using var command = new NpgsqlCommand(sql, connection);
+        command.Parameters.Add("@Email", NpgsqlTypes.NpgsqlDbType.Varchar, 255).Value = user.Email;
+        command.Parameters.Add("@PasswordHash", NpgsqlTypes.NpgsqlDbType.Varchar, 255).Value = user.Password;
+        command.Parameters.Add("@FullName", NpgsqlTypes.NpgsqlDbType.Varchar, 100).Value = user.FullName;
+        command.Parameters.Add("@Phone", NpgsqlTypes.NpgsqlDbType.Varchar, 20).Value =
             string.IsNullOrWhiteSpace(user.Phone) ? DBNull.Value : user.Phone;
 
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
@@ -73,23 +73,23 @@ sealed class UserRepository(string connectionString)
         CancellationToken cancellationToken = default)
     {
         const string sql = """
-            UPDATE dbo.Users
-            SET FullName = @FullName,
-                Email = @Email,
-                Phone = @Phone,
-                UpdatedAt = SYSUTCDATETIME()
-            OUTPUT INSERTED.UserId, INSERTED.Email, INSERTED.PasswordHash,
-                   INSERTED.FullName, INSERTED.Phone, INSERTED.Role,
-                   INSERTED.Status, INSERTED.CreatedAt
-            WHERE UserId = @UserId;
+            UPDATE public.users
+            SET "fullname" = @FullName,
+                "email" = @Email,
+                "phone" = @Phone,
+                "updatedat" = NOW() AT TIME ZONE 'UTC'
+            OUTPUT INSERTED."userid", INSERTED."email", INSERTED."passwordhash",
+                   INSERTED."fullname", INSERTED."phone", INSERTED."role",
+                   INSERTED."status", INSERTED."createdat"
+            WHERE "userid" = @UserId;
             """;
-        await using var connection = new SqlConnection(connectionString);
+        await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
-        await using var command = new SqlCommand(sql, connection);
-        command.Parameters.Add("@UserId", System.Data.SqlDbType.Int).Value = userId;
-        command.Parameters.Add("@FullName", System.Data.SqlDbType.NVarChar, 100).Value = fullName;
-        command.Parameters.Add("@Email", System.Data.SqlDbType.NVarChar, 255).Value = email;
-        command.Parameters.Add("@Phone", System.Data.SqlDbType.VarChar, 20).Value =
+        await using var command = new NpgsqlCommand(sql, connection);
+        command.Parameters.Add("@UserId", NpgsqlTypes.NpgsqlDbType.Integer).Value = userId;
+        command.Parameters.Add("@FullName", NpgsqlTypes.NpgsqlDbType.Varchar, 100).Value = fullName;
+        command.Parameters.Add("@Email", NpgsqlTypes.NpgsqlDbType.Varchar, 255).Value = email;
+        command.Parameters.Add("@Phone", NpgsqlTypes.NpgsqlDbType.Varchar, 20).Value =
             string.IsNullOrWhiteSpace(phone) ? DBNull.Value : phone;
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         return await reader.ReadAsync(cancellationToken) ? ReadUser(reader) : null;
@@ -101,45 +101,46 @@ sealed class UserRepository(string connectionString)
         CancellationToken cancellationToken = default)
     {
         const string sql = """
-            UPDATE dbo.Users
-            SET PasswordHash = @PasswordHash,
-                UpdatedAt = SYSUTCDATETIME()
-            WHERE UserId = @UserId AND Status = 'Active';
+            UPDATE public.users
+            SET "passwordhash" = @PasswordHash,
+                "updatedat" = NOW() AT TIME ZONE 'UTC'
+            WHERE "userid" = @UserId AND "status" = 'Active';
             """;
-        await using var connection = new SqlConnection(connectionString);
+        await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
-        await using var command = new SqlCommand(sql, connection);
-        command.Parameters.Add("@UserId", System.Data.SqlDbType.Int).Value = userId;
-        command.Parameters.Add("@PasswordHash", System.Data.SqlDbType.NVarChar, 255).Value = passwordHash;
+        await using var command = new NpgsqlCommand(sql, connection);
+        command.Parameters.Add("@UserId", NpgsqlTypes.NpgsqlDbType.Integer).Value = userId;
+        command.Parameters.Add("@PasswordHash", NpgsqlTypes.NpgsqlDbType.Varchar, 255).Value = passwordHash;
         return await command.ExecuteNonQueryAsync(cancellationToken) == 1;
     }
 
-    public async Task<AccountOrdersSummary> GetAccountOrdersAsync(
+public async Task<AccountOrdersSummary> GetAccountOrdersAsync(
         int userId,
         CancellationToken cancellationToken = default)
     {
         const string summarySql = """
             SELECT COUNT(1),
-                   COALESCE(SUM(CASE WHEN OrderStatus IN ('Pending', 'Confirmed', 'Processing', 'Shipping')
-                                     THEN 1 ELSE 0 END), 0)
-            FROM dbo.Orders
-            WHERE UserId = @UserId;
+                   COALESCE(SUM(CASE WHEN "orderstatus" IN ('Pending', 'Confirmed', 'Processing', 'Shipping')
+                                       THEN 1 ELSE 0 END), 0)
+            FROM public.orders
+            WHERE "userid" = @UserId;
             """;
         const string recentOrdersSql = """
-            SELECT TOP (5) OrderId, OrderCode, CreatedAt, TotalAmount, OrderStatus
-            FROM dbo.Orders
-            WHERE UserId = @UserId
-            ORDER BY CreatedAt DESC, OrderId DESC;
+            SELECT "orderid", "ordercode", "createdat", "totalamount", "orderstatus"
+            FROM public.orders
+            WHERE "userid" = @UserId
+            ORDER BY "createdat" DESC, "orderid" DESC
+            LIMIT 5;
             """;
 
-        await using var connection = new SqlConnection(connectionString);
+        await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
 
         int totalOrders;
         int processingOrders;
-        await using (var command = new SqlCommand(summarySql, connection))
+        await using (var command = new NpgsqlCommand(summarySql, connection))
         {
-            command.Parameters.Add("@UserId", System.Data.SqlDbType.Int).Value = userId;
+            command.Parameters.Add("@UserId", NpgsqlTypes.NpgsqlDbType.Integer).Value = userId;
             await using var reader = await command.ExecuteReaderAsync(cancellationToken);
             await reader.ReadAsync(cancellationToken);
             totalOrders = reader.GetInt32(0);
@@ -147,9 +148,9 @@ sealed class UserRepository(string connectionString)
         }
 
         var recentOrders = new List<AccountOrder>();
-        await using (var command = new SqlCommand(recentOrdersSql, connection))
+        await using (var command = new NpgsqlCommand(recentOrdersSql, connection))
         {
-            command.Parameters.Add("@UserId", System.Data.SqlDbType.Int).Value = userId;
+            command.Parameters.Add("@UserId", NpgsqlTypes.NpgsqlDbType.Integer).Value = userId;
             await using var reader = await command.ExecuteReaderAsync(cancellationToken);
             while (await reader.ReadAsync(cancellationToken))
             {
@@ -170,16 +171,16 @@ sealed class UserRepository(string connectionString)
         CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT AddressId, ReceiverName, ReceiverPhone, AddressLine,
-                   Ward, District, City, IsDefault
-            FROM dbo.UserAddresses
-            WHERE UserId = @UserId
-            ORDER BY IsDefault DESC, AddressId DESC;
+            SELECT "addressid", "receivername", "receiverphone", "addressline",
+                   "ward", "district", "city", "isdefault"
+            FROM public.useraddresses
+            WHERE "userid" = @UserId
+            ORDER BY "isdefault" DESC, "addressid" DESC;
             """;
-        await using var connection = new SqlConnection(connectionString);
+        await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
-        await using var command = new SqlCommand(sql, connection);
-        command.Parameters.Add("@UserId", System.Data.SqlDbType.Int).Value = userId;
+        await using var command = new NpgsqlCommand(sql, connection);
+        command.Parameters.Add("@UserId", NpgsqlTypes.NpgsqlDbType.Integer).Value = userId;
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
 
         var addresses = new List<AccountAddress>();
@@ -203,18 +204,18 @@ sealed class UserRepository(string connectionString)
         CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT c.CommunityId, a.ArtistId, c.Name, c.Description,
-                   a.Name AS ArtistName, a.Slug AS ArtistSlug, cm.JoinedAt
-            FROM dbo.CommunityMembers AS cm
-            INNER JOIN dbo.Communities AS c ON c.CommunityId = cm.CommunityId
-            INNER JOIN dbo.Artists AS a ON a.ArtistId = c.ArtistId
-            WHERE cm.UserId = @UserId
-            ORDER BY cm.JoinedAt DESC, c.CommunityId;
+            SELECT c."communityid", a."artistid", c."name", c."description",
+                   a."name" AS ArtistName, a."slug" AS ArtistSlug, cm."joinedat"
+            FROM public.communitymembers AS cm
+            INNER JOIN public.communities AS c ON c."communityid" = cm."communityid"
+            INNER JOIN public.artists AS a ON a."artistid" = c."artistid"
+            WHERE cm."userid" = @UserId
+            ORDER BY cm."joinedat" DESC, c."communityid";
             """;
-        await using var connection = new SqlConnection(connectionString);
+        await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
-        await using var command = new SqlCommand(sql, connection);
-        command.Parameters.Add("@UserId", System.Data.SqlDbType.Int).Value = userId;
+        await using var command = new NpgsqlCommand(sql, connection);
+        command.Parameters.Add("@UserId", NpgsqlTypes.NpgsqlDbType.Integer).Value = userId;
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
 
         var communities = new List<AccountCommunity>();
@@ -237,15 +238,15 @@ sealed class UserRepository(string connectionString)
         CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT c.CommunityId
-            FROM dbo.Communities AS c
-            INNER JOIN dbo.Artists AS a ON a.ArtistId = c.ArtistId
-            WHERE a.ArtistId = @ArtistId AND a.Status = 'Active';
+            SELECT c."communityid"
+            FROM public.communities AS c
+            INNER JOIN public.artists AS a ON a."artistid" = c."artistid"
+            WHERE a."artistid" = @ArtistId AND a."status" = 'Active';
             """;
-        await using var connection = new SqlConnection(connectionString);
+        await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
-        await using var command = new SqlCommand(sql, connection);
-        command.Parameters.Add("@ArtistId", System.Data.SqlDbType.Int).Value = artistId;
+        await using var command = new NpgsqlCommand(sql, connection);
+        command.Parameters.Add("@ArtistId", NpgsqlTypes.NpgsqlDbType.Integer).Value = artistId;
         var result = await command.ExecuteScalarAsync(cancellationToken);
         return result is null or DBNull ? null : Convert.ToInt32(result);
     }
@@ -258,27 +259,28 @@ sealed class UserRepository(string connectionString)
         const string sql = """
             IF NOT EXISTS (
                 SELECT 1
-                FROM dbo.Communities AS c
-                INNER JOIN dbo.Artists AS a ON a.ArtistId = c.ArtistId
-                WHERE c.CommunityId = @CommunityId AND a.Status = 'Active'
+                FROM public.communities AS c
+                INNER JOIN public.artists AS a ON a."artistid" = c."artistid"
+                WHERE c."communityid" = @CommunityId AND a."status" = 'Active'
             )
-                SELECT CAST(0 AS bit);
+                SELECT FALSE;
             ELSE
             BEGIN
                 IF NOT EXISTS (
-                    SELECT 1 FROM dbo.CommunityMembers WITH (UPDLOCK, HOLDLOCK)
-                    WHERE CommunityId = @CommunityId AND UserId = @UserId
+                    SELECT 1 FROM public.communitymembers
+                    WHERE "communityid" = @CommunityId AND "userid" = @UserId
+                    FOR UPDATE
                 )
-                    INSERT INTO dbo.CommunityMembers (CommunityId, UserId)
+                    INSERT INTO public.communitymembers ("communityid", "userid")
                     VALUES (@CommunityId, @UserId);
-                SELECT CAST(1 AS bit);
+                SELECT TRUE;
             END;
             """;
-        await using var connection = new SqlConnection(connectionString);
+        await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
-        await using var command = new SqlCommand(sql, connection);
-        command.Parameters.Add("@CommunityId", System.Data.SqlDbType.Int).Value = communityId;
-        command.Parameters.Add("@UserId", System.Data.SqlDbType.Int).Value = userId;
+        await using var command = new NpgsqlCommand(sql, connection);
+        command.Parameters.Add("@CommunityId", NpgsqlTypes.NpgsqlDbType.Integer).Value = communityId;
+        command.Parameters.Add("@UserId", NpgsqlTypes.NpgsqlDbType.Integer).Value = userId;
         return Convert.ToBoolean(await command.ExecuteScalarAsync(cancellationToken));
     }
 
@@ -288,24 +290,24 @@ sealed class UserRepository(string connectionString)
         CancellationToken cancellationToken = default)
     {
         const string sql = """
-            IF NOT EXISTS (SELECT 1 FROM dbo.Communities WHERE CommunityId = @CommunityId)
-                SELECT CAST(0 AS bit);
+            IF NOT EXISTS (SELECT 1 FROM public.communities WHERE "communityid" = @CommunityId)
+                SELECT FALSE;
             ELSE
             BEGIN
-                DELETE FROM dbo.CommunityMembers
-                WHERE CommunityId = @CommunityId AND UserId = @UserId;
-                SELECT CAST(1 AS bit);
+                DELETE FROM public.communitymembers
+                WHERE "communityid" = @CommunityId AND "userid" = @UserId;
+                SELECT TRUE;
             END;
             """;
-        await using var connection = new SqlConnection(connectionString);
+        await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
-        await using var command = new SqlCommand(sql, connection);
-        command.Parameters.Add("@CommunityId", System.Data.SqlDbType.Int).Value = communityId;
-        command.Parameters.Add("@UserId", System.Data.SqlDbType.Int).Value = userId;
+        await using var command = new NpgsqlCommand(sql, connection);
+        command.Parameters.Add("@CommunityId", NpgsqlTypes.NpgsqlDbType.Integer).Value = communityId;
+        command.Parameters.Add("@UserId", NpgsqlTypes.NpgsqlDbType.Integer).Value = userId;
         return Convert.ToBoolean(await command.ExecuteScalarAsync(cancellationToken));
     }
 
-    private static User ReadUser(SqlDataReader reader) => new()
+    private static User ReadUser(NpgsqlDataReader reader) => new()
     {
         Id = reader.GetInt32(0),
         Email = reader.GetString(1),

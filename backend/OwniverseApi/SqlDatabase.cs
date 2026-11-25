@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Dapper;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 
 sealed class SqlDatabase(string connectionString)
 {
@@ -10,7 +10,7 @@ sealed class SqlDatabase(string connectionString)
 
     public async Task CheckConnectionAsync()
     {
-        await using var connection = new SqlConnection(connectionString);
+        await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync();
         await connection.ExecuteScalarAsync<int>("SELECT 1");
     }
@@ -26,29 +26,29 @@ sealed class SqlDatabase(string connectionString)
         Dictionary<int, List<CartItem>> carts,
         List<Order> orders)
     {
-        await using var connection = new SqlConnection(connectionString);
+        await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync();
 
         users.Clear();
         users.AddRange(await connection.QueryAsync<User>(
             """
-            SELECT UserId AS Id, FullName, Email, PasswordHash AS Password,
-                   COALESCE(Phone, '') AS Phone, LOWER(Role) AS Role,
-                   LOWER(Status) AS Status, CreatedAt
-            FROM dbo.Users
+            SELECT "userid" AS Id, "fullname", "email", "passwordhash" AS Password,
+                   COALESCE("phone", '') AS Phone, LOWER("role") AS Role,
+                   LOWER("status") AS Status, "createdat"
+            FROM public.users
             """));
 
         var fallbackArtists = SeedData.CreateArtists().ToDictionary(a => a.Slug, StringComparer.OrdinalIgnoreCase);
         var metadata = (await connection.QueryAsync<ArtistMetadataRow>(
-            "SELECT ArtistId, DataJson FROM dbo.ArtistApiData")).ToDictionary(row => row.ArtistId);
+            "SELECT \"artistid\", \"datajson\" FROM public.artistapidata")).ToDictionary(row => row.ArtistId);
         var artistRows = await connection.QueryAsync<ArtistRow>(
             """
-            SELECT a.ArtistId AS Id, a.UserId, a.Slug, a.Name, a.ProfileDataJson,
-                   COALESCE(a.Style, '') AS Genre, COALESCE(a.Bio, '') AS Description,
-                   COALESCE(a.CoverUrl, '') AS Cover, COALESCE(a.AvatarUrl, '') AS Avatar,
-                   LOWER(a.Status) AS Status, d.DataJson
-            FROM dbo.Artists a
-            LEFT JOIN dbo.ArtistApiData d ON d.ArtistId = a.ArtistId
+            SELECT a."artistid" AS Id, a."userid", a."slug", a."name", a."profiledatajson",
+                   COALESCE(a."style", '') AS Genre, COALESCE(a."bio", '') AS Description,
+                   COALESCE(a."coverurl", '') AS Cover, COALESCE(a."avatarurl", '') AS Avatar,
+                   LOWER(a."status") AS Status, d."datajson"
+            FROM public.artists a
+            LEFT JOIN public.artistapidata d ON d."artistid" = a."artistid"
             """);
 
         artists.Clear();
@@ -88,29 +88,29 @@ sealed class SqlDatabase(string connectionString)
 
         categories.Clear();
         categories.AddRange(await connection.QueryAsync<Category>(
-            "SELECT CategoryId AS Id, Slug, Name FROM dbo.Categories WHERE IsActive = 1"));
+            "SELECT \"categoryid\" AS Id, \"slug\", \"name\" FROM public.categories WHERE \"isactive\" = true"));
 
         var productRows = await connection.QueryAsync<ProductRow>(
             """
-            SELECT ProductId AS Id, Name, COALESCE(Description, '') AS Description,
-                   CAST(BasePrice AS INT) AS Price, ArtistId, CategoryId,
-                   LOWER(Status) AS Status
-            FROM dbo.Products
+            SELECT "productid" AS Id, "name", COALESCE("description", '') AS Description,
+                   CAST("baseprice" AS INT) AS Price, "artistid", "categoryid",
+                   LOWER("status") AS Status
+            FROM public.products
             """);
         var productList = productRows.ToList();
         var images = (await connection.QueryAsync<ProductImageRow>(
             """
-            SELECT ProductId, ImageUrl, IsPrimary, SortOrder
-            FROM dbo.ProductImages
-            ORDER BY ProductId, IsPrimary DESC, SortOrder
+            SELECT "productid", "imageurl", "isprimary", "sortorder"
+            FROM public.productimages
+            ORDER BY "productid", "isprimary" DESC, "sortorder"
             """)).GroupBy(row => row.ProductId).ToDictionary(group => group.Key, group => group.ToList());
         var variants = (await connection.QueryAsync<VariantRow>(
             """
-            SELECT VariantId AS Id, ProductId, Sku, DisplayName AS Name,
-                   StockQuantity AS Stock
-            FROM dbo.ProductVariants
-            WHERE IsActive = 1
-            ORDER BY VariantId
+            SELECT "variantid" AS Id, "productid", "sku", "displayname" AS Name,
+                   "stockquantity" AS Stock
+            FROM public.productvariants
+            WHERE "isactive" = true
+            ORDER BY "variantid"
             """)).GroupBy(row => row.ProductId).ToDictionary(group => group.Key, group => group.ToList());
 
         products.Clear();
@@ -142,24 +142,24 @@ sealed class SqlDatabase(string connectionString)
 
         var communityRows = await connection.QueryAsync<Community>(
             """
-            SELECT CommunityId AS Id, ArtistId, Name,
-                   COALESCE(Description, '') AS Description,
-                   COALESCE(AvatarUrl, '') AS Avatar,
-                   COALESCE(CoverUrl, '') AS Cover
-            FROM dbo.Communities
+            SELECT "communityid" AS Id, "artistid", "name",
+                   COALESCE("description", '') AS Description,
+                   COALESCE("avatarurl", '') AS Avatar,
+                   COALESCE("coverurl", '') AS Cover
+            FROM public.communities
             """);
         communities.Clear();
         communities.AddRange(communityRows);
 
         var memberRows = await connection.QueryAsync<CommunityMember>(
-            "SELECT CommunityId, UserId FROM dbo.CommunityMembers");
+            "SELECT \"communityid\", \"userid\" FROM public.communitymembers");
         communityMembers.Clear();
         communityMembers.AddRange(memberRows);
 
         var tokenRows = await connection.QueryAsync<ResetTokenRow>(
             """
-            SELECT UserId, TokenHash, ExpiresAt, UsedAt
-            FROM dbo.PasswordResetTokens
+            SELECT "userid", "tokenhash", "expiresat", "usedat"
+            FROM public.passwordresettokens
             """);
         passwordResetTokens.Clear();
         passwordResetTokens.AddRange(tokenRows.Select(row => new PasswordResetToken
@@ -173,9 +173,9 @@ sealed class SqlDatabase(string connectionString)
 
         var cartRows = await connection.QueryAsync<CartRow>(
             """
-            SELECT c.UserId, ci.VariantId, ci.Quantity
-            FROM dbo.Carts c
-            JOIN dbo.CartItems ci ON ci.CartId = c.CartId
+            SELECT c."userid", ci."variantid", ci."quantity"
+            FROM public.carts c
+            JOIN public.cartitems ci ON ci."cartid" = c."cartid"
             """);
         carts.Clear();
         foreach (var row in cartRows)
@@ -187,16 +187,16 @@ sealed class SqlDatabase(string connectionString)
 
         var orderRows = (await connection.QueryAsync<Order>(
             """
-            SELECT OrderId AS Id, OrderCode AS Code, UserId, ReceiverName,
-                   ReceiverPhone, ShippingAddress, COALESCE(Note, '') AS Note,
-                   ShippingFee, TotalAmount, OrderStatus AS Status, CreatedAt
-            FROM dbo.Orders
+            SELECT "orderid" AS Id, "ordercode" AS Code, "userid", "receivername",
+                   "receiverphone", "shippingaddress", COALESCE("note", '') AS Note,
+                   "shippingfee", "totalamount", "orderstatus" AS Status, "createdat"
+            FROM public.orders
             """)).ToList();
         var orderItems = (await connection.QueryAsync<OrderItemRow>(
             """
-            SELECT OrderId, VariantId, ProductName, Sku,
-                   CAST(UnitPrice AS INT) AS UnitPrice, Quantity
-            FROM dbo.OrderItems
+            SELECT "orderid", "variantid", "productname", "sku",
+                   CAST("unitprice" AS INT) AS UnitPrice, "quantity"
+            FROM public.orderitems
             """)).GroupBy(row => row.OrderId).ToDictionary(group => group.Key, group => group.ToList());
         foreach (var order in orderRows)
         {
@@ -228,9 +228,9 @@ sealed class SqlDatabase(string connectionString)
         await saveLock.WaitAsync();
         try
         {
-            await using var connection = new SqlConnection(connectionString);
+            await using var connection = new NpgsqlConnection(connectionString);
             await connection.OpenAsync();
-            await using var transaction = (SqlTransaction)await connection.BeginTransactionAsync();
+            await using var transaction = await connection.BeginTransactionAsync();
             try
             {
                 await SaveUsersAsync(connection, transaction, users);
@@ -241,12 +241,12 @@ sealed class SqlDatabase(string connectionString)
                 await SaveResetTokensAsync(connection, transaction, passwordResetTokens);
                 await SaveCartsAsync(connection, transaction, carts);
                 await SaveOrdersAsync(connection, transaction, orders);
-                await DeleteMissingAsync(connection, transaction, "dbo.Communities", "CommunityId", communities.Select(item => item.Id));
-                await DeleteMissingAsync(connection, transaction, "dbo.Products", "ProductId", products.Select(item => item.Id));
-                await DeleteMissingAsync(connection, transaction, "dbo.Categories", "CategoryId",
+                await DeleteMissingAsync(connection, transaction, "communities", "\"communityid\"", communities.Select(item => item.Id));
+                await DeleteMissingAsync(connection, transaction, "products", "\"productid\"", products.Select(item => item.Id));
+                await DeleteMissingAsync(connection, transaction, "categories", "\"categoryid\"",
                     categories.Select(item => item.Id), activeOnly: true);
-                await DeleteMissingAsync(connection, transaction, "dbo.Artists", "ArtistId", artists.Select(item => item.Id));
-                await DeleteMissingAsync(connection, transaction, "dbo.Users", "UserId", users.Select(item => item.Id));
+                await DeleteMissingAsync(connection, transaction, "artists", "\"artistid\"", artists.Select(item => item.Id));
+                await DeleteMissingAsync(connection, transaction, "users", "\"userid\"", users.Select(item => item.Id));
                 await transaction.CommitAsync();
             }
             catch
@@ -261,7 +261,7 @@ sealed class SqlDatabase(string connectionString)
         }
     }
 
-    private async Task SaveUsersAsync(SqlConnection connection, SqlTransaction transaction, IEnumerable<User> users)
+    private async Task SaveUsersAsync(NpgsqlConnection connection, NpgsqlTransaction transaction, IEnumerable<User> users)
     {
         foreach (var user in users)
         {
@@ -270,20 +270,21 @@ sealed class SqlDatabase(string connectionString)
                 user.Id, user.FullName, user.Email, user.Password, user.Phone, user.Address,
                 Role = ToDatabaseCase(user.Role), Status = ToDatabaseCase(user.Status), user.CreatedAt,
             };
-            await UpsertIdentityAsync(connection, transaction, "dbo.Users", args,
+            await UpsertIdentityAsync(connection, transaction, "public.users", args,
                 """
-                UPDATE dbo.Users SET FullName=@FullName, Email=@Email, PasswordHash=@Password,
-                    Phone=@Phone, Address=@Address, Role=@Role, Status=@Status
-                WHERE UserId=@Id
+                UPDATE public.users SET "fullname"=@FullName, "email"=@Email, "passwordhash"=@Password,
+                    "phone"=@Phone, "address"=@Address, "role"=@Role, "status"=@Status,
+                    "updatedat"=NOW() AT TIME ZONE 'UTC'
+                WHERE "userid"=@Id
                 """,
                 """
-                INSERT dbo.Users (UserId, FullName, Email, PasswordHash, Phone, Address, Role, Status, CreatedAt)
+                INSERT INTO public.users ("userid", "fullname", "email", "passwordhash", "phone", "address", "role", "status", "createdat")
                 VALUES (@Id, @FullName, @Email, @Password, @Phone, @Address, @Role, @Status, @CreatedAt)
                 """);
         }
     }
 
-    private async Task SaveArtistsAsync(SqlConnection connection, SqlTransaction transaction, IEnumerable<Artist> artists)
+    private async Task SaveArtistsAsync(NpgsqlConnection connection, NpgsqlTransaction transaction, IEnumerable<Artist> artists)
     {
         foreach (var artist in artists)
         {
@@ -295,23 +296,23 @@ sealed class SqlDatabase(string connectionString)
             };
             await connection.ExecuteAsync(
                 """
-                UPDATE dbo.Artists SET UserId=@UserId, Name=@Name, Slug=@Slug, Bio=@Bio,
-                    Style=@Style, AvatarUrl=@AvatarUrl, CoverUrl=@CoverUrl, Status=@Status,
-                    UpdatedAt=SYSUTCDATETIME()
-                WHERE ArtistId=@Id
+                UPDATE public.artists SET "userid"=@UserId, "name"=@Name, "slug"=@Slug, "bio"=@Bio,
+                    "style"=@Style, "avatarurl"=@AvatarUrl, "coverurl"=@CoverUrl, "status"=@Status,
+                    "updatedat"=NOW() AT TIME ZONE 'UTC'
+                WHERE "artistid"=@Id
                 """, args, transaction);
-            if (!await ExistsAsync(connection, transaction, "dbo.Artists", "ArtistId", artist.Id))
-                await UpsertIdentityAsync(connection, transaction, "dbo.Artists", args, "SELECT 0 WHERE 1=0",
+            if (!await ExistsAsync(connection, transaction, "public.artists", "\"artistid\"", artist.Id))
+                await UpsertIdentityAsync(connection, transaction, "public.artists", args, "SELECT 0 WHERE 1=0",
                     """
-                    INSERT dbo.Artists (ArtistId, UserId, Name, Slug, Bio, Style, AvatarUrl, CoverUrl, Status)
+                    INSERT INTO public.artists ("artistid", "userid", "name", "slug", "bio", "style", "avatarurl", "coverurl", "status")
                     VALUES (@Id, @UserId, @Name, @Slug, @Bio, @Style, @AvatarUrl, @CoverUrl, @Status)
                     """);
 
             await connection.ExecuteAsync(
                 """
-                UPDATE dbo.ArtistApiData SET DataJson=@DataJson WHERE ArtistId=@ArtistId;
-                IF @@ROWCOUNT = 0
-                    INSERT dbo.ArtistApiData (ArtistId, DataJson) VALUES (@ArtistId, @DataJson);
+                UPDATE public.artistapidata SET "datajson"=@DataJson WHERE "artistid"=@ArtistId;
+                IF NOT FOUND
+                    INSERT INTO public.artistapidata ("artistid", "datajson") VALUES (@ArtistId, @DataJson);
                 """,
                 new { ArtistId = artist.Id, DataJson = SerializeArtistData(artist) }, transaction);
         }
@@ -324,21 +325,21 @@ sealed class SqlDatabase(string connectionString)
         return data.ToJsonString(jsonOptions);
     }
 
-    private async Task SaveCategoriesAsync(SqlConnection connection, SqlTransaction transaction, IEnumerable<Category> categories)
+    private async Task SaveCategoriesAsync(NpgsqlConnection connection, NpgsqlTransaction transaction, IEnumerable<Category> categories)
     {
         foreach (var category in categories)
         {
             var args = new { category.Id, category.Name, category.Slug };
-            await UpsertIdentityAsync(connection, transaction, "dbo.Categories", args,
-                "UPDATE dbo.Categories SET Name=@Name, Slug=@Slug, IsActive=1 WHERE CategoryId=@Id",
+            await UpsertIdentityAsync(connection, transaction, "public.categories", args,
+                "UPDATE public.categories SET \"name\"=@Name, \"slug\"=@Slug, \"isactive\"=true WHERE \"categoryid\"=@Id",
                 """
-                INSERT dbo.Categories (CategoryId, Name, Slug, IsActive)
-                VALUES (@Id, @Name, @Slug, 1)
+                INSERT INTO public.categories ("categoryid", "name", "slug", "isactive")
+                VALUES (@Id, @Name, @Slug, true)
                 """);
         }
     }
 
-    private async Task SaveProductsAsync(SqlConnection connection, SqlTransaction transaction, IEnumerable<Product> products)
+    private async Task SaveProductsAsync(NpgsqlConnection connection, NpgsqlTransaction transaction, IEnumerable<Product> products)
     {
         foreach (var product in products)
         {
@@ -349,15 +350,15 @@ sealed class SqlDatabase(string connectionString)
                 Slug = $"api-{product.Id}-{Slugify(product.Name)}",
                 Status = product.Status == "active" ? "Active" : "Hidden",
             };
-            await UpsertIdentityAsync(connection, transaction, "dbo.Products", args,
+            await UpsertIdentityAsync(connection, transaction, "public.products", args,
                 """
-                UPDATE dbo.Products SET ArtistId=@ArtistId, CategoryId=@CategoryId, Name=@Name,
-                    Description=@Description, BasePrice=@BasePrice, Status=@Status,
-                    UpdatedAt=SYSUTCDATETIME()
-                WHERE ProductId=@Id
+                UPDATE public.products SET "artistid"=@ArtistId, "categoryid"=@CategoryId, "name"=@Name,
+                    "description"=@Description, "baseprice"=@BasePrice, "status"=@Status,
+                    "updatedat"=NOW() AT TIME ZONE 'UTC'
+                WHERE "productid"=@Id
                 """,
                 """
-                INSERT dbo.Products (ProductId, ArtistId, CategoryId, Name, Slug, Description, BasePrice, Status)
+                INSERT INTO public.products ("productid", "artistid", "categoryid", "name", "slug", "description", "baseprice", "status")
                 VALUES (@Id, @ArtistId, @CategoryId, @Name, @Slug, @Description, @BasePrice, @Status)
                 """);
 
@@ -368,21 +369,21 @@ sealed class SqlDatabase(string connectionString)
                     variant.Id, ProductId = product.Id, variant.Sku,
                     DisplayName = variant.Name, StockQuantity = variant.Stock,
                 };
-                await UpsertIdentityAsync(connection, transaction, "dbo.ProductVariants", variantArgs,
+                await UpsertIdentityAsync(connection, transaction, "public.productvariants", variantArgs,
                     """
-                    UPDATE dbo.ProductVariants SET ProductId=@ProductId, Sku=@Sku,
-                        DisplayName=@DisplayName, StockQuantity=@StockQuantity, IsActive=1
-                    WHERE VariantId=@Id
+                    UPDATE public.productvariants SET "productid"=@ProductId, "sku"=@Sku,
+                        "displayname"=@DisplayName, "stockquantity"=@StockQuantity, "isactive"=true
+                    WHERE "variantid"=@Id
                     """,
                     """
-                    INSERT dbo.ProductVariants (VariantId, ProductId, Sku, DisplayName, StockQuantity)
+                    INSERT INTO public.productvariants ("variantid", "productid", "sku", "displayname", "stockquantity")
                     VALUES (@Id, @ProductId, @Sku, @DisplayName, @StockQuantity)
                     """);
             }
-            await DeleteMissingAsync(connection, transaction, "dbo.ProductVariants", "VariantId",
-                product.Variants.Select(variant => variant.Id), "ProductId", product.Id, activeOnly: true);
+            await DeleteMissingAsync(connection, transaction, "public.productvariants", "\"variantid\"",
+                product.Variants.Select(variant => variant.Id), "\"productid\"", product.Id, activeOnly: true);
 
-            await connection.ExecuteAsync("DELETE FROM dbo.ProductImages WHERE ProductId=@ProductId",
+            await connection.ExecuteAsync("DELETE FROM public.productimages WHERE \"productid\"=@ProductId",
                 new { ProductId = product.Id }, transaction);
             var productImages = product.Images.Where(image => !string.IsNullOrWhiteSpace(image)).ToList();
             if (productImages.Count == 0 && !string.IsNullOrWhiteSpace(product.Image))
@@ -390,7 +391,7 @@ sealed class SqlDatabase(string connectionString)
             for (var index = 0; index < productImages.Count; index++)
                 await connection.ExecuteAsync(
                     """
-                    INSERT dbo.ProductImages (ProductId, ImageUrl, IsPrimary, SortOrder)
+                    INSERT INTO public.productimages ("productid", "imageurl", "isprimary", "sortorder")
                     VALUES (@ProductId, @ImageUrl, @IsPrimary, @SortOrder)
                     """,
                     new
@@ -403,7 +404,7 @@ sealed class SqlDatabase(string connectionString)
         }
     }
 
-    private async Task SaveCommunitiesAsync(SqlConnection connection, SqlTransaction transaction, IEnumerable<Community> communities)
+    private async Task SaveCommunitiesAsync(NpgsqlConnection connection, NpgsqlTransaction transaction, IEnumerable<Community> communities)
     {
         foreach (var community in communities)
         {
@@ -412,28 +413,28 @@ sealed class SqlDatabase(string connectionString)
                 community.Id, community.ArtistId, community.Name, community.Description,
                 AvatarUrl = community.Avatar, CoverUrl = community.Cover,
             };
-            await UpsertIdentityAsync(connection, transaction, "dbo.Communities", args,
+            await UpsertIdentityAsync(connection, transaction, "public.communities", args,
                 """
-                UPDATE dbo.Communities SET ArtistId=@ArtistId, Name=@Name, Description=@Description,
-                    AvatarUrl=@AvatarUrl, CoverUrl=@CoverUrl
-                WHERE CommunityId=@Id
+                UPDATE public.communities SET "artistid"=@ArtistId, "name"=@Name, "description"=@Description,
+                    "avatarurl"=@AvatarUrl, "coverurl"=@CoverUrl
+                WHERE "communityid"=@Id
                 """,
                 """
-                INSERT dbo.Communities (CommunityId, ArtistId, Name, Description, AvatarUrl, CoverUrl)
+                INSERT INTO public.communities ("communityid", "artistid", "name", "description", "avatarurl", "coverurl")
                 VALUES (@Id, @ArtistId, @Name, @Description, @AvatarUrl, @CoverUrl)
                 """);
         }
     }
 
     private static async Task SaveResetTokensAsync(
-        SqlConnection connection, SqlTransaction transaction, IEnumerable<PasswordResetToken> tokens)
+        NpgsqlConnection connection, NpgsqlTransaction transaction, IEnumerable<PasswordResetToken> tokens)
     {
-        await connection.ExecuteAsync("DELETE FROM dbo.PasswordResetTokens", transaction: transaction);
+        await connection.ExecuteAsync("DELETE FROM public.passwordresettokens", transaction: transaction);
         foreach (var token in tokens)
         {
             await connection.ExecuteAsync(
                 """
-                INSERT dbo.PasswordResetTokens (UserId, TokenHash, ExpiresAt, UsedAt)
+                INSERT INTO public.passwordresettokens ("userid", "tokenhash", "expiresat", "usedat")
                 VALUES (@UserId, @TokenHash, @ExpiresAt, @UsedAt)
                 """,
                 new { token.UserId, token.TokenHash, token.ExpiresAt, token.UsedAt }, transaction);
@@ -441,25 +442,25 @@ sealed class SqlDatabase(string connectionString)
     }
 
     private static async Task SaveCartsAsync(
-        SqlConnection connection, SqlTransaction transaction, IReadOnlyDictionary<int, List<CartItem>> carts)
+        NpgsqlConnection connection, NpgsqlTransaction transaction, IReadOnlyDictionary<int, List<CartItem>> carts)
     {
-        await connection.ExecuteAsync("DELETE FROM dbo.CartItems", transaction: transaction);
-        await connection.ExecuteAsync("DELETE FROM dbo.Carts", transaction: transaction);
+        await connection.ExecuteAsync("DELETE FROM public.cartitems", transaction: transaction);
+        await connection.ExecuteAsync("DELETE FROM public.carts", transaction: transaction);
         foreach (var (userId, items) in carts.Where(entry => entry.Value.Count > 0))
         {
             var cartId = await connection.QuerySingleAsync<int>(
                 """
-                INSERT dbo.Carts (UserId) VALUES (@UserId);
-                SELECT CAST(SCOPE_IDENTITY() AS INT);
+                INSERT INTO public.carts ("userid") VALUES (@UserId)
+                RETURNING "cartid";
                 """, new { UserId = userId }, transaction);
             foreach (var item in items)
                 await connection.ExecuteAsync(
-                    "INSERT dbo.CartItems (CartId, VariantId, Quantity) VALUES (@CartId, @VariantId, @Quantity)",
+                    "INSERT INTO public.cartitems (\"cartid\", \"variantid\", \"quantity\") VALUES (@CartId, @VariantId, @Quantity)",
                     new { CartId = cartId, item.VariantId, item.Quantity }, transaction);
         }
     }
 
-    private static async Task SaveOrdersAsync(SqlConnection connection, SqlTransaction transaction, IEnumerable<Order> orders)
+    private static async Task SaveOrdersAsync(NpgsqlConnection connection, NpgsqlTransaction transaction, IEnumerable<Order> orders)
     {
         foreach (var order in orders)
         {
@@ -471,35 +472,27 @@ sealed class SqlDatabase(string connectionString)
             };
             await connection.ExecuteAsync(
                 """
-                UPDATE dbo.Orders SET OrderCode=@Code, UserId=@UserId, ReceiverName=@ReceiverName,
-                    ReceiverPhone=@ReceiverPhone, ShippingAddress=@ShippingAddress, Note=@Note,
-                    ShippingFee=@ShippingFee, TotalAmount=@TotalAmount, OrderStatus=@Status,
-                    UpdatedAt=SYSUTCDATETIME()
-                WHERE OrderId=@Id
+                UPDATE public.orders SET "ordercode"=@Code, "userid"=@UserId, "receivername"=@ReceiverName,
+                    "receiverphone"=@ReceiverPhone, "shippingaddress"=@ShippingAddress, "note"=@Note,
+                    "shippingfee"=@ShippingFee, "totalamount"=@TotalAmount, "orderstatus"=@Status,
+                    "updatedat"=NOW() AT TIME ZONE 'UTC'
+                WHERE "orderid"=@Id
                 """, args, transaction);
 
-            if (!await ExistsAsync(connection, transaction, "dbo.Orders", "OrderId", order.Id))
+            if (!await ExistsAsync(connection, transaction, "public.orders", "\"orderid\"", order.Id))
             {
-                await connection.ExecuteAsync("SET IDENTITY_INSERT dbo.Orders ON", transaction: transaction);
-                try
-                {
-                    await connection.ExecuteAsync(
-                        """
-                        INSERT dbo.Orders
-                            (OrderId, OrderCode, UserId, ShippingMethodId, ReceiverName,
-                             ReceiverPhone, ShippingAddress, Note, DiscountAmount,
-                             ShippingFee, TotalAmount, OrderStatus, CreatedAt)
-                        VALUES
-                            (@Id, @Code, @UserId,
-                             (SELECT ShippingMethodId FROM dbo.ShippingMethods WHERE Code='STANDARD'),
-                             @ReceiverName, @ReceiverPhone, @ShippingAddress, @Note, 0,
-                             @ShippingFee, @TotalAmount, @Status, @CreatedAt)
-                        """, args, transaction);
-                }
-                finally
-                {
-                    await connection.ExecuteAsync("SET IDENTITY_INSERT dbo.Orders OFF", transaction: transaction);
-                }
+                await connection.ExecuteAsync(
+                    """
+                    INSERT INTO public.orders
+                        ("orderid", "ordercode", "userid", "shippingmethodid", "receivername",
+                         "receiverphone", "shippingaddress", "note", "discountamount",
+                         "shippingfee", "totalamount", "orderstatus", "createdat")
+                    VALUES
+                        (@Id, @Code, @UserId,
+                         (SELECT "shippingmethodid" FROM public.shippingmethods WHERE "code"='STANDARD'),
+                         @ReceiverName, @ReceiverPhone, @ShippingAddress, @Note, 0,
+                         @ShippingFee, @TotalAmount, @Status, @CreatedAt)
+                    """, args, transaction);
             }
 
             foreach (var item in order.Items)
@@ -511,53 +504,45 @@ sealed class SqlDatabase(string connectionString)
                 };
                 await connection.ExecuteAsync(
                     """
-                    UPDATE dbo.OrderItems SET ProductName=@ProductName, Sku=@Sku,
-                        UnitPrice=@UnitPrice, Quantity=@Quantity
-                    WHERE OrderId=@OrderId AND VariantId=@VariantId;
-                    IF @@ROWCOUNT = 0
-                        INSERT dbo.OrderItems (OrderId, VariantId, ProductName, Sku, UnitPrice, Quantity)
+                    UPDATE public.orderitems SET "productname"=@ProductName, "sku"=@Sku,
+                        "unitprice"=@UnitPrice, "quantity"=@Quantity
+                    WHERE "orderid"=@OrderId AND "variantid"=@VariantId;
+                    IF NOT FOUND
+                        INSERT INTO public.orderitems ("orderid", "variantid", "productname", "sku", "unitprice", "quantity")
                         VALUES (@OrderId, @VariantId, @ProductName, @Sku, @UnitPrice, @Quantity);
                     """, itemArgs, transaction);
             }
 
             await connection.ExecuteAsync(
                 """
-                IF NOT EXISTS (SELECT 1 FROM dbo.OrderStatusHistory WHERE OrderId=@OrderId AND Status=@Status)
-                    INSERT dbo.OrderStatusHistory (OrderId, Status, ChangedBy, Note)
-                    VALUES (@OrderId, @Status, NULL, N'API state synchronization');
+                IF NOT EXISTS (SELECT 1 FROM public.orderstatushistory WHERE "orderid"=@OrderId AND "status"=@Status)
+                    INSERT INTO public.orderstatushistory ("orderid", "status", "changedby", "note")
+                    VALUES (@OrderId, @Status, NULL, 'API state synchronization');
                 """, new { OrderId = order.Id, order.Status }, transaction);
         }
     }
 
     private static async Task UpsertIdentityAsync(
-        SqlConnection connection, SqlTransaction transaction, string table, object args, string updateSql, string insertSql)
+        NpgsqlConnection connection, NpgsqlTransaction transaction, string table, object args, string updateSql, string insertSql)
     {
         if (await connection.ExecuteAsync(updateSql, args, transaction) > 0) return;
 
-        await connection.ExecuteAsync($"SET IDENTITY_INSERT {table} ON", transaction: transaction);
-        try
-        {
-            await connection.ExecuteAsync(insertSql, args, transaction);
-        }
-        finally
-        {
-            await connection.ExecuteAsync($"SET IDENTITY_INSERT {table} OFF", transaction: transaction);
-        }
+        await connection.ExecuteAsync(insertSql, args, transaction);
     }
 
     private static async Task<bool> ExistsAsync(
-        SqlConnection connection, SqlTransaction transaction, string table, string keyColumn, int id) =>
+        NpgsqlConnection connection, NpgsqlTransaction transaction, string table, string keyColumn, int id) =>
         await connection.ExecuteScalarAsync<int>(
             $"SELECT COUNT(1) FROM {table} WHERE {keyColumn}=@Id", new { Id = id }, transaction) > 0;
 
     private static Task<int> DeleteMissingAsync(
-        SqlConnection connection, SqlTransaction transaction, string table, string keyColumn, IEnumerable<int> ids,
+        NpgsqlConnection connection, NpgsqlTransaction transaction, string table, string keyColumn, IEnumerable<int> ids,
         string? scopeColumn = null, int? scopeId = null, bool activeOnly = false)
     {
         var values = string.Join(",", ids.Distinct());
         var condition = values.Length == 0 ? "1=1" : $"{keyColumn} NOT IN ({values})";
         var scope = scopeColumn is null ? "" : $" AND {scopeColumn}=@ScopeId";
-        var active = activeOnly ? " AND IsActive=1" : "";
+        var active = activeOnly ? " AND \"isactive\"=true" : "";
         return connection.ExecuteAsync(
             $"DELETE FROM {table} WHERE {condition}{scope}{active}",
             scopeColumn is null ? null : new { ScopeId = scopeId },

@@ -25,9 +25,11 @@ using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Data.SqlClient;
+using Npgsql;
+using Npgsql.PostgresTypes;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.UseUrls($"http://0.0.0.0:{Environment.GetEnvironmentVariable("PORT") ?? "8080"}");
 var connectionString = builder.Configuration.GetConnectionString("Owniverse")
     ?? throw new InvalidOperationException("Thiếu cấu hình ConnectionStrings:Owniverse.");
 var database = new SqlDatabase(connectionString);
@@ -52,6 +54,7 @@ builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
 var app = builder.Build();
 var passwordHasher = app.Services.GetRequiredService<IPasswordHasher<User>>();
 var userRepository = new UserRepository(connectionString);
+var communityRepository = new CommunityRepository(connectionString);
 app.UseCors("FrontendPreview");
 
 // =====================================================
@@ -59,15 +62,15 @@ app.UseCors("FrontendPreview");
 // =====================================================
 
 var users = SeedData.CreateUsers();
+var developmentAdmin = await AdminBootstrap.EnsureDevelopmentAdminAsync(
+    app.Configuration,
+    passwordHasher,
+    app.Lifetime.ApplicationStopping);
+if (developmentAdmin is not null)
+    users.Add(developmentAdmin);
+
 if (app.Environment.IsDevelopment())
 {
-    var developmentAdmin = await AdminBootstrap.EnsureDevelopmentAdminAsync(
-        app.Configuration,
-        passwordHasher,
-        app.Lifetime.ApplicationStopping);
-    if (developmentAdmin is not null)
-        users.Add(developmentAdmin);
-
     var demoCustomer = await DemoCustomerBootstrap.EnsureAsync(
         app.Configuration,
         passwordHasher,
@@ -508,7 +511,7 @@ app.MapPost("/api/auth/register", async (RegisterRequest req) =>
     {
         await userRepository.CreateCustomerAsync(newUser, app.Lifetime.ApplicationStopping);
     }
-    catch (SqlException ex) when (ex.Number is 2601 or 2627)
+    catch (PostgresException ex) when (ex.SqlState == "23505")
     {
         return Msg(409, "Email đã được sử dụng");
     }
@@ -645,7 +648,7 @@ app.MapPut("/api/users/me", async (HttpContext ctx, UpdateProfileRequest req) =>
         CacheUser(updatedUser);
         return Results.Ok(new { message = "Cập nhật thành công", user = PublicUser(updatedUser) });
     }
-    catch (SqlException ex) when (ex.Number is 2601 or 2627)
+    catch (PostgresException ex) when (ex.SqlState == "23505")
     {
         return Msg(409, "Email đã được sử dụng");
     }
@@ -1211,7 +1214,7 @@ admin.MapPost("/promotions", async Task<IResult> (HttpContext ctx, AdminPromotio
         ctx.Items["SkipApiStateSave"] = true;
         return Results.Json(created, statusCode: StatusCodes.Status201Created);
     }
-    catch (SqlException ex) when (ex.Number is 2601 or 2627)
+    catch (PostgresException ex) when (ex.SqlState == "23505")
     {
         return Msg(409, "Mã voucher đã tồn tại");
     }
@@ -1228,7 +1231,7 @@ admin.MapPut("/promotions/{id:int}", async Task<IResult> (int id, HttpContext ct
         ctx.Items["SkipApiStateSave"] = true;
         return Results.Ok(updated);
     }
-    catch (SqlException ex) when (ex.Number is 2601 or 2627)
+    catch (PostgresException ex) when (ex.SqlState == "23505")
     {
         return Msg(409, "Mã voucher đã tồn tại");
     }
@@ -1243,7 +1246,7 @@ admin.MapDelete("/promotions/{id:int}", async Task<IResult> (int id, HttpContext
         ctx.Items["SkipApiStateSave"] = true;
         return Msg(200, "Đã xóa voucher");
     }
-    catch (SqlException ex) when (ex.Number == 547)
+    catch (PostgresException ex) when (ex.SqlState == "23503")
     {
         return Msg(409, "Voucher đã được dùng trong đơn hàng nên không thể xóa");
     }
