@@ -34,7 +34,6 @@ var connectionString = builder.Configuration.GetConnectionString("Owniverse")
     ?? throw new InvalidOperationException("Thiếu cấu hình ConnectionStrings:Owniverse.");
 var database = new SqlDatabase(connectionString);
 var adminRepository = new AdminRepository(connectionString);
-var communityRepository = new CommunityRepository(connectionString);
 
 var configuredCorsOrigins = builder.Configuration.GetSection("CorsOrigins").Get<string[]>()
     ?? Array.Empty<string>();
