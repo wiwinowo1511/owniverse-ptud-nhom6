@@ -61,30 +61,13 @@ app.UseCors("FrontendPreview");
 // 1. DỮ LIỆU NẠP TỪ SQL SERVER
 // =====================================================
 
-var users = SeedData.CreateUsers();
+var users = new List<User>();
 var developmentAdmin = await AdminBootstrap.EnsureDevelopmentAdminAsync(
     app.Configuration,
     passwordHasher,
     app.Lifetime.ApplicationStopping);
 if (developmentAdmin is not null)
     users.Add(developmentAdmin);
-
-if (app.Environment.IsDevelopment())
-{
-    var demoCustomer = await DemoCustomerBootstrap.EnsureAsync(
-        app.Configuration,
-        passwordHasher,
-        app.Lifetime.ApplicationStopping);
-    if (demoCustomer is not null)
-        users.Add(demoCustomer);
-
-    var demoArtist = await DemoArtistBootstrap.EnsureAsync(
-        app.Configuration,
-        passwordHasher,
-        app.Lifetime.ApplicationStopping);
-    if (demoArtist is not null)
-        users.Add(demoArtist);
-}
 var nextUserId = await userRepository.GetNextUserIdAsync(app.Lifetime.ApplicationStopping);
 
 var artists = SeedData.CreateArtists();

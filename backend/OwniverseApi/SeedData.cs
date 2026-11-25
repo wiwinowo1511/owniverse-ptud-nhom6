@@ -235,16 +235,6 @@ static class SeedData
     };
 
     // =====================================================
-    // TÀI KHOẢN MẪU
-    // TODO-DB: thay bằng bảng Users (đúng tên cột theo ERD)
-    // =====================================================
-    public static List<User> CreateUsers() => new()
-    {
-        // No default admin or fabricated customer accounts.
-        // Artist credentials are activated only by the explicit Development User Secrets bootstrap.
-    };
-
-    // =====================================================
     // DANH MỤC SẢN PHẨM MẪU
     // TODO-DB: thay bằng bảng Categories
     // =====================================================
