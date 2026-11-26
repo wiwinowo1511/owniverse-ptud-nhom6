@@ -96,6 +96,7 @@
     if (info.image) image.src = info.image;
     image.alt = "";
     image.loading = "lazy";
+    image.onerror = function () { this.style.display = "none"; };
     cover.appendChild(image);
     const coverLabel = document.createElement("span");
     coverLabel.className = "discover-card_cover-label";
@@ -136,8 +137,7 @@
     card.querySelector(".discover-card_title span").textContent = info.fandom;
     card.querySelector(".discover-card_details > p").textContent = info.genre;
     const image = card.querySelector(".discover-card_cover img");
-    const apiImage = field(community, "cover") || field(community, "avatar");
-    if (apiImage) image.src = apiImage;
+    if (info.image) image.src = info.image;
     return card;
   }
 
