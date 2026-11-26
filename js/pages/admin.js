@@ -156,10 +156,11 @@
       filters: { role: user => user.role, status: user => user.status },
       haystack: user => `${user.code} ${user.name} ${user.email}`,
       sort: (a, b) => a.id - b.id,
-      row: user => [
-        `<b>${esc(user.code)}</b>`, esc(user.name), esc(user.email), esc(ROLE[user.role] || user.role),
-        badge(USER_STATUS, user.status)
-      ],
+       row: user => [
+         `<b>${esc(user.code)}</b>`, esc(user.name), esc(user.email), esc(ROLE[user.role] || user.role),
+         badge(USER_STATUS, user.status)
+       ],
+       rowActions: id => `<button type="button" data-act="view" data-id="${esc(id)}">Xem</button>`,
       validate: (data, mode, items) => {
         const errors = {};
         const previous = items.find(user => user.id === data.id);
@@ -307,13 +308,15 @@
     const pages = Math.max(1, Math.ceil(all.length / PAGE_SIZE));
     module.page = Math.min(module.page, pages);
     const rows = all.slice((module.page - 1) * PAGE_SIZE, module.page * PAGE_SIZE);
-    const actions = id => {
-      const buttons = [['view', 'Xem'], ['edit', 'Sửa']];
-      if (!module.noDelete) buttons.push(['delete', 'Xóa']);
-      return buttons.map(([action, label]) => `<button type="button" data-act="${action}" data-id="${esc(id)}">${label}</button>`).join('');
+    const actionButtons = item => {
+      const buttons = module.rowActions
+        ? module.rowActions(item[module.pk])
+        : [['view', 'Xem'], ['edit', 'Sửa']].concat(module.noDelete ? [] : [['delete', 'Xóa']])
+            .map(([action, label]) => `<button type="button" data-act="${action}" data-id="${esc(item[module.pk])}">${label}</button>`).join('');
+      return buttons;
     };
     $('tbody', module.root).innerHTML = rows.map(item =>
-      `<tr data-id="${esc(item[module.pk])}">${module.row(item).map(cell => `<td>${cell}</td>`).join('')}<td class="actions">${actions(item[module.pk])}</td></tr>`
+      `<tr data-id="${esc(item[module.pk])}">${module.row(item).map(cell => `<td>${cell}</td>`).join('')}<td class="actions">${actionButtons(item)}</td></tr>`
     ).join('') || `<tr><td class="empty" colspan="${$$('th', module.root).length}">Không có ${module.noun} phù hợp.</td></tr>`;
     $('[data-count]', module.root).textContent = `Hiển thị ${rows.length} dòng`;
     $('[data-info]', module.root).textContent = `${all.length} ${module.noun}`;
@@ -326,6 +329,7 @@
   }
 
   function openForm(module, mode, item) {
+    dlg.querySelectorAll('[data-view-act]').forEach(button => button.remove());
     const data = item || module.defaults();
     context = { module, mode, item };
     $('#form-title').textContent = module.titles[mode];
@@ -345,6 +349,15 @@
       }).join('');
     $('#form-fields').disabled = mode === 'view';
     $('#form-submit').hidden = mode === 'view';
+    if (mode === 'view' && module === M.users) {
+      const footer = dlg.querySelector('.dialog_foot');
+      const editBtn = document.createElement('button');
+      editBtn.type = 'button'; editBtn.className = 'btn'; editBtn.textContent = 'Sửa'; editBtn.dataset.viewAct = 'edit';
+      const deleteBtn = document.createElement('button');
+      deleteBtn.type = 'button'; deleteBtn.className = 'btn btn--danger'; deleteBtn.textContent = 'Xóa'; deleteBtn.dataset.viewAct = 'delete';
+      footer.insertBefore(deleteBtn, $('#form-submit'));
+      footer.insertBefore(editBtn, $('#form-submit'));
+    }
     if (module.noCreate) $('#form-submit').textContent = 'Cập nhật trạng thái';
     else $('#form-submit').textContent = mode === 'create' ? 'Thêm mới' : 'Lưu';
     dlg.showModal();
@@ -454,9 +467,20 @@
   Object.entries(M).forEach(([name, module]) => wireModule(name, module));
   form.addEventListener('submit', submitForm);
   confirmDialog.addEventListener('close', confirmDelete);
-  [dlg, confirmDialog].forEach(dialog => dialog.addEventListener('click', event => {
-    if (event.target === dialog || event.target.closest('[data-close]')) dialog.close();
-  }));
+  dlg.addEventListener('click', event => {
+    const viewAction = event.target.closest('[data-view-act]');
+    if (viewAction && context && context.mode === 'view') {
+      event.preventDefault();
+      const { module, item } = context;
+      if (viewAction.dataset.viewAct === 'edit') { dlg.close(); openForm(module, 'edit', item); }
+      else if (viewAction.dataset.viewAct === 'delete') { dlg.close(); askDelete(module, item); }
+      return;
+    }
+    if (event.target === dlg || event.target.closest('[data-close]')) dlg.close();
+  });
+  confirmDialog.addEventListener('click', event => {
+    if (event.target === confirmDialog || event.target.closest('[data-close]')) confirmDialog.close();
+  });
 
   $('[data-note-form]').addEventListener('submit', async event => {
     event.preventDefault();
