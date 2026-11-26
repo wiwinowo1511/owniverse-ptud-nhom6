@@ -54,7 +54,7 @@
       name: known.name || field(community, "artistName") || field(community, "name") || "Cộng đồng",
       fandom: known.fandom || field(community, "name") || "Cộng đồng người hâm mộ",
       genre: known.genre || field(community, "description") || "Cộng đồng người hâm mộ OWNIVERSE",
-      image: field(community, "avatar") || known.image || field(community, "cover") || ""
+      image: known.image || field(community, "avatar") || field(community, "cover") || ""
     };
   }
 
@@ -72,6 +72,8 @@
     avatar.setAttribute("aria-label", "Xem cộng đồng " + info.name);
     if (image && info.image) {
       image.src = info.image;
+      image.alt = "Ảnh đại diện cộng đồng " + info.name;
+    } else if (image) {
       image.alt = "Ảnh đại diện cộng đồng " + info.name;
     }
     title.textContent = info.name;
@@ -91,7 +93,7 @@
     cover.href = communityLink(info.artistId);
     cover.setAttribute("aria-label", "Khám phá cộng đồng " + info.name);
     const image = document.createElement("img");
-    image.src = info.image;
+    if (info.image) image.src = info.image;
     image.alt = "";
     image.loading = "lazy";
     cover.appendChild(image);
@@ -134,8 +136,8 @@
     card.querySelector(".discover-card_title span").textContent = info.fandom;
     card.querySelector(".discover-card_details > p").textContent = info.genre;
     const image = card.querySelector(".discover-card_cover img");
-    if (field(community, "avatar") || field(community, "cover"))
-      image.src = field(community, "cover") || field(community, "avatar");
+    const apiImage = field(community, "cover") || field(community, "avatar");
+    if (apiImage) image.src = apiImage;
     return card;
   }
 
