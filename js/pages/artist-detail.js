@@ -475,15 +475,15 @@ function renderProducts(products) {
 
         const card = template.content.cloneNode(true);
 
-        const image = card.querySelector(".product-card_image");
+        const image = card.querySelector(".product-card__image");
 
-        const imageLink = card.querySelector(".product-card_image-link");
+        const imageLink = card.querySelector(".product-card__image-link");
 
-        const name = card.querySelector(".product-card_title");
+        const name = card.querySelector(".product-card__title");
 
-        const price = card.querySelector(".product-card_price");
+        const price = card.querySelector(".product-card__price");
 
-        const detailLink = card.querySelector(".product-card_button");
+        const detailLink = card.querySelector(".product-card__button");
 
         /* Hình ảnh */
 

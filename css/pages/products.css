@@ -291,7 +291,7 @@ main .products-toolbar {
   border-bottom: 1px solid var(--pr-border);
 }
 
-main .products-toolbar_count {
+main .products-toolbar__count {
   font-family: var(--pr-font-body);
   font-size: 14px;
   color: var(--pr-text-muted);
@@ -349,19 +349,19 @@ main .product-card {
   transition: border-color 0.2s ease;
 }
 
-main .product-card_media {
+main .product-card__media {
   aspect-ratio: 1 / 1;
   overflow: hidden;
   background-color: var(--pr-bg-soft);
 }
 
-main .product-card_img {
+main .product-card__image {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-main .product-card_body {
+main .product-card__body {
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -369,7 +369,7 @@ main .product-card_body {
   padding: clamp(10px, 1.6vw, 16px);
 }
 
-main .product-card_title {
+main .product-card__title {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -382,13 +382,13 @@ main .product-card_title {
   color: var(--pr-text);
 }
 
-main .product-card_artist {
+main .product-card__artist {
   font-family: var(--pr-font-body);
   font-size: 13px;
   color: var(--pr-text-soft);
 }
 
-main .product-card_price {
+main .product-card__price {
   margin-bottom: 8px;
   font-family: var(--pr-font-body);
   font-size: clamp(15px, 0.5vw + 13px, 18px);
@@ -396,7 +396,7 @@ main .product-card_price {
   color: var(--pr-text);
 }
 
-main .product-card_btn {
+main .product-card__btn {
   display: block;
   width: 100%;
   margin-top: auto;
@@ -413,35 +413,35 @@ main .product-card_btn {
 }
 
 /* ---------- Cụm nút trên thẻ sản phẩm ---------- */
-main .product-card_actions {
+main .product-card__actions {
   display: flex;
   flex-direction: column;
   gap: 8px;
   margin-top: auto;
 }
 
-main .product-card_actions .product-card_btn {
+main .product-card__actions .product-card__btn {
   margin-top: 0;
 }
 
 /* <button> và <a> có cùng kích thước, cùng chiều cao dòng */
-main .product-card_btn {
+main .product-card__btn {
   line-height: 1.4;
   cursor: pointer;
   -webkit-appearance: none;
   appearance: none;
 }
 
-main .product-card_btn[hidden] {
+main .product-card__btn[hidden] {
   display: none;
 }
 
-main .product-card_btn--add {
+main .product-card__btn--add {
   background-color: var(--pr-text);
   color: #FFFFFF;
 }
 
-main .product-card_btn--remove {
+main .product-card__btn--remove {
   border-color: #B91C1C;
   color: #B91C1C;
 }

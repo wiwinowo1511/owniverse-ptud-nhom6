@@ -853,19 +853,19 @@ function createProductCardHtml(product) {
   const id = escapeHtml(product.id);
   const inCart = getInCartQuantity(product.id);
   return `
-    <li class="products-grid_item">
+    <li class="products-grid__item">
       <article class="product-card${inCart ? " is-in-cart" : ""}" data-product-id="${id}">
-        <div class="product-card_media">
-          <img class="product-card_img" src="${escapeHtml(encodeURI(product.image))}" alt="${name}" loading="lazy">
+        <div class="product-card__media">
+          <img class="product-card__image" src="${escapeHtml(encodeURI(product.image))}" alt="${name}" loading="lazy">
         </div>
-        <div class="product-card_body">
-          <h3 class="product-card_title">${name}</h3>
-          <p class="product-card_artist">Nghệ sĩ: ${escapeHtml(product.artist)}</p>
-          <p class="product-card_price">${formatPrice(product.price)}</p>
-          <div class="product-card_actions">
-            <button type="button" class="product-card_btn product-card_btn--add" data-add-to-cart="${id}" aria-label="Thêm ${name} vào giỏ hàng">Thêm vào giỏ</button>
-            <button type="button" class="product-card_btn product-card_btn--remove" data-remove-from-cart="${id}" aria-label="Bỏ ${name} khỏi giỏ hàng"${inCart ? "" : " hidden"}>Bỏ khỏi giỏ (${inCart})</button>
-            <a class="product-card_btn" href="${getProductDetailUrl(product.id)}">Xem chi tiết</a>
+        <div class="product-card__body">
+          <h3 class="product-card__title">${name}</h3>
+          <p class="product-card__artist">Nghệ sĩ: ${escapeHtml(product.artist)}</p>
+          <p class="product-card__price">${formatPrice(product.price)}</p>
+          <div class="product-card__actions">
+            <button type="button" class="product-card__btn product-card__btn--add" data-add-to-cart="${id}" aria-label="Thêm ${name} vào giỏ hàng">Thêm vào giỏ</button>
+            <button type="button" class="product-card__btn product-card__btn--remove" data-remove-from-cart="${id}" aria-label="Bỏ ${name} khỏi giỏ hàng"${inCart ? "" : " hidden"}>Bỏ khỏi giỏ (${inCart})</button>
+            <a class="product-card__btn" href="${getProductDetailUrl(product.id)}">Xem chi tiết</a>
           </div>
         </div>
       </article>
@@ -897,7 +897,7 @@ function renderProducts(list, totalCount) {
 
 
 
-  const countElement = document.querySelector(".products-toolbar_count");
+  const countElement = document.querySelector(".products-toolbar__count");
   const products = Array.isArray(list) ? list : [];
 
 
@@ -912,7 +912,7 @@ function renderProducts(list, totalCount) {
 
   if (products.length === 0) {
     grid.innerHTML = `
-      <li class="products-grid_item" style="grid-column: 1 / -1; justify-content: center;">
+      <li class="products-grid__item" style="grid-column: 1 / -1; justify-content: center;">
         <p role="status">Hiện chưa có sản phẩm nào phù hợp.</p>
       </li>`;
     return;
@@ -930,7 +930,7 @@ function renderProducts(list, totalCount) {
 // Ảnh lỗi: thay bằng ảnh thay thế (sự kiện "error" không nổi bọt nên dùng capture)
 function handleProductImageError(event) {
   const img = event.target;
-  if (img.tagName === "IMG" && img.classList.contains("product-card_img") && img.src !== PLACEHOLDER_IMAGE) {
+  if (img.tagName === "IMG" && img.classList.contains("product-card__image") && img.src !== PLACEHOLDER_IMAGE) {
     img.src = PLACEHOLDER_IMAGE;
     img.alt = "Không tải được ảnh sản phẩm";
   }
