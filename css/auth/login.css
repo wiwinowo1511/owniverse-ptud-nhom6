@@ -142,6 +142,38 @@ button:hover{
     background:#333;
 }
 
+.auth-card form > button[type="submit"] {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+}
+
+.auth-card form > button[type="submit"]:disabled {
+    cursor:wait;
+    opacity:.8;
+}
+
+.auth-card form > button[type="submit"][data-loading="true"]::before {
+    width:16px;
+    height:16px;
+    border:2px solid rgba(255,255,255,.4);
+    border-top-color:#fff;
+    border-radius:50%;
+    content:"";
+    animation:auth-button-spin .7s linear infinite;
+}
+
+@keyframes auth-button-spin {
+    to { transform:rotate(360deg); }
+}
+
+@media (prefers-reduced-motion:reduce) {
+    .auth-card form > button[type="submit"][data-loading="true"]::before {
+        animation-duration:1.6s;
+    }
+}
+
 .auth-links{
     margin-top:20px;
 

@@ -15,6 +15,8 @@ registerForm?.querySelectorAll("input").forEach((input) => {
 
 registerForm?.addEventListener("submit", async function (e) {
     e.preventDefault();
+    const submitButton = registerForm.querySelector('[type="submit"]');
+    if (submitButton?.disabled) return;
 
     const name = document.querySelector("#name").value.trim();
     const email = document.querySelector("#email").value.trim();
@@ -39,6 +41,15 @@ registerForm?.addEventListener("submit", async function (e) {
         return;
     }
 
+    const submitButtonLabel = submitButton?.textContent.trim();
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.dataset.loading = "true";
+        submitButton.textContent = "Đang đăng ký...";
+        submitButton.setAttribute("aria-busy", "true");
+    }
+    registerForm.setAttribute("aria-busy", "true");
+
     try {
         await register({ fullName: name, email, phone, password });
         // Giữ lại redirect (nếu khách bị chuyển tới từ trang cần đăng nhập)
@@ -50,5 +61,13 @@ registerForm?.addEventListener("submit", async function (e) {
     } catch (error) {
         setRegisterError("email", error.message || "Không thể tạo tài khoản. Vui lòng thử lại.");
         document.querySelector("#email").focus();
+    } finally {
+        if (submitButton) {
+            submitButton.disabled = false;
+            delete submitButton.dataset.loading;
+            submitButton.textContent = submitButtonLabel;
+            submitButton.removeAttribute("aria-busy");
+        }
+        registerForm.removeAttribute("aria-busy");
     }
 });

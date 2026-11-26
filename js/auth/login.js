@@ -6,6 +6,7 @@ if (loginForm) {
   const emailError = loginForm.querySelector("#email-error");
   const passwordError = loginForm.querySelector("#password-error");
   const submitButton = loginForm.querySelector('[type="submit"]');
+  const submitButtonLabel = submitButton?.textContent.trim();
   const requiredRole = (document.body.dataset.loginRole || "").toLowerCase();
   const demoEnterButton = document.querySelector("#artist-demo-enter");
 
@@ -36,6 +37,11 @@ if (loginForm) {
     }
 
     if (submitButton) submitButton.disabled = true;
+    if (submitButton) {
+      submitButton.dataset.loading = "true";
+      submitButton.textContent = "Đang đăng nhập...";
+      submitButton.setAttribute("aria-busy", "true");
+    }
     loginForm.setAttribute("aria-busy", "true");
 
     try {
@@ -67,7 +73,12 @@ if (loginForm) {
     } catch (error) {
       await showAppMessage(error.message, { type: "error", title: "Đăng nhập không thành công" });
     } finally {
-      if (submitButton) submitButton.disabled = false;
+      if (submitButton) {
+        submitButton.disabled = false;
+        delete submitButton.dataset.loading;
+        submitButton.textContent = submitButtonLabel;
+        submitButton.removeAttribute("aria-busy");
+      }
       loginForm.removeAttribute("aria-busy");
     }
   });
