@@ -1,4 +1,4 @@
-﻿.artist-login-page {
+.artist-login-page {
   min-height: min(76vh, 800px);
   background:
     radial-gradient(ellipse at 50% 0%, rgba(167, 139, 250, 0.2), transparent 48%),
@@ -12,8 +12,8 @@
   box-shadow: 0 18px 55px rgba(35, 24, 57, 0.1);
 }
 
-.auth-card--artist .brand-logo { margin-bottom: 27px; }
-.auth-card--artist .logo-wordmark { font-size: 1.1rem; }
+.auth-card--artist .site-header__brand { margin-bottom: 27px; }
+.auth-card--artist .site-header__wordmark { font-size: 1.1rem; }
 .artist-login-eyebrow { margin-bottom: 5px; color: #7358a5; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em; text-align: center; }
 .auth-card--artist h1 { margin-bottom: 8px; font-size: clamp(1.55rem, 4vw, 1.9rem); }
 .artist-login-description { margin: 0 auto 24px; max-width: 38ch; color: #656273; font-size: 0.87rem; line-height: 1.65; text-align: center; }

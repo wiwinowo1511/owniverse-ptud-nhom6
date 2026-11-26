@@ -19,15 +19,15 @@
 
   function createNotificationItem(notification) {
     const item = document.createElement("li");
-    item.className = "notification-item";
+    item.className = "site-header__notification-item";
 
     const title = document.createElement("strong");
-    title.className = "notification-item_title";
+    title.className = "site-header__notification-item-title";
     title.textContent = notification.title || "Thông báo";
     item.appendChild(title);
 
     const message = document.createElement("p");
-    message.className = "notification-item_message";
+    message.className = "site-header__notification-item-message";
     message.textContent = notification.message || notification.body || "";
     item.appendChild(message);
 
@@ -35,7 +35,7 @@
       const date = new Date(notification.createdAt);
       if (!Number.isNaN(date.getTime())) {
         const time = document.createElement("time");
-        time.className = "notification-item_time";
+        time.className = "site-header__notification-item-time";
         time.dateTime = date.toISOString();
         time.textContent = date.toLocaleString("vi-VN");
         item.appendChild(time);
@@ -49,7 +49,7 @@
     list.replaceChildren();
     if (notifications.length === 0) {
       const empty = document.createElement("li");
-      empty.className = "notification-empty";
+      empty.className = "site-header__notification-empty";
       empty.textContent = "Không có thông báo";
       list.appendChild(empty);
       return;
@@ -66,51 +66,51 @@
   }
 
   function initNotificationMenu() {
-    const actions = document.querySelector(".header-actions");
+    const actions = document.querySelector(".site-header__actions");
     const cartLink = actions && actions.querySelector('a[href="cart.html"]');
     if (!actions || !cartLink) return;
 
-    let menu = actions.querySelector(".notification-menu");
+    let menu = actions.querySelector(".site-header__notification-menu");
     if (!menu) {
       menu = document.createElement("div");
-      menu.className = "notification-menu";
+      menu.className = "site-header__notification-menu";
       actions.insertBefore(menu, cartLink);
     }
 
-    let trigger = menu.querySelector(".notification-trigger");
+    let trigger = menu.querySelector(".site-header__notification-trigger");
     if (!trigger) {
       trigger = document.createElement("button");
-      trigger.className = "notification-trigger";
+      trigger.className = "site-header__notification-trigger";
       trigger.type = "button";
       trigger.setAttribute("aria-label", "Thông báo");
       trigger.setAttribute("aria-expanded", "false");
-      trigger.setAttribute("aria-controls", "notification-dropdown");
+      trigger.setAttribute("aria-controls", "site-header__notification-dropdown");
       trigger.innerHTML =
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ' +
         'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
         '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path>' +
-        '<path d="M10 21h4"></path></svg><span class="notification-indicator" hidden></span>';
+        '<path d="M10 21h4"></path></svg><span class="site-header__notification-indicator" hidden></span>';
       menu.appendChild(trigger);
     }
 
-    let dropdown = menu.querySelector(".notification-dropdown");
+    let dropdown = menu.querySelector(".site-header__notification-dropdown");
     if (!dropdown) {
       dropdown = document.createElement("section");
-      dropdown.className = "notification-dropdown";
-      dropdown.id = "notification-dropdown";
+      dropdown.className = "site-header__notification-dropdown";
+      dropdown.id = "site-header__notification-dropdown";
       dropdown.setAttribute("aria-label", "Thông báo gần đây");
       dropdown.hidden = true;
       dropdown.innerHTML =
-        '<div class="notification-dropdown_heading"><h2>Thông báo</h2></div>' +
-        '<ul class="notification-list" data-recent-notifications></ul>' +
-        '<a class="notification-view-all" href="noti.html">Xem tất cả</a>';
+        '<div class="site-header__notification-heading"><h2>Thông báo</h2></div>' +
+        '<ul class="site-header__notification-list" data-recent-notifications></ul>' +
+        '<a class="site-header__notification-all" href="noti.html">Xem tất cả</a>';
       menu.appendChild(dropdown);
     }
 
     function refreshNotifications() {
       const notifications = getNotifications();
       renderList(dropdown.querySelector("[data-recent-notifications]"), notifications.slice(0, 5));
-      trigger.querySelector(".notification-indicator").hidden = notifications.length === 0;
+      trigger.querySelector(".site-header__notification-indicator").hidden = notifications.length === 0;
       const label = notifications.length
         ? "Thông báo, " + notifications.length + " thông báo"
         : "Thông báo";

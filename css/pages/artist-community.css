@@ -485,7 +485,7 @@
   background: var(--bg-soft, #F3F4F6);
 }
 
-.fan-highlight_icon {
+.fan-highlight__icon {
   display: grid;
   width: 48px;
   height: 48px;
@@ -525,7 +525,7 @@
   border-radius: 14px;
 }
 
-.artist-panel_avatar {
+.artist-panel__avatar {
   width: 150px;
   aspect-ratio: 1;
   border-radius: 12px;
@@ -1250,7 +1250,7 @@
     padding: 14px;
   }
 
-  .artist-panel_avatar {
+  .artist-panel__avatar {
     width: 76px;
     border-radius: 9px;
   }
@@ -1273,7 +1273,7 @@
     padding: 16px;
   }
 
-  .fan-highlight_icon {
+  .fan-highlight__icon {
     width: 38px;
     height: 38px;
     flex-basis: 38px;

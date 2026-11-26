@@ -582,19 +582,10 @@ const PRODUCTS = [
   },
 ];
 
-
-
-
 /* ---------- 2. HÀM DÙNG CHUNG ---------- */
-
-
-
 
 // Trang chi tiết sản phẩm; id được truyền qua URL: product-detail.html?id=1
 const PRODUCT_DETAIL_PAGE = "product-detail.html";
-
-
-
 
 // Ảnh thay thế (SVG nhúng sẵn, không cần thêm file) khi ảnh gốc bị lỗi
 const PLACEHOLDER_IMAGE =
@@ -606,21 +597,12 @@ const PLACEHOLDER_IMAGE =
     "</svg>"
   );
 
-
-
-
 const priceFormatter = new Intl.NumberFormat("vi-VN");
-
-
-
 
 // Định dạng giá: 650000 -> "650.000đ"
 function formatPrice(price) {
   return priceFormatter.format(price) + "đ";
 }
-
-
-
 
 // Tìm sản phẩm theo id (chấp nhận id dạng số hoặc chuỗi từ URL)
 function getProductById(id) {
@@ -629,16 +611,10 @@ function getProductById(id) {
   }) || null;
 }
 
-
-
-
 // Tạo đường dẫn tới trang chi tiết kèm id
 function getProductDetailUrl(id) {
   return PRODUCT_DETAIL_PAGE + "?id=" + encodeURIComponent(id);
 }
-
-
-
 
 // Chống chèn mã HTML khi đưa dữ liệu vào template
 function escapeHtml(value) {
@@ -650,12 +626,8 @@ function escapeHtml(value) {
     .replace(/'/g, "&#39;");
 }
 
-
-
-
 /* ---------- 3. HIỂN THỊ SẢN PHẨM ---------- */
 /* ---------- 3.1. TÌM KIẾM, LỌC VÀ SẮP XẾP ---------- */
-
 
 // Chuẩn hóa chữ để tìm kiếm không phân biệt chữ hoa, chữ thường và dấu tiếng Việt
 function normalizeText(text) {
@@ -667,13 +639,9 @@ function normalizeText(text) {
     .trim();
 }
 
-
-
-
 // Kiểm tra danh mục cha và danh mục con
 function productMatchesCategory(product, selectedCategories) {
   if (selectedCategories.length === 0) return true;
-
 
   const categoryGroups = {
     "ao": ["ao-thun", "ao-khoac"],
@@ -682,47 +650,36 @@ function productMatchesCategory(product, selectedCategories) {
     "tui": ["tui-tote", "tui-deo-cheo"]
   };
 
-
   return selectedCategories.some(function (category) {
     if (category === product.category) return true;
-
 
     return categoryGroups[category]?.includes(product.category) || false;
   });
 }
 
-
-
-
 // Kiểm tra khoảng giá
 function productMatchesPrice(product, selectedPrices) {
   if (selectedPrices.length === 0) return true;
-
 
   return selectedPrices.some(function (range) {
     switch (range) {
       case "duoi-300":
         return product.price < 300000;
 
-
       case "300-500":
         return product.price >= 300000 && product.price <= 500000;
-
 
       case "500-1000":
         return product.price > 500000 && product.price <= 1000000;
 
-
       case "tren-1000":
         return product.price > 1000000;
-
 
       default:
         return false;
     }
   });
 }
-
 
 const PRODUCTS_PER_PAGE = 8;
 let currentPage = 1;
@@ -731,27 +688,21 @@ let currentPage = 1;
 function getFilteredProducts() {
   const searchInput = document.querySelector("#product-search");
 
-
   const keyword = normalizeText(searchInput?.value || "");
-
 
   const selectedArtists = Array.from(
     document.querySelectorAll('input[name="artist"]:checked')
   ).map(input => input.value.toLowerCase());
 
-
   const selectedCategories = Array.from(
     document.querySelectorAll('input[name="category"]:checked')
   ).map(input => input.value);
-
 
   const selectedPrices = Array.from(
     document.querySelectorAll('input[name="price"]:checked')
   ).map(input => input.value);
 
-
   const sortValue = document.querySelector(".products-toolbar_select")?.value || "popular";
-
 
   // Tìm kiếm và lọc sản phẩm
   let result = PRODUCTS.filter(function (product) {
@@ -762,19 +713,15 @@ function getFilteredProducts() {
         return searchable.includes(word);
       });
 
-
     const matchesArtist =
       selectedArtists.length === 0 ||
       selectedArtists.includes(product.artist.toLowerCase());
 
-
     const matchesCategory =
       productMatchesCategory(product, selectedCategories);
 
-
     const matchesPrice =
       productMatchesPrice(product, selectedPrices);
-
 
     return (
       matchesKeyword &&
@@ -784,7 +731,6 @@ function getFilteredProducts() {
     );
   });
 
-
   // Sắp xếp sản phẩm theo giá
   if (sortValue === "price-asc") {
     result.sort((a, b) => a.price - b.price);
@@ -792,12 +738,8 @@ function getFilteredProducts() {
     result.sort((a, b) => b.price - a.price);
   }
 
-
   return result;
 }
-
-
-
 
 // Cập nhật danh sách sản phẩm sau mỗi thao tác
 function updateProductList() {
@@ -840,12 +782,10 @@ function renderPagination(totalPages) {
   list.innerHTML = html;
 }
 
-
 // Số lượng sản phẩm này đang có trong giỏ (0 nếu chưa có hoặc chưa nạp cart-store.js)
 function getInCartQuantity(id) {
   return typeof getCartQuantity === "function" ? getCartQuantity(id) : 0;
 }
-
 
 // Tạo HTML cho một thẻ sản phẩm (giữ nguyên cấu trúc và class hiện tại)
 function createProductCardHtml(product) {
@@ -872,7 +812,6 @@ function createProductCardHtml(product) {
     </li>`;
 }
 
-
 // Cập nhật nút "Bỏ khỏi giỏ" trên các thẻ đang hiển thị (không vẽ lại cả danh sách)
 function syncCartButtons() {
   document.querySelectorAll(".product-card[data-product-id]").forEach(function (card) {
@@ -886,29 +825,17 @@ function syncCartButtons() {
 }
 document.addEventListener("cart:change", syncCartButtons);
 
-
-
-
 // Hiển thị danh sách sản phẩm vào .products-grid
 function renderProducts(list, totalCount) {
   const grid = document.querySelector(".products-grid");
   if (!grid) return;
 
-
-
-
   const countElement = document.querySelector(".products-toolbar__count");
   const products = Array.isArray(list) ? list : [];
-
-
-
 
   if (countElement) {
     countElement.textContent = "Hiển thị " + (typeof totalCount === "number" ? totalCount : products.length) + " sản phẩm";
   }
-
-
-
 
   if (products.length === 0) {
     grid.innerHTML = `
@@ -918,14 +845,8 @@ function renderProducts(list, totalCount) {
     return;
   }
 
-
-
-
   grid.innerHTML = products.map(createProductCardHtml).join("");
 }
-
-
-
 
 // Ảnh lỗi: thay bằng ảnh thay thế (sự kiện "error" không nổi bọt nên dùng capture)
 function handleProductImageError(event) {
@@ -936,21 +857,17 @@ function handleProductImageError(event) {
   }
 }
 
-
 /* ---------- 3.2. TÌM KIẾM TRÊN HEADER VÀ SỰ KIỆN LỌC ---------- */
 
-
 function initHeaderSearch() {
-  const toggle = document.querySelector("#search-toggle");
-  const panel = document.querySelector("#search-panel");
-  const form = document.querySelector("#search-form");
+  const toggle = document.querySelector("#site-header__search-toggle");
+  const panel = document.querySelector("#site-header__search-panel");
+  const form = document.querySelector("#site-header__search-form");
   const input = document.querySelector("#product-search");
-  const closeBtn = document.querySelector(".search-close");
+  const closeBtn = document.querySelector(".site-header__search-close");
   if (!toggle || !panel || !form || !input) return;
 
-
   const onProductsPage = !!document.querySelector(".products-grid");
-
 
   function openPanel() {
     panel.hidden = false;
@@ -958,20 +875,16 @@ function initHeaderSearch() {
     input.focus();
   }
 
-
   function closePanel() {
     panel.hidden = true;
     toggle.setAttribute("aria-expanded", "false");
   }
 
-
   toggle.addEventListener("click", function () {
     panel.hidden ? openPanel() : closePanel();
   });
 
-
   if (closeBtn) closeBtn.addEventListener("click", closePanel);
-
 
   document.addEventListener("keydown", function (event) {
     if (event.key === "Escape" && !panel.hidden) {
@@ -980,7 +893,6 @@ function initHeaderSearch() {
     }
   });
 
-
   // Đọc từ khóa từ URL (products.html?q=...)
   const query = new URLSearchParams(window.location.search).get("q");
   if (query) {
@@ -988,19 +900,15 @@ function initHeaderSearch() {
     openPanel();
   }
 
-
   // Trang khác: để form tự chuyển sang products.html?q=...
   if (!onProductsPage) return;
-
 
   // Trang sản phẩm: lọc ngay khi gõ
   input.addEventListener("input", updateProductList);
 
-
   form.addEventListener("submit", function (event) {
     event.preventDefault();
     updateProductList();
-
 
     const url = new URL(window.location.href);
     const keyword = input.value.trim();
@@ -1013,7 +921,6 @@ function initHeaderSearch() {
   });
 }
 
-
 // Bộ lọc chỉ chạy khi bấm "ÁP DỤNG"; sắp xếp thì vẫn đổi ngay khi chọn
 function initProductFilters() {
   const filterBox = document.querySelector(".products-filter");
@@ -1021,12 +928,10 @@ function initProductFilters() {
   const filterForm = document.querySelector(".products-filter_form");
   const sortSelect = document.querySelector(".products-toolbar_select");
 
-
   // Màn hình hẹp: nút bật/tắt bộ lọc (nút này chỉ hiện khi <= 991px, xem products.css)
   function isToggleVisible() {
     return !!filterToggle && getComputedStyle(filterToggle).display !== "none";
   }
-
 
   function setFilterOpen(open) {
     if (!filterBox || !filterToggle) return;
@@ -1034,19 +939,16 @@ function initProductFilters() {
     filterToggle.setAttribute("aria-expanded", String(open));
   }
 
-
   if (filterToggle) {
     filterToggle.addEventListener("click", function () {
       setFilterOpen(!filterBox.classList.contains("is-open"));
     });
   }
 
-
   if (filterForm) {
     filterForm.addEventListener("submit", function (event) {
       event.preventDefault();
       updateProductList();
-
 
       // Điện thoại/tablet: áp dụng xong thì thu gọn bộ lọc và đưa người dùng tới kết quả
       if (isToggleVisible()) {
@@ -1057,17 +959,14 @@ function initProductFilters() {
     });
   }
 
-
   if (sortSelect) sortSelect.addEventListener("change", updateProductList);
 }
 /* ---------- 4. KHỞI TẠO ---------- */
 document.addEventListener("DOMContentLoaded", function () {
   initHeaderSearch(); // chạy trước để điền từ khóa từ URL
 
-
   const grid = document.querySelector(".products-grid");
   if (!grid) return; // Trang khác chỉ dùng dữ liệu thì không render
-
 
   grid.addEventListener("error", handleProductImageError, true);
   initProductFilters();

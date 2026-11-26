@@ -20,15 +20,15 @@
   background: #ffffff;
   border-bottom: 1px solid #e5e7eb;
 }
-.checkout-theme .site-header .logo-wordmark,
-.checkout-theme .site-header .logo-subtext,
-.checkout-theme .site-header .main-nav a,
-.checkout-theme .site-header .action-link,
-.checkout-theme .site-header .account-circle { color: var(--ow-text); }
-.checkout-theme .site-header .logo-mark path { fill: #0b0b0f; }
-.checkout-theme .site-header .account-circle { border-color: #d0d5dd; }
-.checkout-theme .site-header .main-nav a:hover,
-.checkout-theme .site-header .action-link:hover { color: #7c3aed; }
+.checkout-theme .site-header .site-header__wordmark,
+.checkout-theme .site-header .site-header__subtext,
+.checkout-theme .site-header .site-header__nav a,
+.checkout-theme .site-header .site-header__action,
+.checkout-theme .site-header .site-header__account { color: var(--ow-text); }
+.checkout-theme .site-header .site-header__logo-mark path { fill: #0b0b0f; }
+.checkout-theme .site-header .site-header__account { border-color: #d0d5dd; }
+.checkout-theme .site-header .site-header__nav a:hover,
+.checkout-theme .site-header .site-header__action:hover { color: #7c3aed; }
 /* Shared OWNIVERSE footer retains its standard styling. */
 .checkout-theme a:focus-visible,
 .checkout-theme button:focus-visible,

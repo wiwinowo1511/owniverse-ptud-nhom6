@@ -183,14 +183,14 @@ function showToast(message) {
 // Tự gắn huy hiệu vào link "Giỏ hàng" ở header nếu trang chưa có sẵn
 // -> trang nào chỉ cần nạp cart-common.js + cart-store.js là có số lượng giỏ hàng.
 function ensureCartBadge() {
-  document.querySelectorAll('.action-link[href="' + CART_PAGE + '"]').forEach(function (link) {
+  document.querySelectorAll('.site-header__action[href="' + CART_PAGE + '"]').forEach(function (link) {
     link.setAttribute("aria-label", "Giỏ hàng");
     link.title = "Giỏ hàng";
     Array.from(link.childNodes).forEach(function (node) {
       if (node.nodeType === Node.TEXT_NODE) node.remove();
     });
 
-    let icon = link.querySelector(".cart-icon");
+    let icon = link.querySelector(".site-header__cart-icon");
     let svg = link.querySelector("svg");
     if (!svg) {
       svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -207,7 +207,7 @@ function ensureCartBadge() {
 
     if (!icon) {
       icon = document.createElement("span");
-      icon.className = "cart-icon";
+      icon.className = "site-header__cart-icon";
       link.insertBefore(icon, link.firstChild);
     }
     if (svg.parentNode !== icon) icon.appendChild(svg);
@@ -215,7 +215,7 @@ function ensureCartBadge() {
     let badge = icon.querySelector("[data-cart-count]") || link.querySelector("[data-cart-count]");
     if (!badge) {
       badge = document.createElement("span");
-      badge.className = "cart-badge";
+      badge.className = "site-header__cart-badge";
       badge.setAttribute("data-cart-count", "");
       badge.hidden = true;
       badge.textContent = "0";

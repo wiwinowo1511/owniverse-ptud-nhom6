@@ -140,7 +140,7 @@
   if (q) input.value = q;
 
   // Nút "Tìm kiếm" trên header: cuộn xuống ô tìm kiếm và đặt con trỏ vào đó
-  const headerSearch = document.querySelector('.header-actions a[href="#artist-search"]');
+  const headerSearch = document.querySelector('.site-header__actions a[href="#artist-search"]');
   if (headerSearch) {
     headerSearch.addEventListener("click", function (event) {
       event.preventDefault();

@@ -25,16 +25,16 @@
     1: {
       name: originalJoinedCard.querySelector(".community-name-line h3").textContent,
       fandom: originalJoinedCard.querySelector(".community-name-line span").textContent,
-      genre: originalJoinedCard.querySelector(".joined-community_info > p").textContent,
-      image: originalJoinedCard.querySelector(".joined-community_avatar img").getAttribute("src")
+      genre: originalJoinedCard.querySelector(".joined-community__info > p").textContent,
+      image: originalJoinedCard.querySelector(".joined-community__avatar img").getAttribute("src")
     }
   };
   discoverTemplates.forEach(function (template, artistId) {
     joinedDetails[artistId] = {
-      name: template.querySelector(".discover-card_title h3").textContent,
-      fandom: template.querySelector(".discover-card_title span").textContent,
-      genre: template.querySelector(".discover-card_details > p").textContent,
-      image: template.querySelector(".discover-card_cover img").getAttribute("src")
+      name: template.querySelector(".discover-card__title h3").textContent,
+      fandom: template.querySelector(".discover-card__title span").textContent,
+      genre: template.querySelector(".discover-card__details > p").textContent,
+      image: template.querySelector(".discover-card__cover img").getAttribute("src")
     };
   });
   if (joinedDetails[3]) joinedDetails[3].fandom = "VANTA";
@@ -61,12 +61,12 @@
   function renderJoinedCard(community) {
     const info = displayInfo(community);
     const card = originalJoinedCard.cloneNode(true);
-    const avatar = card.querySelector(".joined-community_avatar");
-    const image = card.querySelector(".joined-community_avatar img");
+    const avatar = card.querySelector(".joined-community__avatar");
+    const image = card.querySelector(".joined-community__avatar img");
     const links = card.querySelectorAll("a");
     const title = card.querySelector(".community-name-line h3");
     const label = card.querySelector(".community-name-line span");
-    const description = card.querySelector(".joined-community_info > p");
+    const description = card.querySelector(".joined-community__info > p");
     const badge = card.querySelector(".joined-badge");
     avatar.href = communityLink(info.artistId);
     avatar.setAttribute("aria-label", "Xem cộng đồng " + info.name);
@@ -89,7 +89,7 @@
     const card = document.createElement("article");
     card.className = "discover-card";
     const cover = document.createElement("a");
-    cover.className = "discover-card_cover";
+    cover.className = "discover-card__cover";
     cover.href = communityLink(info.artistId);
     cover.setAttribute("aria-label", "Khám phá cộng đồng " + info.name);
     const image = document.createElement("img");
@@ -99,14 +99,14 @@
     image.onerror = function () { this.style.display = "none"; };
     cover.appendChild(image);
     const coverLabel = document.createElement("span");
-    coverLabel.className = "discover-card_cover-label";
+    coverLabel.className = "discover-card__cover-label";
     coverLabel.textContent = info.fandom + " · " + info.name + " FAN COMMUNITY";
     cover.appendChild(coverLabel);
 
     const details = document.createElement("div");
-    details.className = "discover-card_details";
+    details.className = "discover-card__details";
     const title = document.createElement("div");
-    title.className = "discover-card_title";
+    title.className = "discover-card__title";
     const heading = document.createElement("h3");
     heading.textContent = info.name;
     const fandom = document.createElement("span");
@@ -115,7 +115,7 @@
     const genre = document.createElement("p");
     genre.textContent = info.genre;
     const link = document.createElement("a");
-    link.className = "discover-card_join";
+    link.className = "discover-card__join";
     link.href = communityLink(info.artistId);
     link.append(document.createTextNode("Khám phá cộng đồng "));
     const arrow = document.createElement("span");
@@ -133,10 +133,10 @@
     if (!template) return renderKairoDiscover(community);
     const card = template.cloneNode(true);
     card.querySelectorAll("a").forEach(link => { link.href = communityLink(info.artistId); });
-    card.querySelector(".discover-card_title h3").textContent = info.name;
-    card.querySelector(".discover-card_title span").textContent = info.fandom;
-    card.querySelector(".discover-card_details > p").textContent = info.genre;
-    const image = card.querySelector(".discover-card_cover img");
+    card.querySelector(".discover-card__title h3").textContent = info.name;
+    card.querySelector(".discover-card__title span").textContent = info.fandom;
+    card.querySelector(".discover-card__details > p").textContent = info.genre;
+    const image = card.querySelector(".discover-card__cover img");
     if (info.image) image.src = info.image;
     return card;
   }

@@ -232,7 +232,7 @@ function goToLogin(redirectTo, loginPage) {
 // Icon tài khoản dùng hai luồng: đã đăng nhập -> trang tài khoản,
 // chưa đăng nhập -> trang đăng nhập. Không hiển thị cảnh báo chuyển hướng.
 function initAccountAvatarLink() {
-    document.querySelectorAll(".account-circle").forEach(function (link) {
+    document.querySelectorAll(".site-header__account").forEach(function (link) {
         link.addEventListener("click", function (event) {
             event.preventDefault();
             if (typeof window.isArtistDemoSession === "function" && window.isArtistDemoSession()) {

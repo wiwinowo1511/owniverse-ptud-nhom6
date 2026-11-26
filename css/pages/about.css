@@ -201,16 +201,16 @@ img {
   margin-bottom: var(--about-space-4);
 }
 
-.about .breadcrumb_list,
-.about .breadcrumb_item {
+.about .breadcrumb__list,
+.about .breadcrumb__item {
   list-style: none;     /* tắt số thứ tự của <ol> */
   margin: 0;
   padding: 0;           /* tắt padding-left mặc định của <ol> */
 }
 
-.about .breadcrumb_item::marker { content: ""; }
+.about .breadcrumb__item::marker { content: ""; }
 
-.about .breadcrumb_list {
+.about .breadcrumb__list {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -221,39 +221,39 @@ img {
   color: var(--about-muted);
 }
 
-.about .breadcrumb_item {
+.about .breadcrumb__item {
   display: inline-flex;
   align-items: center;
   min-width: 0;
 }
 
-.about .breadcrumb_item + .breadcrumb_item::before {
+.about .breadcrumb__item + .breadcrumb__item::before {
   content: ">";
   margin-right: 8px;
   color: var(--about-text);
 }
 
-.about .breadcrumb_link {
+.about .breadcrumb__link {
   color: var(--about-muted);
   transition: color 0.2s ease;
 }
 
-.about .breadcrumb_item--current {
+.about .breadcrumb__item--current {
   font-weight: 600;
   color: var(--about-text);
 }
 
 /* ---- Layout hero ---- */
-.about-hero_grid {
+.about-hero__grid {
   display: grid;
   grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
   align-items: center;
   gap: var(--about-split-gap);
 }
 
-.about-hero_content { min-width: 0; }
+.about-hero__content { min-width: 0; }
 
-.about-hero_title {
+.about-hero__title {
   margin: 0 0 var(--about-space-3);
 
   font-family: var(--about-heading);
@@ -264,7 +264,7 @@ img {
   letter-spacing: -0.02em;
 }
 
-.about-hero_text {
+.about-hero__text {
   max-width: 480px;
   margin: 0 0 var(--about-space-4);
 
@@ -273,7 +273,7 @@ img {
   color: var(--about-muted);
 }
 
-.about-hero_media {
+.about-hero__media {
   width: 100%;
   aspect-ratio: 16 / 9;
   overflow: hidden;
@@ -283,7 +283,7 @@ img {
   border-radius: 4px;
 }
 
-.about-hero_image {
+.about-hero__image {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -299,14 +299,14 @@ img {
   background-color: var(--about-bg);
 }
 
-.about-story_grid {
+.about-story__grid {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
   align-items: center;
   gap: var(--about-split-gap);
 }
 
-.about-story_media {
+.about-story__media {
   width: 100%;
   aspect-ratio: 3 / 2;
   overflow: hidden;
@@ -316,21 +316,21 @@ img {
   border-radius: 4px;
 }
 
-.about-story_image {
+.about-story__image {
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center;
 }
 
-.about-story_content {
+.about-story__content {
   display: flex;
   flex-direction: column;
   gap: var(--about-space-2);
   min-width: 0;
 }
 
-.about-story_text {
+.about-story__text {
   font-size: clamp(14px, 0.4vw + 12.5px, 15px);
   line-height: 1.8;
   color: var(--about-muted);
@@ -345,7 +345,7 @@ img {
   background-color: var(--about-bg-soft);
 }
 
-.about-values_grid {
+.about-values__grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--about-grid-gap);
@@ -363,7 +363,7 @@ img {
               box-shadow 0.25s ease;
 }
 
-.value-card_number {
+.value-card__number {
   display: block;
   margin-bottom: var(--about-space-2);
 
@@ -374,7 +374,7 @@ img {
   color: var(--about-accent);
 }
 
-.value-card_title {
+.value-card__title {
   margin: 0 0 var(--about-space-1);
 
   font-family: var(--about-heading);
@@ -383,7 +383,7 @@ img {
   line-height: 1.4;
 }
 
-.value-card_text {
+.value-card__text {
   font-size: 14px;
   line-height: 1.7;
   color: var(--about-muted);
@@ -398,7 +398,7 @@ img {
   background-color: var(--about-bg);
 }
 
-.about-artists_subtext {
+.about-artists__subtext {
   margin-top: -12px;
   margin-bottom: var(--about-space-4);
 
@@ -407,7 +407,7 @@ img {
   color: var(--about-muted);
 }
 
-.about-artists_grid {
+.about-artists__grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--about-grid-gap);
@@ -426,14 +426,14 @@ img {
               box-shadow 0.25s ease;
 }
 
-.artist-card_media {
+.artist-card__media {
   width: 100%;
   aspect-ratio: 5 / 3;
   overflow: hidden;
   background-color: var(--about-placeholder);
 }
 
-.artist-card_image {
+.artist-card__image {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -441,7 +441,7 @@ img {
   transition: transform 0.4s ease;
 }
 
-.artist-card_name {
+.artist-card__name {
   margin: var(--about-space-2) var(--about-space-3) var(--about-space-1);
 
   font-family: var(--about-heading);
@@ -449,7 +449,7 @@ img {
   font-weight: 700;
 }
 
-.artist-card_link {
+.artist-card__link {
   display: inline-block;
   margin: 0 var(--about-space-3);
   padding: 4px 0;               /* tăng vùng chạm trên mobile */
@@ -470,7 +470,7 @@ img {
   padding: 0 0 var(--about-section-y);
 }
 
-.about-cta_box {
+.about-cta__box {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -484,9 +484,9 @@ img {
   border-radius: 4px;
 }
 
-.about-cta_content { min-width: 0; }
+.about-cta__content { min-width: 0; }
 
-.about-cta_title {
+.about-cta__title {
   margin: 0 0 var(--about-space-1);
 
   font-family: var(--about-heading);
@@ -495,13 +495,13 @@ img {
   line-height: 1.3;
 }
 
-.about-cta_text {
+.about-cta__text {
   font-size: clamp(14px, 0.4vw + 12.5px, 15px);
   line-height: 1.7;
   color: var(--about-muted);
 }
 
-.about-cta_box .btn { flex-shrink: 0; }
+.about-cta__box .btn { flex-shrink: 0; }
 
 /* ==========================================================================
    HIỆU ỨNG HOVER - chỉ áp dụng trên thiết bị có chuột
@@ -514,7 +514,7 @@ img {
     transform: translateY(-2px);
   }
 
-  .about .breadcrumb_link:hover { color: var(--about-accent); }
+  .about .breadcrumb__link:hover { color: var(--about-accent); }
 
   .value-card:hover {
     transform: translateY(-4px);
@@ -526,9 +526,9 @@ img {
     box-shadow: 0 8px 24px rgba(11, 11, 15, 0.08);
   }
 
-  .artist-card:hover .artist-card_image { transform: scale(1.04); }
+  .artist-card:hover .artist-card__image { transform: scale(1.04); }
 
-  .artist-card_link:hover {
+  .artist-card__link:hover {
     color: var(--about-text);
     border-bottom-color: var(--about-accent);
   }
@@ -545,11 +545,11 @@ img {
 
 /* ---------- Laptop nhỏ / Tablet ngang (<= 1024px) ---------- */
 @media (max-width: 1024px) {
-  .about-hero_grid {
+  .about-hero__grid {
     grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
   }
 
-  .about-story_grid {
+  .about-story__grid {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
@@ -561,26 +561,26 @@ img {
   }
 
   /* Hero và Story chuyển thành 1 cột */
-  .about-hero_grid,
-  .about-story_grid {
+  .about-hero__grid,
+  .about-story__grid {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .about-hero_content { max-width: 650px; }
-  .about-hero_text    { max-width: 560px; }
+  .about-hero__content { max-width: 650px; }
+  .about-hero__text    { max-width: 560px; }
 
   /* Values + Artists: 2 cột; card lẻ cuối cùng trải rộng để không bị mồ côi */
-  .about-values_grid,
-  .about-artists_grid {
+  .about-values__grid,
+  .about-artists__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .about-values_grid > :last-child:nth-child(odd),
-  .about-artists_grid > :last-child:nth-child(odd) {
+  .about-values__grid > :last-child:nth-child(odd),
+  .about-artists__grid > :last-child:nth-child(odd) {
     grid-column: 1 / -1;
   }
 
-  .about-cta_box {
+  .about-cta__box {
     padding: 32px 24px;
   }
 }
@@ -595,17 +595,17 @@ img {
     margin-bottom: 24px;
   }
 
-  .about .breadcrumb_list {
+  .about .breadcrumb__list {
     font-size: 11px;
     gap: 4px 6px;
   }
 
-  .about .breadcrumb_item + .breadcrumb_item::before {
+  .about .breadcrumb__item + .breadcrumb__item::before {
     margin-right: 6px;
   }
 
-  .about-hero_title { margin-bottom: 16px; }
-  .about-hero_text  { margin-bottom: 24px; line-height: 1.7; }
+  .about-hero__title { margin-bottom: 16px; }
+  .about-hero__text  { margin-bottom: 24px; line-height: 1.7; }
 
   .about .btn {
     min-height: 44px;             /* giữ vùng chạm tối thiểu 44px */
@@ -619,19 +619,19 @@ img {
   }
 
   /* Values + Artists: 1 cột */
-  .about-values_grid,
-  .about-artists_grid {
+  .about-values__grid,
+  .about-artists__grid {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .about-values_grid > :last-child:nth-child(odd),
-  .about-artists_grid > :last-child:nth-child(odd) {
+  .about-values__grid > :last-child:nth-child(odd),
+  .about-artists__grid > :last-child:nth-child(odd) {
     grid-column: auto;
   }
 
-  .value-card_text { font-size: 13px; }
+  .value-card__text { font-size: 13px; }
 
-  .about-artists_subtext {
+  .about-artists__subtext {
     margin-top: -8px;
     margin-bottom: 24px;
   }
@@ -639,20 +639,20 @@ img {
   /* CTA: xếp dọc, nút full-width cho dễ bấm */
   .about-cta { padding-bottom: 40px; }
 
-  .about-cta_box {
+  .about-cta__box {
     flex-direction: column;
     align-items: stretch;
     gap: 20px;
     padding: 26px 20px;
   }
 
-  .about-cta_box .btn { width: 100%; }
+  .about-cta__box .btn { width: 100%; }
 }
 
 /* ---------- Mobile nhỏ (<= 375px) ---------- */
 @media (max-width: 375px) {
-  .about-cta_box { padding: 22px 16px; }
-  .about .breadcrumb_list { font-size: 10.5px; }
+  .about-cta__box { padding: 22px 16px; }
+  .about .breadcrumb__list { font-size: 10.5px; }
 }
 
 /* ---------- Điện thoại xoay ngang (chiều cao thấp) ---------- */
@@ -679,23 +679,23 @@ img {
    ========================================================================== */
 
 @media (max-width: 768px) {
-  .about-hero_grid {
+  .about-hero__grid {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);  /* giữ 2 cột */
     align-items: center;
     gap: 16px;
   }
 
-  .about-hero_content {
+  .about-hero__content {
     max-width: none;
   }
 
-  .about-hero_title {
+  .about-hero__title {
     margin-bottom: 10px;
     font-size: clamp(18px, 5.2vw, 30px);   /* nhỏ lại để vừa nửa màn hình */
     line-height: 1.2;
   }
 
-  .about-hero_text {
+  .about-hero__text {
     max-width: none;
     margin-bottom: 14px;
     font-size: clamp(11px, 2.9vw, 15px);
@@ -712,12 +712,12 @@ img {
 
 /* Điện thoại nhỏ: thu gọn thêm cho vừa */
 @media (max-width: 420px) {
-  .about-hero_grid {
+  .about-hero__grid {
     grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
     gap: 12px;
   }
 
-  .about-hero_text {
+  .about-hero__text {
     font-size: 11px;
     line-height: 1.55;
   }

@@ -16,7 +16,7 @@
         "[data-add-to-cart]",
         "[data-buy-now]",
         "[data-detail-action='add']",
-        ".buy-form button[type='submit']",
+        ".product-detail__buy-form button[type='submit']",
         ".add-to-cart",
         ".btn-add-to-cart",
         ".btn-add-cart",
@@ -57,7 +57,7 @@
 
         const link = e.target.closest("a[href]");
         if (link && PROTECTED_PAGES.includes(pageOf(link.getAttribute("href")))) {
-            if (link.classList.contains("account-circle")) return;
+            if (link.classList.contains("site-header__account")) return;
             e.preventDefault();
             e.stopImmediatePropagation();
             askLogin(link.getAttribute("href"));
@@ -75,7 +75,7 @@
     document.addEventListener("submit", function (e) {
         if (isLoggedIn()) return;
 
-        const form = e.target.closest(".buy-form");
+        const form = e.target.closest(".product-detail__buy-form");
         if (!form) return;
 
         e.preventDefault();

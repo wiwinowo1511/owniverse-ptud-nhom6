@@ -29,7 +29,7 @@ const CATEGORY_LABELS = {
 
 
 document.addEventListener("DOMContentLoaded", function () {
-  const form = document.querySelector(".buy-form");
+  const form = document.querySelector(".product-detail__buy-form");
   if (!form) return;
 
 
@@ -88,7 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 function setupProductTabs(product) {
-  const tabs = Array.from(document.querySelectorAll(".product-tab[role='tab']"));
+  const tabs = Array.from(document.querySelectorAll(".product-detail__tab[role='tab']"));
   const panels = tabs.map(function (tab) {
     return document.getElementById(tab.getAttribute("aria-controls"));
   });
@@ -155,15 +155,15 @@ const DEMO_PRODUCT_REVIEWS = [
 
 
 function setupProductReviews(product) {
-  const summary = document.querySelector(".reviews-summary");
-  const reviewList = document.getElementById("review-list");
-  const filter = document.getElementById("reviews-filter");
-  const formWrap = document.getElementById("review-form-wrap");
-  const form = document.getElementById("review-form");
-  const writeButton = document.getElementById("reviews-write-button");
+  const summary = document.querySelector(".product-detail__reviews-summary");
+  const reviewList = document.getElementById("product-detail__review-list");
+  const filter = document.getElementById("product-detail__reviews-filter");
+  const formWrap = document.getElementById("product-detail__review-form-wrap");
+  const form = document.getElementById("product-detail__review-form");
+  const writeButton = document.getElementById("product-detail__reviews-write");
   const cancelButton = document.getElementById("review-cancel-button");
-  const status = document.getElementById("review-form-status");
-  const ratingFieldset = document.querySelector(".review-rating-fieldset");
+  const status = document.getElementById("product-detail__review-form-status");
+  const ratingFieldset = document.querySelector(".product-detail__review-rating");
 
   if (
     !summary || !reviewList || !filter || !formWrap ||
@@ -190,20 +190,20 @@ function setupProductReviews(product) {
       const count = reviews.filter(function (review) { return review.rating === rating; }).length;
       const percent = total ? Math.round((count / total) * 100) : 0;
       return `
-        <div class="rating-breakdown-row">
+        <div class="product-detail__rating-row">
           <span>${rating} sao</span>
-          <span class="rating-breakdown-track" aria-hidden="true"><span style="width:${percent}%"></span></span>
+          <span class="product-detail__rating-track" aria-hidden="true"><span style="width:${percent}%"></span></span>
           <span>${count}</span>
         </div>`;
     }).join("");
 
     summary.innerHTML = `
-      <div class="reviews-score">
+      <div class="product-detail__reviews-score">
         <strong>${average.toFixed(1)}</strong>
-        <span class="review-stars" aria-label="Trung bình ${average.toFixed(1)} trên 5 sao">${renderStars(Math.round(average))}</span>
+        <span class="product-detail__review-stars" aria-label="Trung bình ${average.toFixed(1)} trên 5 sao">${renderStars(Math.round(average))}</span>
         <span>${total} đánh giá</span>
       </div>
-      <div class="rating-breakdown" aria-label="Phân bố số sao">${ratingRows}</div>`;
+      <div class="product-detail__rating-breakdown" aria-label="Phân bố số sao">${ratingRows}</div>`;
   }
 
   function renderList() {
@@ -218,19 +218,19 @@ function setupProductReviews(product) {
     renderSummary(reviews);
 
     if (!visibleReviews.length) {
-      reviewList.innerHTML = '<p class="reviews-empty">Chưa có đánh giá ở mức sao này.</p>';
+      reviewList.innerHTML = '<p class="product-detail__reviews-empty">Chưa có đánh giá ở mức sao này.</p>';
       return;
     }
 
     reviewList.innerHTML = visibleReviews.map(function (review) {
       return `
-        <article class="review-card">
-          <div class="review-card-heading">
-            <div class="review-author">
-              <span class="review-avatar" aria-hidden="true">${escapeHtml(getReviewInitials(review.name))}</span>
+        <article class="product-detail__review-card">
+          <div class="product-detail__review-card-heading">
+            <div class="product-detail__review-author">
+              <span class="product-detail__review-avatar" aria-hidden="true">${escapeHtml(getReviewInitials(review.name))}</span>
               <div><h3>${escapeHtml(review.name)}</h3><span>${escapeHtml(review.date)}</span></div>
             </div>
-            <span class="review-card-stars" aria-label="${review.rating} trên 5 sao">${renderStars(review.rating)}</span>
+            <span class="product-detail__review-card-stars" aria-label="${review.rating} trên 5 sao">${renderStars(review.rating)}</span>
           </div>
           <p>${escapeHtml(review.text)}</p>
         </article>`;
@@ -376,11 +376,11 @@ function fillProductInfo(product) {
 
 
   document.title = product.name + " | Owniverse";
-  setText(".product-title", product.name);
-  setText(".product-price", formatPrice(product.price));
-  setText(".product-summary", product.description);
-  setText(".product-artist a", product.artist);
-  setText(".product-badge", "Danh mục: " + (CATEGORY_LABELS[product.category] || product.category));
+  setText(".product-detail__title", product.name);
+  setText(".product-detail__price", formatPrice(product.price));
+  setText(".product-detail__summary", product.description);
+  setText(".product-detail__artist a", product.artist);
+  setText(".product-detail__badge", "Danh mục: " + (CATEGORY_LABELS[product.category] || product.category));
   setText('.breadcrumb [aria-current="page"]', product.name);
 
 
@@ -395,7 +395,7 @@ const MAX_GALLERY_IMAGES = 4;
 
 
 function renderGallery(product) {
-  const gallery = document.querySelector(".gallery");
+  const gallery = document.querySelector(".product-detail__gallery");
   if (!gallery) return;
 
 
@@ -406,32 +406,32 @@ function renderGallery(product) {
 
 
   const slides = images.map(function (path, i) {
-    return '<img class="gallery-slide' + (i === 0 ? " is-active" : "") + '" src="' + src(path) +
+    return '<img class="product-detail__gallery-slide' + (i === 0 ? " is-active" : "") + '" src="' + src(path) +
       '" alt="' + name + " - ảnh " + (i + 1) + '"' + (i === 0 ? "" : " hidden") + '>';
   }).join("");
 
 
   // Chỉ 1 ảnh thì không cần thumbnail
   const thumbs = images.length < 2 ? "" :
-    '<div class="gallery-thumbs" role="group" aria-label="Ảnh sản phẩm">' + images.map(function (path, i) {
-      return '<button class="gallery-thumb' + (i === 0 ? " is-active" : "") +
+    '<div class="product-detail__gallery-thumbs" role="group" aria-label="Ảnh sản phẩm">' + images.map(function (path, i) {
+      return '<button class="product-detail__gallery-thumb' + (i === 0 ? " is-active" : "") +
         '" type="button" data-gallery-index="' + i + '" aria-label="Xem ảnh ' + (i + 1) +
         '" aria-pressed="' + (i === 0 ? "true" : "false") + '">' +
         '<img src="' + src(path) + '" alt="" loading="lazy"></button>';
     }).join("") + "</div>";
 
 
-  gallery.innerHTML = '<div class="gallery-main">' + slides + "</div>" + thumbs;
+  gallery.innerHTML = '<div class="product-detail__gallery-main">' + slides + "</div>" + thumbs;
   gallery.addEventListener("click", function (event) {
-    const thumb = event.target.closest(".gallery-thumb");
+    const thumb = event.target.closest(".product-detail__gallery-thumb");
     if (!thumb || !gallery.contains(thumb)) return;
 
     const selectedIndex = Number(thumb.dataset.galleryIndex);
-    gallery.querySelectorAll(".gallery-slide").forEach(function (slide, i) {
+    gallery.querySelectorAll(".product-detail__gallery-slide").forEach(function (slide, i) {
       slide.hidden = i !== selectedIndex;
       slide.classList.toggle("is-active", i === selectedIndex);
     });
-    gallery.querySelectorAll(".gallery-thumb").forEach(function (button, i) {
+    gallery.querySelectorAll(".product-detail__gallery-thumb").forEach(function (button, i) {
       const selected = i === selectedIndex;
       button.classList.toggle("is-active", selected);
       button.setAttribute("aria-pressed", String(selected));
@@ -442,7 +442,7 @@ function renderGallery(product) {
 
 // Câu trích dẫn: chỉ hiện khi sản phẩm có quote
 function renderQuote(product) {
-  const quote = document.querySelector(".product-quote");
+  const quote = document.querySelector(".product-detail__quote");
   if (!quote) return;
   quote.textContent = product.quote || "";
   quote.hidden = !product.quote;
@@ -451,7 +451,7 @@ function renderQuote(product) {
 
 // Mô tả sản phẩm: bảng "Thông tin sản phẩm" (specs) + "Giới thiệu" (intro, mặc định lấy description)
 function renderDetailBox(product) {
-  const box = document.querySelector(".detail-box");
+  const box = document.querySelector(".product-detail__detail-box");
   if (!box) return;
 
 
@@ -460,21 +460,21 @@ function renderDetailBox(product) {
 
 
   const specsHtml = specs.length === 0 ? "" :
-    '<div class="detail-specs"><h3>Thông tin sản phẩm</h3><dl class="spec-list">' +
+    '<div class="product-detail__detail-specs"><h3>Thông tin sản phẩm</h3><dl class="product-detail__spec-list">' +
     specs.map(function (item) {
       return "<div><dt>" + escapeHtml(item.label) + "</dt><dd>" + escapeHtml(item.value) + "</dd></div>";
     }).join("") + "</dl></div>";
 
 
-  box.classList.toggle("detail-box--single", specs.length === 0);
+  box.classList.toggle("product-detail__detail-box--single", specs.length === 0);
   box.innerHTML = specsHtml +
-    '<div class="detail-intro"><h3>Giới thiệu</h3><p>' + escapeHtml(intro) + "</p></div>";
+    '<div class="product-detail__detail-intro"><h3>Giới thiệu</h3><p>' + escapeHtml(intro) + "</p></div>";
 }
 
 
 // Sản phẩm liên quan: cùng nghệ sĩ (ưu tiên) hoặc cùng danh mục, bỏ sản phẩm đang xem, tối đa 4
 function renderRelatedProducts(current) {
-  const grid = document.querySelector(".related-grid");
+  const grid = document.querySelector(".product-detail__related-grid");
   if (!grid) return;
 
 
@@ -494,12 +494,12 @@ function renderRelatedProducts(current) {
   grid.innerHTML = related.map(function (p) {
     const name = escapeHtml(p.name);
     return `
-    <article class="related-card">
-      <div class="related-thumb">
+    <article class="product-detail__related-card">
+      <div class="product-detail__related-thumb">
         <img src="${escapeHtml(encodeURI(p.image))}" alt="${name}" loading="lazy">
       </div>
-      <h3 class="related-name">${name}</h3>
-      <p class="related-price">${formatPrice(p.price)}</p>
+      <h3 class="product-detail__related-name">${name}</h3>
+      <p class="product-detail__related-price">${formatPrice(p.price)}</p>
       <a href="${getProductDetailUrl(p.id)}" class="btn btn-secondary">Xem chi tiết</a>
     </article>`;
   }).join("");
@@ -509,7 +509,7 @@ function renderRelatedProducts(current) {
 // Ảnh lỗi trên trang chi tiết: thay bằng ảnh thay thế (sự kiện "error" không nổi bọt nên dùng capture)
 function handleDetailImageError(event) {
   const img = event.target;
-  if (img.tagName === "IMG" && img.matches(".gallery-slide, .gallery-thumb img, .related-thumb img") && img.src !== PLACEHOLDER_IMAGE) {
+  if (img.tagName === "IMG" && img.matches(".product-detail__gallery-slide, .product-detail__gallery-thumb img, .product-detail__related-thumb img") && img.src !== PLACEHOLDER_IMAGE) {
     img.src = PLACEHOLDER_IMAGE;
   }
 }

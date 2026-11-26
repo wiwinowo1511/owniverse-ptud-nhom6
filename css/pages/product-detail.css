@@ -73,8 +73,8 @@
 
 /* Đảm bảo header/footer luôn có lề trái/phải bằng với nội dung,
    kể cả khi CSS header đặt lại padding ở màn hình nhỏ */
-.site-header .header-inner,
-.site-footer .footer-container {
+.site-header .site-header__inner,
+.site-footer .site-footer__container {
   padding-inline: clamp(16px, 4vw, 24px);
 }
 
@@ -209,7 +209,7 @@
 
 
 /* ---------- 3. Thư viện ảnh ---------- */
-.gallery {
+.product-detail__gallery {
   position: relative;
   display: grid;
   gap: 12px;
@@ -219,7 +219,7 @@
 
 /* Điện thoại: giới hạn bề rộng để ảnh không quá to */
 @media (max-width: 699px) {
-  .gallery {
+  .product-detail__gallery {
     width: 100%;
     max-width: 460px;
     margin-inline: auto;
@@ -227,7 +227,7 @@
 }
 
 
-.gallery-main {
+.product-detail__gallery-main {
   display: grid;
   place-items: center;
   aspect-ratio: 4 / 5;
@@ -239,13 +239,13 @@
 
 /* Điện thoại: khung ảnh vuông -> thấy được tên và giá sớm hơn */
 @media (max-width: 699px) {
-  .gallery-main {
+  .product-detail__gallery-main {
     aspect-ratio: 1 / 1;
   }
 }
 
 
-.gallery-slide {
+.product-detail__gallery-slide {
   display: none;
   width: 100%;
   height: 100%;
@@ -254,24 +254,24 @@
 }
 
 
-.gallery-slide.is-active {
+.product-detail__gallery-slide.is-active {
   display: block;
 }
 
 
-.gallery-slide[hidden] {
+.product-detail__gallery-slide[hidden] {
   display: none;
 }
 
 
-.gallery-thumbs {
+.product-detail__gallery-thumbs {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: clamp(8px, 1.6vw, 12px);
 }
 
 
-.gallery-thumb {
+.product-detail__gallery-thumb {
   display: block;
   width: 100%;
   aspect-ratio: 1;
@@ -286,13 +286,13 @@
 }
 
 
-.gallery-thumb.is-active {
+.product-detail__gallery-thumb.is-active {
   opacity: 1;
   border-color: var(--pd-purple);
 }
 
 
-.gallery-thumb img {
+.product-detail__gallery-thumb img {
   width: 100%;
   height: 100%;
   object-fit: cover;                   /* thumbnail vuông, lấp đầy khung */
@@ -300,19 +300,19 @@
 }
 
 
-.gallery-thumb:focus-visible {
+.product-detail__gallery-thumb:focus-visible {
   outline: 3px solid var(--pd-black);
   outline-offset: 2px;
 }
 
 
 /* ---------- 4. Cột thông tin sản phẩm ---------- */
-.product-info {
+.product-detail__info {
   min-width: 0;
 }
 
 
-.product-badge {
+.product-detail__badge {
   display: inline-block;
   padding: 5px 14px;
   margin-bottom: 14px;
@@ -324,7 +324,7 @@
 }
 
 
-.product-title {
+.product-detail__title {
   margin: 0 0 8px;
   font-family: var(--pd-heading);
   font-size: clamp(1.75rem, 2vw + 1rem, 2.7rem);   /* 28px (mobile) -> 43px (desktop) */
@@ -334,13 +334,13 @@
 }
 
 
-.product-artist {
+.product-detail__artist {
   margin: 0;
   color: var(--pd-muted);
 }
 
 
-.product-artist a {
+.product-detail__artist a {
   font-weight: 600;
   color: var(--pd-black);
   text-decoration: underline;
@@ -350,7 +350,7 @@
 }
 
 
-.product-price {
+.product-detail__price {
   margin: clamp(14px, 2.4vw, 20px) 0;
   font-family: var(--pd-heading);
   font-size: clamp(1.6rem, 1.6vw + 1rem, 2.1rem);
@@ -359,7 +359,7 @@
 }
 
 
-.product-summary {
+.product-detail__summary {
   max-width: 60ch;                     /* giới hạn độ dài dòng cho dễ đọc */
   margin: 0;
   font-size: clamp(0.94rem, 0.3vw + 0.88rem, 1rem);
@@ -368,7 +368,7 @@
 }
 
 
-.product-quote {
+.product-detail__quote {
   margin: 20px 0 0;
   padding: 12px 16px;
   border-left: 3px solid var(--pd-purple);
@@ -379,7 +379,7 @@
 
 
 /* ---------- 5. Số lượng + nút mua hàng ---------- */
-.buy-form {
+.product-detail__buy-form {
   display: grid;
   gap: 16px;
   margin-top: clamp(20px, 3vw, 28px);
@@ -413,7 +413,7 @@
 }
 
 
-.buy-actions {
+.product-detail__buy-actions {
   display: flex;
   flex-wrap: wrap;                     /* màn hình hẹp: nút tự xuống dòng */
   gap: 12px;
@@ -475,7 +475,7 @@
 
 
 /* ---------- 6. Dải cam kết ---------- */
-.trust-strip {
+.product-detail__trust-strip {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
@@ -486,7 +486,7 @@
 }
 
 
-.trust-item {
+.product-detail__trust-item {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -497,7 +497,7 @@
 }
 
 
-.trust-icon {
+.product-detail__trust-icon {
   display: grid;
   place-items: center;
   flex-shrink: 0;
@@ -519,7 +519,7 @@
 }
 
 
-.detail-box {
+.product-detail__detail-box {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
   gap: 32px clamp(32px, 5vw, 56px);
@@ -529,7 +529,7 @@
 }
 
 
-.detail-box h3 {
+.product-detail__detail-box h3 {
   margin: 0 0 12px;
   font-family: var(--pd-heading);
   font-size: 1.1rem;
@@ -537,7 +537,7 @@
 }
 
 
-.detail-intro p {
+.product-detail__detail-intro p {
   margin: 0;
   max-width: 62ch;
   line-height: 1.8;
@@ -545,12 +545,12 @@
 }
 
 
-.spec-list {
+.product-detail__spec-list {
   margin: 0;
 }
 
 
-.spec-list > div {
+.product-detail__spec-list > div {
   display: grid;
   grid-template-columns: 8rem minmax(0, 1fr);   /* cột tên cố định, cột giá trị co giãn */
   gap: 16px;
@@ -559,23 +559,23 @@
 }
 
 
-.spec-list > div:first-child {
+.product-detail__spec-list > div:first-child {
   padding-top: 0;
 }
 
 
-.spec-list > div:last-child {
+.product-detail__spec-list > div:last-child {
   padding-bottom: 0;
   border-bottom: 0;
 }
 
 
-.spec-list dt {
+.product-detail__spec-list dt {
   font-weight: 700;
 }
 
 
-.spec-list dd {
+.product-detail__spec-list dd {
   margin: 0;
   line-height: 1.6;
   color: var(--pd-text);
@@ -583,14 +583,14 @@
 
 
 /* ---------- 8. Sản phẩm liên quan ---------- */
-.related-grid {
+.product-detail__related-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: clamp(14px, 2.4vw, 24px);
 }
 
 
-.related-card {
+.product-detail__related-card {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -598,7 +598,7 @@
 }
 
 
-.related-thumb {
+.product-detail__related-thumb {
   aspect-ratio: 1;
   margin-bottom: 8px;
   overflow: hidden;                    /* cắt ảnh theo góc bo tròn */
@@ -607,29 +607,29 @@
 }
 
 
-.related-thumb img {
+.product-detail__related-thumb img {
   width: 100%;
   height: 100%;
   object-fit: cover;                   /* ảnh lấp đầy khung vuông, không bị méo */
-  object-position: center top;         /* giống thumbnail ở gallery */
+  object-position: center top;         /* giống thumbnail ở product-detail__gallery */
   transition: transform var(--pd-ease);
 }
 
 
-.related-name {
+.product-detail__related-name {
   margin: 0;
   font-weight: 700;
   font-size: clamp(0.92rem, 0.4vw + 0.84rem, 1rem);
 }
 
 
-.related-price {
+.product-detail__related-price {
   margin: 0 0 8px;
   color: var(--pd-muted);
 }
 
 
-.product-page .related-card .btn {
+.product-page .product-detail__related-card .btn {
   flex: none;                          /* bỏ flex-basis của .btn-secondary */
   width: 100%;
   min-height: 44px;
@@ -656,7 +656,7 @@
   }
 
 
-  .gallery-thumb:hover { opacity: 1; }
+  .product-detail__gallery-thumb:hover { opacity: 1; }
 
 
   .product-page .btn-primary:hover {
@@ -674,7 +674,7 @@
   }
 
 
-  .related-card:hover .related-thumb img { transform: scale(1.05); }
+  .product-detail__related-card:hover .product-detail__related-thumb img { transform: scale(1.05); }
 }
 
 
@@ -683,7 +683,7 @@
 
 /* Laptop nhỏ / tablet ngang: dải cam kết 2 cột */
 @media (max-width: 1024px) {
-  .trust-strip {
+  .product-detail__trust-strip {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -691,12 +691,12 @@
 
 /* Tablet dọc */
 @media (max-width: 900px) {
-  .detail-box {
+  .product-detail__detail-box {
     grid-template-columns: minmax(0, 1fr);
   }
 
 
-  .related-grid {
+  .product-detail__related-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -704,23 +704,23 @@
 
 /* Điện thoại */
 @media (max-width: 480px) {
-  .trust-strip {
+  .product-detail__trust-strip {
     grid-template-columns: minmax(0, 1fr);
     padding: 16px;
   }
 
 
-  .trust-item {
+  .product-detail__trust-item {
     justify-content: flex-start;
   }
 
 
-  .detail-box {
+  .product-detail__detail-box {
     padding: 20px 16px;
   }
 
 
-  .spec-list > div {
+  .product-detail__spec-list > div {
     grid-template-columns: minmax(0, 1fr);
     gap: 2px;
   }
@@ -741,8 +741,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .product-page .btn,
-  .gallery-thumb,
-  .related-thumb img {
+  .product-detail__gallery-thumb,
+  .product-detail__related-thumb img {
     transition: none;
   }
 
@@ -791,13 +791,13 @@
 
 
 /* Sản phẩm không có bảng thông số chi tiết: chỉ còn phần giới thiệu */
-.detail-box--single {
+.product-detail__detail-box--single {
   grid-template-columns: minmax(0, 1fr);
 }
 
 
 /* ---------- Tab mô tả và đánh giá ---------- */
-.product-tabs {
+.product-detail__tabs {
   display: flex;
   gap: clamp(24px, 5vw, 48px);
   margin-top: clamp(40px, 7vw, 64px);
@@ -805,7 +805,7 @@
 }
 
 
-.product-tab {
+.product-detail__tab {
   position: relative;
   min-height: 52px;
   padding: 10px 2px 12px;
@@ -818,7 +818,7 @@
 }
 
 
-.product-tab::after {
+.product-detail__tab::after {
   position: absolute;
   right: 0;
   bottom: -1px;
@@ -833,24 +833,24 @@
 }
 
 
-.product-tab.is-active {
+.product-detail__tab.is-active {
   color: var(--pd-black);
   font-weight: 700;
 }
 
 
-.product-tab.is-active::after {
+.product-detail__tab.is-active::after {
   transform: scaleX(1);
 }
 
 
-.product-tab-panel {
+.product-detail__tab-panel {
   animation: product-panel-enter 0.22s ease both;
 }
 
 
-.product-tab-panel[hidden],
-.review-form-wrap[hidden] {
+.product-detail__tab-panel[hidden],
+.product-detail__review-form-wrap[hidden] {
   display: none !important;
 }
 
@@ -867,19 +867,19 @@
 }
 
 
-.reviews-panel .section-title {
+.product-detail__reviews-panel .section-title {
   margin: 20px 0 8px;
 }
 
 
-.reviews-demo-note {
+.product-detail__reviews-note {
   margin-bottom: 18px;
   color: var(--pd-muted);
   font-size: 0.82rem;
 }
 
 
-.reviews-summary {
+.product-detail__reviews-summary {
   display: grid;
   grid-template-columns: minmax(170px, 0.75fr) minmax(0, 1.25fr);
   gap: clamp(20px, 4vw, 48px);
@@ -891,7 +891,7 @@
 }
 
 
-.reviews-score {
+.product-detail__reviews-score {
   display: grid;
   justify-items: center;
   gap: 5px;
@@ -899,7 +899,7 @@
 }
 
 
-.reviews-score > strong {
+.product-detail__reviews-score > strong {
   font-family: var(--pd-heading);
   font-size: clamp(2.5rem, 5vw, 3.5rem);
   font-weight: 700;
@@ -907,14 +907,14 @@
 }
 
 
-.reviews-score > span:last-child {
+.product-detail__reviews-score > span:last-child {
   color: var(--pd-muted);
   font-size: 0.84rem;
 }
 
 
-.review-stars,
-.review-card-stars {
+.product-detail__review-stars,
+.product-detail__review-card-stars {
   color: #80621B;
   font-size: 1rem;
   letter-spacing: 0.08em;
@@ -922,13 +922,13 @@
 }
 
 
-.rating-breakdown {
+.product-detail__rating-breakdown {
   display: grid;
   gap: 8px;
 }
 
 
-.rating-breakdown-row {
+.product-detail__rating-row {
   display: grid;
   grid-template-columns: 44px minmax(0, 1fr) 24px;
   align-items: center;
@@ -938,7 +938,7 @@
 }
 
 
-.rating-breakdown-track {
+.product-detail__rating-track {
   height: 8px;
   overflow: hidden;
   border-radius: var(--pd-pill);
@@ -946,7 +946,7 @@
 }
 
 
-.rating-breakdown-track > span {
+.product-detail__rating-track > span {
   display: block;
   height: 100%;
   border-radius: inherit;
@@ -955,7 +955,7 @@
 }
 
 
-.reviews-toolbar {
+.product-detail__reviews-toolbar {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
@@ -964,7 +964,7 @@
 }
 
 
-.reviews-filter {
+.product-detail__reviews-filter {
   display: grid;
   gap: 5px;
   color: var(--pd-text);
@@ -973,9 +973,9 @@
 }
 
 
-.reviews-filter select,
-.review-form input[type="text"],
-.review-form textarea {
+.product-detail__reviews-filter select,
+.product-detail__review-form input[type="text"],
+.product-detail__review-form textarea {
   width: 100%;
   min-height: 42px;
   padding: 9px 11px;
@@ -987,22 +987,22 @@
 }
 
 
-.reviews-filter select {
+.product-detail__reviews-filter select {
   min-width: 190px;
   cursor: pointer;
 }
 
 
-.reviews-filter select:focus-visible,
-.review-form input:focus-visible,
-.review-form textarea:focus-visible,
-.review-rating-options input:focus-visible + span {
+.product-detail__reviews-filter select:focus-visible,
+.product-detail__review-form input:focus-visible,
+.product-detail__review-form textarea:focus-visible,
+.product-detail__review-rating-options input:focus-visible + span {
   outline: 2.5px solid var(--pd-purple);
   outline-offset: 3px;
 }
 
 
-.product-page .reviews-write-button {
+.product-page .product-detail__reviews-write {
   min-height: 44px;
   flex: 0 0 auto;
   padding-inline: 20px;
@@ -1010,12 +1010,12 @@
 }
 
 
-.review-form-wrap {
+.product-detail__review-form-wrap {
   margin-bottom: 16px;
 }
 
 
-.review-form {
+.product-detail__review-form {
   display: grid;
   gap: 10px;
   padding: clamp(16px, 3vw, 24px);
@@ -1025,28 +1025,28 @@
 }
 
 
-.review-form > h3 {
+.product-detail__review-form > h3 {
   margin: 0;
   font-family: var(--pd-heading);
   font-size: 1.08rem;
 }
 
 
-.review-form > label,
-.review-rating-fieldset legend {
+.product-detail__review-form > label,
+.product-detail__review-rating legend {
   color: var(--pd-text);
   font-size: 0.82rem;
   font-weight: 600;
 }
 
 
-.review-form textarea {
+.product-detail__review-form textarea {
   min-height: 120px;
   resize: vertical;
 }
 
 
-.review-rating-fieldset {
+.product-detail__review-rating {
   display: grid;
   gap: 6px;
   margin: 0;
@@ -1055,13 +1055,13 @@
 }
 
 
-.review-rating-options {
+.product-detail__review-rating-options {
   display: flex;
   gap: 3px;
 }
 
 
-.review-rating-options label {
+.product-detail__review-rating-options label {
   display: inline-flex;
   width: 36px;
   height: 36px;
@@ -1075,7 +1075,7 @@
 }
 
 
-.review-rating-options input {
+.product-detail__review-rating-options input {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -1086,28 +1086,28 @@
 }
 
 
-.review-rating-fieldset[data-rating="1"] label:nth-child(-n+1),
-.review-rating-fieldset[data-rating="2"] label:nth-child(-n+2),
-.review-rating-fieldset[data-rating="3"] label:nth-child(-n+3),
-.review-rating-fieldset[data-rating="4"] label:nth-child(-n+4),
-.review-rating-fieldset[data-rating="5"] label:nth-child(-n+5),
-.review-rating-options label:has(input:checked) {
+.product-detail__review-rating[data-rating="1"] label:nth-child(-n+1),
+.product-detail__review-rating[data-rating="2"] label:nth-child(-n+2),
+.product-detail__review-rating[data-rating="3"] label:nth-child(-n+3),
+.product-detail__review-rating[data-rating="4"] label:nth-child(-n+4),
+.product-detail__review-rating[data-rating="5"] label:nth-child(-n+5),
+.product-detail__review-rating-options label:has(input:checked) {
   color: #80621B;
 }
 
 
-.review-rating-options label:hover {
+.product-detail__review-rating-options label:hover {
   background: #F0EAFB;
 }
 
 
-.review-form-status {
+.product-detail__review-form-status {
   color: #A12626;
   font-size: 0.82rem;
 }
 
 
-.review-form-actions {
+.product-detail__review-form-actions {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
@@ -1115,7 +1115,7 @@
 }
 
 
-.product-page .review-form-actions .btn {
+.product-page .product-detail__review-form-actions .btn {
   min-height: 44px;
   flex: 0 1 170px;
   padding-inline: 16px;
@@ -1123,14 +1123,14 @@
 }
 
 
-.review-list {
+.product-detail__review-list {
   display: grid;
   gap: 12px;
   scroll-margin-top: 24px;
 }
 
 
-.review-card {
+.product-detail__review-card {
   padding: clamp(16px, 2.5vw, 22px);
   border: 1px solid var(--pd-border);
   border-radius: var(--pd-radius);
@@ -1138,8 +1138,8 @@
 }
 
 
-.review-card-heading,
-.review-author {
+.product-detail__review-card-heading,
+.product-detail__review-author {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1147,13 +1147,13 @@
 }
 
 
-.review-author {
+.product-detail__review-author {
   justify-content: flex-start;
   min-width: 0;
 }
 
 
-.review-avatar {
+.product-detail__review-avatar {
   display: grid;
   width: 42px;
   height: 42px;
@@ -1167,20 +1167,20 @@
 }
 
 
-.review-author h3 {
+.product-detail__review-author h3 {
   margin: 0;
   font-family: var(--pd-heading);
   font-size: 0.9rem;
 }
 
 
-.review-author div > span {
+.product-detail__review-author div > span {
   color: var(--pd-muted);
   font-size: 0.73rem;
 }
 
 
-.review-card > p {
+.product-detail__review-card > p {
   margin: 14px 0 0;
   color: var(--pd-text);
   font-size: 0.9rem;
@@ -1188,7 +1188,7 @@
 }
 
 
-.reviews-empty {
+.product-detail__reviews-empty {
   padding: 24px 12px;
   border: 1px dashed var(--pd-border);
   border-radius: 10px;
@@ -1212,60 +1212,60 @@
 
 
 @media (max-width: 600px) {
-  .product-tabs {
+  .product-detail__tabs {
     gap: clamp(20px, 8vw, 36px);
     margin-top: 40px;
   }
 
 
-  .product-tab {
+  .product-detail__tab {
     min-height: 48px;
     font-size: 0.9rem;
   }
 
 
-  .reviews-summary {
+  .product-detail__reviews-summary {
     grid-template-columns: minmax(0, 1fr);
     gap: 18px;
   }
 
 
-  .rating-breakdown {
+  .product-detail__rating-breakdown {
     width: 100%;
   }
 
 
-  .reviews-toolbar {
+  .product-detail__reviews-toolbar {
     align-items: stretch;
     flex-direction: column;
   }
 
 
-  .reviews-filter select,
-  .product-page .reviews-write-button {
+  .product-detail__reviews-filter select,
+  .product-page .product-detail__reviews-write {
     width: 100%;
   }
 
 
-  .review-card-heading {
+  .product-detail__review-card-heading {
     align-items: flex-start;
     flex-direction: column;
     gap: 8px;
   }
 
 
-  .product-page .review-form-actions .btn {
+  .product-page .product-detail__review-form-actions .btn {
     flex: 1 1 0;
   }
 }
 
 
 @media (prefers-reduced-motion: reduce) {
-  .product-tab,
-  .product-tab::after,
-  .product-tab-panel,
-  .rating-breakdown-track > span,
-  .review-rating-options label {
+  .product-detail__tab,
+  .product-detail__tab::after,
+  .product-detail__tab-panel,
+  .product-detail__rating-track > span,
+  .product-detail__review-rating-options label {
     animation: none;
     transition: none;
   }
