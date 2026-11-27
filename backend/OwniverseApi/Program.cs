@@ -1,13 +1,8 @@
 // =====================================================
 // OWNIVERSE - BACKEND API (ASP.NET Minimal API, .NET 10)
-// SQL Server là nguồn dữ liệu chính; các collection được nạp khi khởi động
-// để giữ các handler hiện tại, rồi ghi đồng bộ trong transaction sau request ghi.
-//
+
 // TẤT CẢ CÁC ENDPOINT ĐỀU NẰM TRONG FILE NÀY (Program.cs).
-// Các file AuthEndpoints.cs, UserEndpoints.cs, ArtistEndpoints.cs,
-// CommunityEndpoints.cs, AdminEndpoints.cs, CartOrderEndpoints.cs
-// tồn tại nhưng KHÔNG được gọi (không có MapAuthEndpoints, v.v. trong Program.cs).
-//
+
 // Các file của backend:
 //   Program.cs   - TẤT CẢ các API (file này)
 //   Model.cs     - kiểu dữ liệu (User, Artist, Product...)
