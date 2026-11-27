@@ -166,7 +166,7 @@ js/
 
 ---
 
-## 8. CÁM ĐỒ (KHÔNG ĐƯỢC LÀM)
+## 8. KHÔNG ĐƯỢC LÀM
 
 1. Không swallow exception trong `SaveAsync` hay repository.
 2. Không tạo dữ liệu giả hoặc gán ID ngẫu nhiên để vượt qua constraint.
