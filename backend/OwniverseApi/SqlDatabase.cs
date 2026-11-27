@@ -225,19 +225,34 @@ sealed class SqlDatabase(string connectionString)
         IReadOnlyDictionary<int, List<CartItem>> carts,
         IReadOnlyCollection<Order> orders)
     {
-        await saveLock.WaitAsync();
+        bool lockAcquired = false;
         try
         {
+            lockAcquired = await saveLock.WaitAsync(TimeSpan.FromSeconds(30));
+            if (!lockAcquired)
+                throw new TimeoutException("Could not acquire database save lock within 30 seconds.");
+
             await using var connection = new NpgsqlConnection(connectionString);
             await connection.OpenAsync();
             await using var transaction = await connection.BeginTransactionAsync();
             try
             {
                 await SaveUsersAsync(connection, transaction, users);
-                await SaveArtistsAsync(connection, transaction, artists);
+
+                var saveableArtists = artists.Where(a => a.UserId is not null).ToList();
+                await SaveArtistsAsync(connection, transaction, saveableArtists);
+
                 await SaveCategoriesAsync(connection, transaction, categories);
-                await SaveProductsAsync(connection, transaction, products);
-                await SaveCommunitiesAsync(connection, transaction, communities);
+
+                var saveableProducts = products.Where(p =>
+                    artists.Any(a => a.Id == p.ArtistId && a.UserId is not null) &&
+                    categories.Any(c => c.Id == p.CategoryId)).ToList();
+                await SaveProductsAsync(connection, transaction, saveableProducts);
+
+                var saveableCommunities = communities.Where(c =>
+                    artists.Any(a => a.Id == c.ArtistId && a.UserId is not null)).ToList();
+                await SaveCommunitiesAsync(connection, transaction, saveableCommunities);
+
                 await SaveResetTokensAsync(connection, transaction, passwordResetTokens);
                 await SaveCartsAsync(connection, transaction, carts);
                 await SaveOrdersAsync(connection, transaction, orders);
@@ -249,15 +264,17 @@ sealed class SqlDatabase(string connectionString)
                 await DeleteMissingAsync(connection, transaction, "users", "\"userid\"", users.Select(item => item.Id));
                 await transaction.CommitAsync();
             }
-            catch
+            catch (Exception ex)
             {
                 await transaction.RollbackAsync();
+                Console.WriteLine($"[SqlDatabase] SaveAsync failed and rolled back: {ex}");
                 throw;
             }
         }
         finally
         {
-            saveLock.Release();
+            if (lockAcquired)
+                saveLock.Release();
         }
     }
 
@@ -288,6 +305,7 @@ sealed class SqlDatabase(string connectionString)
     {
         foreach (var artist in artists)
         {
+            if (artist.UserId is null) continue; // Nghệ sĩ chưa liên kết tài khoản không lưu vào DB (cột userid là NOT NULL + UNIQUE + FK)
             var args = new
             {
                 artist.Id, artist.UserId, artist.Name, artist.Slug, Bio = artist.Description,

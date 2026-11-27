@@ -3,22 +3,29 @@
 // SQL Server là nguồn dữ liệu chính; các collection được nạp khi khởi động
 // để giữ các handler hiện tại, rồi ghi đồng bộ trong transaction sau request ghi.
 //
+// TẤT CẢ CÁC ENDPOINT ĐỀU NẰM TRONG FILE NÀY (Program.cs).
+// Các file AuthEndpoints.cs, UserEndpoints.cs, ArtistEndpoints.cs,
+// CommunityEndpoints.cs, AdminEndpoints.cs, CartOrderEndpoints.cs
+// tồn tại nhưng KHÔNG được gọi (không có MapAuthEndpoints, v.v. trong Program.cs).
+//
 // Các file của backend:
-//   Program.cs   - các API (file này)
+//   Program.cs   - TẤT CẢ các API (file này)
 //   Model.cs     - kiểu dữ liệu (User, Artist, Product...)
 //   SeedData.cs  - dữ liệu mẫu
 //   SqlDatabase.cs - nạp và lưu dữ liệu SQL Server
 //
-// Các phần trong file này (Ctrl + F tìm theo số):
-//   1. Dữ liệu nạp từ SQL Server
-//   2. Hàm hỗ trợ
-//   3. Tài khoản (đăng ký, đăng nhập, hồ sơ, đổi mật khẩu)a
-//   4. Nghệ sĩ (xem, theo dõi, nghệ sĩ tự sửa hồ sơ, admin thêm/sửa/xóa)
-//   5. Quản trị: tài khoản
-//   6. Quản trị: liên kết tài khoản nghệ sĩ
-//   7. Quản trị: danh mục
-//   8. Quản trị: sản phẩm và biến thể
-//   9. Phần của người 2
+// =====================================================
+// BẢNG MỤC LỤC CÁC NHÓM ENDPOINT (Ctrl + F tìm theo số):
+//   1. DỮ LIỆU NẠP TỪ SQL SERVER        (users, artists, categories, products, communities...)
+//   2. HÀM HỖ TRỢ                        (Msg, GetCurrentUser, CheckRole, PublicUser, CartView...)
+//   3. TÀI KHOẢN                         (POST /api/auth/register, login, forgot-password, reset-password, logout; GET/PUT /api/users/me)
+//   4. NGHỆ SĨ                           (GET/PUT /api/artists, follow, admin CRUD /api/artists)
+//   5. QUẢN TRỊ: TÀI KHOẢN               (/api/admin/users ...)
+//   6. QUẢN TRỊ: LIÊN KẾT TÀI KHOẢN NGHỆ SĨ   (/api/admin/artists/{id}/account)
+//   7. QUẢN TRỊ: DANH MỤC SẢN PHẨM       (/api/admin/categories ...)
+//   8. QUẢN TRỊ: SẢN PHẨM VÀ BIẾN THỂ   (/api/admin/products ...)
+//   9. PHẦN CỦA NGƯỜI B                  (/api/products công khai, /api/cart, /api/orders)
+//   Middleware lưu trạng thái vào SQL    (app.Use ... trước app.Run)
 // =====================================================
 
 using System.Collections.Concurrent;
@@ -26,7 +33,6 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Npgsql;
-using Npgsql.PostgresTypes;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls($"http://0.0.0.0:{Environment.GetEnvironmentVariable("PORT") ?? "8080"}");
@@ -466,6 +472,18 @@ IResult? AddVariant(Product p, VariantRequest vr)
 
 // =====================================================
 // 3. TÀI KHOẢN
+//
+// POST /api/auth/register      - Đăng ký tài khoản khách hàng (mã hóa mật khẩu, lưu vào SQL)
+// POST /api/auth/login         - Đăng nhập (khách hàng / nghệ sĩ / admin dùng chung), trả về token
+// POST /api/auth/forgot-password - Gửi link reset mật khẩu (chỉ demo: in ra console nếu Development)
+// POST /api/auth/reset-password- Đặt lại mật khẩu từ token
+// POST /api/auth/logout        - Hủy phiên hiện tại
+// GET  /api/auth/me            - Xem hồ sơ cá nhân (alias của /api/users/me)
+// GET  /api/users/me           - Xem hồ sơ cá nhân (cần đăng nhập)
+// GET  /api/users/me/orders    - Xem đơn hàng của mình
+// GET  /api/users/me/addresses - Xem địa chỉ của mình
+// PUT  /api/users/me           - Cập nhật họ tên / email / điện thoại
+// PUT  /api/users/me/password  - Đổi mật khẩu (cần mật khẩu cũ)
 // =====================================================
 
 // Đăng ký (luôn tạo tài khoản khách hàng)
@@ -678,6 +696,19 @@ app.MapPut("/api/users/me/password", async (HttpContext ctx, ChangePasswordReque
 
 // =====================================================
 // 4. NGHỆ SĨ
+//
+// GET  /api/artists                - Danh sách nghệ sĩ đang hoạt động
+// GET  /api/artists/me             - Hồ sơ nghệ sĩ của tài khoản đăng nhập (chỉ vai trò artist)
+// PUT  /api/artists/me             - Nghệ sĩ tự sửa hồ sơ của mình
+// GET  /api/artists/{key}          - Chi tiết 1 nghệ sĩ (theo slug hoặc id)
+// POST /api/artists/{id}/follow    - Tham gia cộng đồng nghệ sĩ (chỉ khách hàng)
+// DELETE /api/artists/{id}/follow  - Rời cộng đồng nghệ sĩ
+// GET  /api/users/me/following     - Danh sách nghệ sĩ đang theo dõi
+// POST /api/artists                - Admin tạo nghệ sĩ mới
+// PUT  /api/artists/{id}           - Admin sửa toàn bộ thông tin nghệ sĩ
+// PUT  /api/admin/artists/{id}/status - Admin ẩn/hiện nghệ sĩ
+// GET  /api/admin/artists          - Admin xem danh sách nghệ sĩ (kèm ghi chú)
+// DELETE /api/artists/{id}         - Admin xóa nghệ sĩ (chỉ khi không còn sản phẩm)
 // =====================================================
 
 // Danh sách nghệ sĩ (trang artist.html dùng)
@@ -1078,6 +1109,20 @@ app.MapDelete("/api/artists/{id:int}", IResult (int id, HttpContext ctx) =>
 // =====================================================
 // QUẢN TRỊ (ADMIN): mọi API bên dưới bắt đầu bằng /api/admin
 // và chỉ tài khoản có vai trò admin dùng được.
+//
+// 5. QUẢN TRỊ: TÀI KHOẢN
+//
+// GET    /api/admin/users              - Danh sách tài khoản (lọc: ?role, ?status, ?q)
+// GET    /api/admin/users/{id}         - Xem 1 tài khoản
+// POST   /api/admin/users              - Tạo tài khoản (customer / artist / admin)
+// PUT    /api/admin/users/{id}         - Sửa thông tin tài khoản (email, role, status...)
+// PUT    /api/admin/users/{id}/status  - Khóa / mở khóa tài khoản
+// PUT    /api/admin/users/{id}/password - Đặt lại mật khẩu cho tài khoản
+// DELETE /api/admin/users/{id}         - Xóa tài khoản (không xóa được admin cuối cùng)
+//
+// 6. QUẢN TRỊ: LIÊN KẾT TÀI KHOẢN NGHỆ SĨ
+//
+// PUT /api/admin/artists/{id}/account  - Gắn / gỡ liên kết tài khoản artist vào hồ sơ nghệ sĩ
 // =====================================================
 var admin = app.MapGroup("/api/admin");
 admin.MapGet("/communities", async (HttpContext ctx) =>
@@ -1238,10 +1283,6 @@ admin.MapDelete("/promotions/{id:int}", async Task<IResult> (int id, HttpContext
         return Msg(409, "Voucher đã được dùng trong đơn hàng nên không thể xóa");
     }
 });
-
-// =====================================================
-// 5. QUẢN TRỊ: TÀI KHOẢN
-// =====================================================
 
 // Danh sách tài khoản. Lọc tùy chọn: ?role=artist  ?status=locked  ?q=tu-khoa (tên, email, số điện thoại)
 admin.MapGet("/users", IResult (HttpContext ctx, string? role, string? status, string? q) =>
@@ -1429,11 +1470,6 @@ admin.MapDelete("/users/{id:int}", async Task<IResult> (int id, HttpContext ctx)
     return Msg(200, "Đã xóa tài khoản");
 });
 
-// =====================================================
-// 6. QUẢN TRỊ: LIÊN KẾT TÀI KHOẢN NGHỆ SĨ
-// (thêm / sửa / xóa nghệ sĩ dùng POST, PUT, DELETE /api/artists ở phần 4)
-// =====================================================
-
 // Gắn tài khoản (vai trò artist) vào hồ sơ nghệ sĩ. Gửi {"userId": 7}, hoặc {"userId": null} để gỡ liên kết.
 admin.MapPut("/artists/{id:int}/account", IResult (int id, HttpContext ctx, LinkArtistAccountRequest req) =>
 {
@@ -1461,6 +1497,38 @@ admin.MapPut("/artists/{id:int}/account", IResult (int id, HttpContext ctx, Link
 
 // =====================================================
 // 7. QUẢN TRỊ: DANH MỤC SẢN PHẨM
+//
+// GET    /api/admin/categories     - Danh sách danh mục (kèm số sản phẩm)
+// POST   /api/admin/categories     - Tạo danh mục mới
+// PUT    /api/admin/categories/{id}- Sửa tên / slug danh mục
+// DELETE /api/admin/categories/{id}- Xóa danh mục (chỉ khi không còn sản phẩm)
+//
+// 8. QUẢN TRỊ: SẢN PHẨM VÀ BIẾN THỂ (hàng hóa)
+//
+// Mỗi sản phẩm có ít nhất 1 biến thể; tồn kho nằm ở biến thể.
+// Sản phẩm có status "hidden" là đang ẩn: API công khai chỉ lấy "active".
+//
+// GET    /api/admin/products           - Danh sách sản phẩm (lọc: ?q, ?artistId, ?categoryId, ?status)
+// GET    /api/admin/products/{id}      - Xem 1 sản phẩm
+// POST   /api/admin/products           - Tạo sản phẩm (bắt buộc: name, price, artistId, categoryId)
+// PUT    /api/admin/products/{id}      - Sửa sản phẩm (chỉ trường gửi lên)
+// DELETE /api/admin/products/{id}      - Xóa sản phẩm (chỉ khi không còn trong giỏ/đơn)
+// POST   /api/admin/products/{id}/variants     - Thêm biến thể
+// PUT    /api/admin/products/{id}/variants/{variantId} - Sửa biến thể (cập nhật tồn kho)
+// DELETE /api/admin/products/{id}/variants/{variantId} - Xóa biến thể (phải còn ≥1 biến thể)
+//
+// 9. PHẦN CỦA NGƯỜI B: Sản phẩm (công khai) + Giỏ hàng + Đơn hàng
+//
+// GET  /api/products             - Danh sách sản phẩm công khai (chỉ active, có lọc/sắp xếp)
+// GET  /api/products/{id}        - Chi tiết sản phẩm công khai
+// GET  /api/cart                 - Xem giỏ hàng của mình (chỉ khách hàng)
+// POST /api/cart/items           - Thêm sản phẩm vào giỏ
+// PUT  /api/cart/items/{variantId}- Cập nhật số lượng trong giỏ
+// DELETE /api/cart/items/{variantId} - Xóa 1 sản phẩm khỏi giỏ
+// DELETE /api/cart               - Làm trống giỏ hàng
+// POST /api/orders               - Tạo đơn từ giỏ hàng (kiểm tra tồn kho, trừ tồn kho)
+// GET  /api/orders               - Danh sách đơn hàng của mình
+// GET  /api/orders/{id}          - Chi tiết đơn hàng (chỉ chủ đơn)
 // =====================================================
 
 // Danh sách danh mục (kèm số sản phẩm)
@@ -1532,13 +1600,6 @@ admin.MapDelete("/categories/{id:int}", IResult (int id, HttpContext ctx) =>
     categories.Remove(category);
     return Msg(200, "Đã xóa danh mục");
 });
-
-// =====================================================
-// 8. QUẢN TRỊ: SẢN PHẨM VÀ BIẾN THỂ (hàng hóa)
-//
-// Mỗi sản phẩm có ít nhất 1 biến thể; tồn kho nằm ở biến thể (ví dụ: Size M còn 5 cái).
-// Sản phẩm có status "hidden" là đang ẩn: API công khai của Người B (nếu có) nên chỉ lấy "active".
-// =====================================================
 
 // Danh sách sản phẩm. Lọc tùy chọn: ?q=tu-khoa  ?artistId=1  ?categoryId=2  ?status=hidden
 admin.MapGet("/products", IResult (HttpContext ctx, string? q, int? artistId, int? categoryId, string? status) =>
@@ -1700,11 +1761,6 @@ admin.MapDelete("/products/{id:int}/variants/{variantId:int}", IResult (int id, 
     }
     return Results.Ok(ProductView(product));
 });
-
-// =====================================================
-// 9. PHẦN CỦA NGƯỜI B: Sản phẩm (công khai) + Giỏ hàng + Đơn hàng
-// Các collection được nạp từ SQL Server và lưu trong transaction sau request ghi.
-// =====================================================
 
 // Danh sách sản phẩm công khai. Sản phẩm ẩn không được hiển thị hoặc đặt mua.
 app.MapGet("/api/products", IResult (

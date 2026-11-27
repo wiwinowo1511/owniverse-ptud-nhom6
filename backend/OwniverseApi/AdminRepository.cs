@@ -1,7 +1,7 @@
 using Dapper;
 using Npgsql;
 
-sealed class AdminRepository(string connectionString)
+public sealed class AdminRepository(string connectionString)
 {
     public async Task<string?> GetUserDeleteBlockReasonAsync(int userId, CancellationToken cancellationToken = default)
     {
@@ -218,7 +218,7 @@ await connection.ExecuteAsync(new CommandDefinition(
     }
 }
 
-sealed class AdminOrderRow
+public sealed class AdminOrderRow
 {
     public int Id { get; set; }
     public string Code { get; set; } = "";
@@ -230,7 +230,7 @@ sealed class AdminOrderRow
     public string Status { get; set; } = "pending";
 }
 
-sealed class AdminPromotionRow
+public sealed class AdminPromotionRow
 {
     public int Id { get; set; }
     public string Code { get; set; } = "";
@@ -246,7 +246,7 @@ sealed class AdminPromotionRow
     public string Release { get; set; } = "";
 }
 
-sealed class AdminPromotionWrite
+public sealed class AdminPromotionWrite
 {
     public string Code { get; init; } = "";
     public string Name { get; init; } = "";

@@ -13,7 +13,7 @@
 
 // Vai trò của tài khoản (bảng Users: Customer / Artist / Admin).
 // Đang dùng chữ thường để khớp với frontend; khi lên database nhớ so khớp cho đúng.
-static class Roles
+public static class Roles
 {
     public const string Customer = "customer";
     public const string Artist = "artist";
@@ -23,7 +23,7 @@ static class Roles
 sealed record SessionEntry(int UserId, DateTime LastActivityUtc);
 
 // ----- Tài khoản (bảng Users) -----
-class User
+public class User
 {
     public int Id { get; set; }
     public string FullName { get; set; } = "";
@@ -41,7 +41,7 @@ class User
 }
 
 // ----- Nghệ sĩ (bảng Artists và các bảng con) -----
-class Artist
+public class Artist
 {
 
     public string Status { get; set; } = "active";
@@ -66,14 +66,14 @@ class Artist
     public List<MusicVideo> MusicVideos { get; set; } = new();     // MV nổi bật
 }
 
-class SocialLinks
+public class SocialLinks
 {
     public string Youtube { get; set; } = "";
     public string Instagram { get; set; } = "";
     public string Tiktok { get; set; } = "";
 }
 
-class Promotion
+public class Promotion
 {
     public string Title { get; set; } = "";
     public string Description { get; set; } = "";
@@ -81,14 +81,14 @@ class Promotion
     public string Link { get; set; } = "";
 }
 
-class TimelineItem
+public class TimelineItem
 {
     public string Year { get; set; } = "";
     public string Title { get; set; } = "";
     public string Description { get; set; } = "";
 }
 
-class ArtistActivity
+public class ArtistActivity
 {
     public string Title { get; set; } = "";
     public string Type { get; set; } = "";
@@ -99,7 +99,7 @@ class ArtistActivity
     public string Link { get; set; } = "";
 }
 
-class MusicVideo
+public class MusicVideo
 {
     public string Title { get; set; } = "";
     public string Type { get; set; } = "";
@@ -109,14 +109,14 @@ class MusicVideo
 record Follow(int UserId, int ArtistId);
 
 // ----- Sản phẩm (bảng Categories, Products, ProductVariants, ProductImages) -----
-class Category
+public class Category
 {
     public int Id { get; set; }
     public string Slug { get; set; } = "";
     public string Name { get; set; } = "";
 }
 
-class Product
+public class Product
 {
     public int Id { get; set; }
     public string Name { get; set; } = "";
@@ -130,7 +130,7 @@ class Product
     public List<ProductVariant> Variants { get; set; } = new(); // TODO-DB: bảng ProductVariants
 }
 
-class ProductVariant
+public class ProductVariant
 {
     public int Id { get; set; }
     public string Sku { get; set; } = "";
@@ -138,13 +138,13 @@ class ProductVariant
     public int Stock { get; set; }                  // tồn kho
 }
 
-class CartItem
+public class CartItem
 {
     public int VariantId { get; set; }
     public int Quantity { get; set; }
 }
 
-class Order
+public class Order
 {
     public int Id { get; set; }
     public string Code { get; set; } = "";
@@ -160,7 +160,7 @@ class Order
     public List<OrderItem> Items { get; set; } = new();
 }
 
-class OrderItem
+public class OrderItem
 {
     public int VariantId { get; set; }
     public string ProductName { get; set; } = "";
@@ -211,7 +211,7 @@ record AdminPromotionRequest(
     string? Code, string? Name, string? Type, decimal? Value, decimal? MinimumOrder,
     int? UsageLimit, string? Start, string? End, string? Release);
 
-class PasswordResetToken
+public class PasswordResetToken
 {
     public Guid Id { get; set; }
     public int UserId { get; set; }
@@ -219,7 +219,7 @@ class PasswordResetToken
     public DateTime ExpiresAt { get; set; }
     public DateTime? UsedAt { get; set; }
 }
-class Community
+public class Community
 {
     public int Id { get; set; }
     public int ArtistId { get; set; } // UNIQUE theo ERD
@@ -228,13 +228,13 @@ class Community
     public string Avatar { get; set; } = "";
     public string Cover { get; set; } = "";
 }
-record CommunityMember(int CommunityId, int UserId);
+public record CommunityMember(int CommunityId, int UserId);
 
 record CommunityPostRequest(string? Section, string? Content, List<CommunityMediaRequest>? Media);
-record CommunityMediaRequest(string? MediaType, string? MediaUrl);
+public record CommunityMediaRequest(string? MediaType, string? MediaUrl);
 record CommunityCommentRequest(string? Content, int? ParentCommentId);
 
-class CommunityPostView
+public class CommunityPostView
 {
     public int PostId { get; set; }
     public int CommunityId { get; set; }
@@ -252,7 +252,7 @@ class CommunityPostView
     public List<CommunityMediaView> Media { get; set; } = new();
 }
 
-record CommunityMediaView(int MediaId, string MediaType, string MediaUrl, int SortOrder);
-record CommunityCommentView(
+public record CommunityMediaView(int MediaId, string MediaType, string MediaUrl, int SortOrder);
+public record CommunityCommentView(
     int CommentId, int PostId, int UserId, string AuthorName, int? ParentCommentId,
     string Content, DateTime CreatedAt, DateTime? UpdatedAt);

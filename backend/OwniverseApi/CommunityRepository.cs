@@ -1,7 +1,7 @@
 using Dapper;
 using Npgsql;
 
-sealed class CommunityRepository(string connectionString)
+public sealed class CommunityRepository(string connectionString)
 {
     public async Task<List<object>> GetCommunitiesAsync(int? userId, CancellationToken ct)
     {

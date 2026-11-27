@@ -1,7 +1,7 @@
 using Dapper;
 using Npgsql;
 
-sealed class UserRepository(string connectionString)
+public sealed class UserRepository(string connectionString)
 {
     public async Task<int> GetNextUserIdAsync(CancellationToken cancellationToken = default)
     {
@@ -311,9 +311,9 @@ public async Task<AccountOrdersSummary> GetAccountOrdersAsync(
     };
 }
 
-record AccountOrdersSummary(int TotalOrders, int ProcessingOrders, List<AccountOrder> RecentOrders);
-record AccountOrder(int OrderId, string OrderCode, DateTime CreatedAt, decimal TotalAmount, string OrderStatus);
-record AccountAddress(
+public record AccountOrdersSummary(int TotalOrders, int ProcessingOrders, List<AccountOrder> RecentOrders);
+public record AccountOrder(int OrderId, string OrderCode, DateTime CreatedAt, decimal TotalAmount, string OrderStatus);
+public record AccountAddress(
     int AddressId,
     string ReceiverName,
     string ReceiverPhone,
@@ -322,7 +322,7 @@ record AccountAddress(
     string? District,
     string City,
     bool IsDefault);
-record AccountCommunity(
+public record AccountCommunity(
     int CommunityId,
     int ArtistId,
     string Name,
